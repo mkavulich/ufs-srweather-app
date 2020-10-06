@@ -39,8 +39,7 @@ export CMAKE_CXX_COMPILER=mpicxx
 export CMAKE_Fortran_COMPILER=mpif90
 export CMAKE_Platform=cheyenne.intel
 
-git clone -b feature/cmake git@github.com:kgerheiser/ufs-srweather-app
-#git clone -b release/public-v1 git@github.com:ufs-community/ufs-srweather-app
+git clone -b release/public-v1 git@github.com:ufs-community/ufs-srweather-app
 
 cd ufs-srweather-app/
 ./manage_externals/checkout_externals
