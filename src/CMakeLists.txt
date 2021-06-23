@@ -5,6 +5,7 @@ ExternalProject_Add(UFS_UTILS
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/UFS_UTILS
   INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
   CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}"
+  BUILD_ALWAYS TRUE
   )
 
 if(NOT CCPP_SUITES)
@@ -24,6 +25,7 @@ ExternalProject_Add(ufs-weather-model
                "-D32BIT=ON"
                "-DAPP=ATM"
   INSTALL_COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/bin && cp ${CMAKE_CURRENT_BINARY_DIR}/ufs-weather-model/src/ufs-weather-model-build/ufs_model ${CMAKE_INSTALL_PREFIX}/bin/
+  BUILD_ALWAYS TRUE
   )
 
 ExternalProject_Add(EMC_post
@@ -31,4 +33,5 @@ ExternalProject_Add(EMC_post
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/EMC_post
   INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
   CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}"
+  BUILD_ALWAYS TRUE
   )
