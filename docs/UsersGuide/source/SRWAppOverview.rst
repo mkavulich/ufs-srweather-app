@@ -111,7 +111,7 @@ The following steps will build the pre-processing utilities, forecast model, and
 
 .. code-block:: console
 
-   make dir
+   mkdir build
    cd build
    cmake .. -DCMAKE_INSTALL_PREFIX=..
    make -j 4 >& build.out &
