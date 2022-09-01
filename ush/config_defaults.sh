@@ -207,7 +207,7 @@ CRON_RELAUNCH_INTVL_MNTS="03"
 # EXPT_BASEDIR:
 # The base directory in which the experiment directory will be created.  
 # If this is not specified or if it is set to an empty string, it will
-# default to ${HOMErrfs}/../expt_dirs.  
+# default to ${SR_WX_APP_TOP_DIR}/../expt_dirs.  
 #
 # EXPT_SUBDIR:
 # The name that the experiment directory (without the full path) will
@@ -519,7 +519,7 @@ WRITE_DOPOST="FALSE"
 # files under the '00' directory). The script to pull the CCPA data 
 # from the NOAA HPSS has an example of how to account for this as well
 # as organizing the data into a more intuitive format: 
-# regional_workflow/scripts/exregional_get_ccpa_files.sh. When a fix
+# scripts/exregional_get_ccpa_files.sh. When a fix
 # is provided, it will be accounted for in the
 # exregional_get_ccpa_files.sh script.
 #
@@ -548,9 +548,9 @@ WRITE_DOPOST="FALSE"
 # and rename the MRMS composite reflectivity file to match the valid
 # time of the forecast.  The script to pull the MRMS data from the NOAA 
 # HPSS has an example of the expected file naming structure: 
-# regional_workflow/scripts/exregional_get_mrms_files.sh. This script 
+# scripts/exregional_get_mrms_files.sh. This script 
 # calls the script used to identify the MRMS file closest to the valid 
-# time: regional_workflow/ush/mrms_pull_topofhour.py.
+# time: ush/mrms_pull_topofhour.py.
 #
 # NDAS_OBS_DIR:
 # User-specified location of top-level directory where NDAS prepbufr 
@@ -571,7 +571,7 @@ WRITE_DOPOST="FALSE"
 # month, and HH the 2-digit valid hour of the day. The script to pull 
 # the NDAS data from the NOAA HPSS has an example of how to rename the
 # NDAS data into a more intuitive format with the valid time listed in 
-# the file name: regional_workflow/scripts/exregional_get_ndas_files.sh
+# the file name: scripts/exregional_get_ndas_files.sh
 #
 #-----------------------------------------------------------------------
 #
@@ -1176,7 +1176,7 @@ WRTCMP_dy=""
 # commonly used set of grid-dependent parameters.  The predefined grid 
 # parameters are specified in the script 
 #
-#   $HOMErrfs/ush/set_predef_grid_params.py
+#   $SR_WX_APP_TOP_DIR/ush/set_predef_grid_params.py
 #
 #-----------------------------------------------------------------------
 #
