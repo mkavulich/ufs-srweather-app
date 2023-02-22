@@ -146,7 +146,7 @@ def update_expt_status(expt: dict, name: str, refresh: bool = False) -> dict:
         # of tuples containing the taskname, cycle, and state of each job respectively
         with closing(sqlite3.connect(rocoto_db)) as connection:
             with closing(connection.cursor()) as cur:
-                db = cur.execute('SELECT taskname,cycle,state from jobs').fetchall()
+                db = cur.execute('SELECT taskname,cycle,state,duration from jobs').fetchall()
     except:
         logging.warning(f"Unable to read database {rocoto_db}\nCan not track experiment {name}")
         expt["status"] = "ERROR"
