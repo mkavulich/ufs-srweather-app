@@ -70,6 +70,7 @@ task_run_MET_Pb2nc_obs:
     obs_or_fcst: obs
     OBTYPE: NDAS
     OBS_DIR: '&NDAS_OBS_DIR;'
+    MET_TOOL: 'PB2NC'
   dependency:
     and:
       datadep:
@@ -99,6 +100,7 @@ metatask_vx_ens_member:
         OBS_DIR: '&MRMS_OBS_DIR;'
         VAR: '#VAR#'
         ACCUM_HH: '01'
+        MET_TOOL: 'GRIDSTAT'
       walltime: 02:00:00
       dependency:
         and:
@@ -142,6 +144,7 @@ metatask_vx_ens_member:
         FHR: '#FCST_HR_LIST#'
         OBS_DIR: '&NDAS_OBS_DIR;'
         VAR: '#VAR#'
+        MET_TOOL: 'POINTSTAT'
       walltime: 01:00:00
       dependency:
         and:
@@ -181,6 +184,7 @@ metatask_GridStat_APCP_acc:
       obs_or_fcst: obs
       OBTYPE: CCPA
       OBS_DIR: '&CCPA_OBS_DIR;'
+      MET_TOOL: 'PCPCOMBINE'
     dependency:
       or:
         not:
@@ -211,6 +215,7 @@ metatask_GridStat_APCP_acc:
         obs_or_fcst: fcst
         OBTYPE: CCPA
         OBS_DIR: '&CCPA_OBS_DIR;'
+        MET_TOOL: 'PCPCOMBINE'
       dependency:
         or_do_post:
           <<: *post_files_exist
@@ -224,6 +229,7 @@ metatask_GridStat_APCP_acc:
         OBS_DIR: '&CCPA_OBS_DIR;'
         VAR: APCP
         ACCUM_HH: '#ACCUM_HR#'
+        MET_TOOL: 'GRIDSTAT'
       walltime: 02:00:00
       dependency:
         and:

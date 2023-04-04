@@ -35,6 +35,7 @@ metatask_EnsembleStat:
       ACCUM_HH: '01'
       OBS_DIR: '&MRMS_OBS_DIR;'
       VAR: '#VAR#'
+      MET_TOOL: 'ENSEMBLESTAT'
     dependency:
       metataskdep:
         attrs:
@@ -51,6 +52,7 @@ metatask_GridStat_ensprob:
       ACCUM_HH: '01'
       OBS_DIR: '&MRMS_OBS_DIR;'
       VAR: '#VAR#'
+      MET_TOOL: 'GRIDSTAT'
     dependency:
       taskdep:
         attrs:
@@ -69,6 +71,7 @@ metatask_EnsembleStat_acc:
       FHR: '#FCST_HR_LIST#'
       OBS_DIR: '&CCPA_OBS_DIR;'
       VAR: APCP
+      MET_TOOL: 'ENSEMBLESTAT'
     dependency:
       and:
         or_do_post: &post_files_exist
@@ -108,6 +111,7 @@ metatask_ensemble_vx_stats:
         FHR: '#FCST_HR_LIST#'
         OBS_DIR: '&CCPA_OBS_DIR;'
         VAR: APCP
+        MET_TOOL: 'GRIDSTAT'
       dependency:
         taskdep:
           attrs:
@@ -122,6 +126,7 @@ metatask_ensemble_vx_stats:
         <<: *default_vars
         OBS_DIR: '&NDAS_OBS_DIR;'
         VAR: '#VAR#'
+        MET_TOOL: 'POINTSTAT'
       dependency:
         taskdep:
           attrs:
@@ -137,6 +142,7 @@ metatask_EnsembleStat_point:
       <<: *default_vars
       OBS_DIR: '&NDAS_OBS_DIR;'
       VAR: '#VAR#'
+      MET_TOOL: 'ENSEMBLESTAT'
     dependency:
       metataskdep:
         attrs:
