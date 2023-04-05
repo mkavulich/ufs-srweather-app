@@ -302,7 +302,7 @@ else
   metplus_config_tmpl_fn="${FIELDNAME_IN_MET_FILEDIR_NAMES}"
 fi
 metplus_config_tmpl_fn="${metplus_tool_name}_${metplus_config_tmpl_fn}"
-metplus_config_fn="${metplus_tool_name}_${FIELDNAME_IN_MET_FILEDIR_NAMES}${USCORE_ENSMEM_NAME_OR_NULL}"
+metplus_config_fn="${metplus_tool_name}_${FIELDNAME_IN_MET_FILEDIR_NAMES}_mem${ENSMEM_INDX}"
 metplus_log_fn="${metplus_config_fn}"
 #
 # Add prefixes and suffixes (extensions) to the base file names.

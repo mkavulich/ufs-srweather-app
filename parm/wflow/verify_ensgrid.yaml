@@ -29,13 +29,14 @@ metatask_EnsembleStat:
     VAR: REFC RETOP
   task_run_MET_EnsembleStat_vx_#VAR#:
     <<: *default_task_verify_ens
-    command: '&LOAD_MODULES_RUN_TASK_FP; "run_vx" "&JOBSdir;/JREGIONAL_RUN_MET_ENSEMBLESTAT_VX_GRID"'
+    command: '&LOAD_MODULES_RUN_TASK_FP; "run_vx" "&JOBSdir;/JREGIONAL_RUN_MET_GENENSPROD_OR_ENSEMBLESTAT"'
     envars:
       <<: *default_vars
       ACCUM_HH: '01'
       OBS_DIR: '&MRMS_OBS_DIR;'
       VAR: '#VAR#'
       MET_TOOL: 'ENSEMBLESTAT'
+      OBTYPE: 'MRMS'
     dependency:
       metataskdep:
         attrs:
@@ -46,13 +47,14 @@ metatask_GridStat_ensprob:
     VAR: REFC RETOP
   task_run_MET_GridStat_vx_ensprob_#VAR#:
     <<: *default_task_verify_ens
-    command: '&LOAD_MODULES_RUN_TASK_FP; "run_vx" "&JOBSdir;/JREGIONAL_RUN_MET_GRIDSTAT_VX_ENSPROB"'
+    command: '&LOAD_MODULES_RUN_TASK_FP; "run_vx" "&JOBSdir;/JREGIONAL_RUN_MET_GRIDSTAT_OR_POINTSTAT_VX_ENSPROB"'
     envars:
       <<: *default_vars
       ACCUM_HH: '01'
       OBS_DIR: '&MRMS_OBS_DIR;'
       VAR: '#VAR#'
       MET_TOOL: 'GRIDSTAT'
+      OBTYPE: 'MRMS'
     dependency:
       taskdep:
         attrs:
@@ -72,6 +74,7 @@ metatask_EnsembleStat_acc:
       OBS_DIR: '&CCPA_OBS_DIR;'
       VAR: APCP
       MET_TOOL: 'ENSEMBLESTAT'
+      OBTYPE: 'CCPA'
     dependency:
       and:
         or_do_post: &post_files_exist
@@ -104,7 +107,7 @@ metatask_ensemble_vx_stats:
       FCST_HR_LIST: '{% for ah in [1, 3, 6, 24] %}{% if workflow.FCST_LEN_HRS >= ah %}{% for h in range(ah, workflow.FCST_LEN_HRS+1, ah) %}{{ "%02d," % h  }}{% endfor %}{% endif %} {% endfor %}'
     task_run_MET_GridStat_vx_ens#statlc#_APCP#ACCUM_HR#h:
       <<: *default_task_verify_ens
-      command: '&LOAD_MODULES_RUN_TASK_FP; "run_vx" "&JOBSdir;/JREGIONAL_RUN_MET_GRIDSTAT_VX_ENS#stat#"'
+      command: '&LOAD_MODULES_RUN_TASK_FP; "run_vx" "&JOBSdir;/JREGIONAL_RUN_MET_GRIDSTAT_OR_POINTSTAT_VX_ENS#stat#"'
       envars:
         <<: *default_vars
         ACCUM_HH: '#ACCUM_HR#'
@@ -112,6 +115,7 @@ metatask_ensemble_vx_stats:
         OBS_DIR: '&CCPA_OBS_DIR;'
         VAR: APCP
         MET_TOOL: 'GRIDSTAT'
+        OBTYPE: 'CCPA'
       dependency:
         taskdep:
           attrs:
@@ -127,6 +131,8 @@ metatask_ensemble_vx_stats:
         OBS_DIR: '&NDAS_OBS_DIR;'
         VAR: '#VAR#'
         MET_TOOL: 'POINTSTAT'
+        OBTYPE: 'NDAS'
+        ACCUM_HH: '01'
       dependency:
         taskdep:
           attrs:
@@ -143,6 +149,8 @@ metatask_EnsembleStat_point:
       OBS_DIR: '&NDAS_OBS_DIR;'
       VAR: '#VAR#'
       MET_TOOL: 'ENSEMBLESTAT'
+      OBTYPE: 'NDAS'
+      ACCUM_HH: '01'
     dependency:
       metataskdep:
         attrs:

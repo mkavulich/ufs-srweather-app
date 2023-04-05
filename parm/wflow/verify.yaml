@@ -94,13 +94,14 @@ metatask_vx_ens_member:
       VAR: REFC RETOP
     task_run_MET_GridStat_vx_#VAR#_mem#mem#:
       <<: *default_task
-      command: '&LOAD_MODULES_RUN_TASK_FP; "run_vx" "&JOBSdir;/JREGIONAL_RUN_MET_GRIDSTAT_VX"'
+      command: '&LOAD_MODULES_RUN_TASK_FP; "run_vx" "&JOBSdir;/JREGIONAL_RUN_MET_GENENSPROD_OR_ENSEMBLESTAT"'
       envars:
         <<: *default_vars
         OBS_DIR: '&MRMS_OBS_DIR;'
         VAR: '#VAR#'
         ACCUM_HH: '01'
         MET_TOOL: 'GRIDSTAT'
+        OBTYPE: 'MRMS'
       walltime: 02:00:00
       dependency:
         and:
@@ -145,6 +146,8 @@ metatask_vx_ens_member:
         OBS_DIR: '&NDAS_OBS_DIR;'
         VAR: '#VAR#'
         MET_TOOL: 'POINTSTAT'
+        OBTYPE: 'NDAS'
+        ACCUM_HH: '01'
       walltime: 01:00:00
       dependency:
         and:
@@ -222,7 +225,7 @@ metatask_GridStat_APCP_acc:
 
     task_run_MET_GridStat_vx_APCP#ACCUM_HR#h_mem#mem#:
       <<: *default_task
-      command: '&LOAD_MODULES_RUN_TASK_FP; "run_vx" "&JOBSdir;/JREGIONAL_RUN_MET_GRIDSTAT_VX"'
+      command: '&LOAD_MODULES_RUN_TASK_FP; "run_vx" "&JOBSdir;/JREGIONAL_RUN_MET_GENENSPROD_OR_ENSEMBLESTAT"'
       envars:
         <<: *default_vars
         FHR: '#FCST_HR_LIST#'
@@ -230,6 +233,7 @@ metatask_GridStat_APCP_acc:
         VAR: APCP
         ACCUM_HH: '#ACCUM_HR#'
         MET_TOOL: 'GRIDSTAT'
+        OBTYPE: 'CCPA'
       walltime: 02:00:00
       dependency:
         and:
