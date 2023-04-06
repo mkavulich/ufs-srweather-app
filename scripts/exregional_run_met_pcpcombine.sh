@@ -134,10 +134,9 @@ fi
 #
 #-----------------------------------------------------------------------
 #
-vx_fcst_input_basedir=$( eval echo "${VX_FCST_INPUT_BASEDIR}" )
+vx_fcst_input_basedir=$( eval echo "${VX_FCST_INPUT_DIR}" )
 vx_output_basedir=$( eval echo "${VX_OUTPUT_BASEDIR}" )
 if [ "${RUN_ENVIR}" = "nco" ]; then
-  slash_cdate_ensmem_subdir_or_null=""
   if [[ ${DO_ENSEMBLE} == "TRUE" ]]; then
     ENSMEM=$( echo ${SLASH_ENSMEM_SUBDIR_OR_NULL} | cut -d"/" -f2 )
     DOT_ENSMEM_OR_NULL=".$ENSMEM"
@@ -145,7 +144,6 @@ if [ "${RUN_ENVIR}" = "nco" ]; then
     DOT_ENSMEM_OR_NULL=""
   fi
 else
-  slash_cdate_ensmem_subdir_or_null="/${CDATE}${SLASH_ENSMEM_SUBDIR_OR_NULL}"
   DOT_ENSMEM_OR_NULL=""
 fi
 

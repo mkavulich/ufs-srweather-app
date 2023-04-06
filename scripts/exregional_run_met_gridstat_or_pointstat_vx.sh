@@ -170,10 +170,9 @@ fi
 #
 #-----------------------------------------------------------------------
 #
-vx_fcst_input_basedir=$( eval echo "${VX_FCST_INPUT_BASEDIR}" )
+vx_fcst_input_basedir=$( eval echo "${VX_FCST_INPUT_DIR}" )
 vx_output_basedir=$( eval echo "${VX_OUTPUT_BASEDIR}" )
 if [ "${RUN_ENVIR}" = "nco" ]; then
-  slash_cdate_ensmem_subdir_or_null=""
   if [[ ${DO_ENSEMBLE} == "TRUE" ]]; then
     ENSMEM=$( echo ${SLASH_ENSMEM_SUBDIR_OR_NULL} | cut -d"/" -f2 )
     DOT_ENSMEM_OR_NULL=".$ENSMEM"
@@ -181,17 +180,15 @@ if [ "${RUN_ENVIR}" = "nco" ]; then
     DOT_ENSMEM_OR_NULL=""
   fi
 else
-  slash_cdate_ensmem_subdir_or_null="/${CDATE}${SLASH_ENSMEM_SUBDIR_OR_NULL}"
   DOT_ENSMEM_OR_NULL=""
 fi
-
 if [ "${grid_or_point}" = "grid" ]; then
 
   OBS_INPUT_FN_TEMPLATE=""
   if [ "${field_is_APCPgt01h}" = "TRUE" ]; then
     OBS_INPUT_DIR="${vx_output_basedir}/metprd/PcpCombine_obs"
     OBS_INPUT_FN_TEMPLATE=$( eval echo ${OBS_CCPA_APCPgt01h_FN_TEMPLATE} )
-    FCST_INPUT_DIR="${vx_output_basedir}${slash_cdate_ensmem_subdir_or_null}/metprd/PcpCombine_fcst"
+    FCST_INPUT_DIR="${vx_output_basedir}/${CDATE}/mem${ENSMEM_INDX}/metprd/PcpCombine_fcst"
     FCST_INPUT_FN_TEMPLATE=$( eval echo ${FCST_FN_METPROC_TEMPLATE} )
   else
     OBS_INPUT_DIR="${OBS_DIR}"
@@ -208,7 +205,7 @@ if [ "${grid_or_point}" = "grid" ]; then
     esac
     OBS_INPUT_FN_TEMPLATE=$( eval echo ${OBS_INPUT_FN_TEMPLATE} )
     FCST_INPUT_DIR="${vx_fcst_input_basedir}"
-    FCST_INPUT_FN_TEMPLATE=$( eval echo ${FCST_SUBDIR_TEMPLATE:+${FCST_SUBDIR_TEMPLATE}/}${FCST_FN_TEMPLATE} )
+    FCST_INPUT_FN_TEMPLATE=$( eval echo ${FCST_FN_TEMPLATE} )
   fi
 
 elif [ "${grid_or_point}" = "point" ]; then
@@ -216,11 +213,11 @@ elif [ "${grid_or_point}" = "point" ]; then
   OBS_INPUT_DIR="${vx_output_basedir}/metprd/Pb2nc_obs"
   OBS_INPUT_FN_TEMPLATE=$( eval echo ${OBS_NDAS_SFCorUPA_FN_METPROC_TEMPLATE} )
   FCST_INPUT_DIR="${vx_fcst_input_basedir}"
-  FCST_INPUT_FN_TEMPLATE=$( eval echo ${FCST_SUBDIR_TEMPLATE:+${FCST_SUBDIR_TEMPLATE}/}${FCST_FN_TEMPLATE} )
+  FCST_INPUT_FN_TEMPLATE=$( eval echo ${FCST_FN_TEMPLATE} )
 
 fi
 
-OUTPUT_BASE="${vx_output_basedir}${slash_cdate_ensmem_subdir_or_null}"
+OUTPUT_BASE="${vx_output_basedir}/_mem${ENSMEM_INDX}"
 OUTPUT_DIR="${OUTPUT_BASE}/metprd/${metplus_tool_name}"
 STAGING_DIR="${OUTPUT_BASE}/stage/${FIELDNAME_IN_MET_FILEDIR_NAMES}"
 #

@@ -94,7 +94,7 @@ metatask_vx_ens_member:
       VAR: REFC RETOP
     task_run_MET_GridStat_vx_#VAR#_mem#mem#:
       <<: *default_task
-      command: '&LOAD_MODULES_RUN_TASK_FP; "run_vx" "&JOBSdir;/JREGIONAL_RUN_MET_GENENSPROD_OR_ENSEMBLESTAT"'
+      command: '&LOAD_MODULES_RUN_TASK_FP; "run_vx" "&JOBSdir;/JREGIONAL_RUN_MET_GRIDSTAT_OR_POINTSTAT_VX"'
       envars:
         <<: *default_vars
         OBS_DIR: '&MRMS_OBS_DIR;'
@@ -139,7 +139,7 @@ metatask_vx_ens_member:
       VAR: SFC UPA
     task_run_MET_PointStat_vx_#VAR#_mem#mem#:
       <<: *default_task
-      command: '&LOAD_MODULES_RUN_TASK_FP; "run_vx" "&JOBSdir;/JREGIONAL_RUN_MET_POINTSTAT_VX"'
+      command: '&LOAD_MODULES_RUN_TASK_FP; "run_vx" "&JOBSdir;/JREGIONAL_RUN_MET_GRIDSTAT_OR_POINTSTAT_VX"'
       envars:
         <<: *default_vars
         FHR: '#FCST_HR_LIST#'
@@ -225,7 +225,7 @@ metatask_GridStat_APCP_acc:
 
     task_run_MET_GridStat_vx_APCP#ACCUM_HR#h_mem#mem#:
       <<: *default_task
-      command: '&LOAD_MODULES_RUN_TASK_FP; "run_vx" "&JOBSdir;/JREGIONAL_RUN_MET_GENENSPROD_OR_ENSEMBLESTAT"'
+      command: '&LOAD_MODULES_RUN_TASK_FP; "run_vx" "&JOBSdir;/JREGIONAL_RUN_MET_GRIDSTAT_OR_POINTSTAT_VX"'
       envars:
         <<: *default_vars
         FHR: '#FCST_HR_LIST#'

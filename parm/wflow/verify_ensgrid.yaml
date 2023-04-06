@@ -37,6 +37,7 @@ metatask_EnsembleStat:
       VAR: '#VAR#'
       MET_TOOL: 'ENSEMBLESTAT'
       OBTYPE: 'MRMS'
+      ENSMEM_INDX: '#mem#'
     dependency:
       metataskdep:
         attrs:
@@ -125,7 +126,7 @@ metatask_ensemble_vx_stats:
       VAR: SFC UPA
     task_run_MET_PointStat_vx_ens#statlc#_#VAR#:
       <<: *default_task_verify_ens
-      command: '&LOAD_MODULES_RUN_TASK_FP; "run_vx" "&JOBSdir;/JREGIONAL_RUN_MET_POINTSTAT_VX_ENS#stat#"'
+      command: '&LOAD_MODULES_RUN_TASK_FP; "run_vx" "&JOBSdir;/JREGIONAL_RUN_MET_GRIDSTAT_OR_POINTSTAT_VX_ENS#stat#"'
       envars:
         <<: *default_vars
         OBS_DIR: '&NDAS_OBS_DIR;'
@@ -143,7 +144,7 @@ metatask_EnsembleStat_point:
     VAR: SFC UPA
   task_run_MET_EnsembleStat_vx_#VAR#:
     <<: *default_task_verify_ens
-    command: '&LOAD_MODULES_RUN_TASK_FP; "run_vx" "&JOBSdir;/JREGIONAL_RUN_MET_ENSEMBLESTAT_VX_POINT"'
+    command: '&LOAD_MODULES_RUN_TASK_FP; "run_vx" "&JOBSdir;/JREGIONAL_RUN_MET_GENENSPROD_OR_ENSEMBLESTAT"'
     envars:
       <<: *default_vars
       OBS_DIR: '&NDAS_OBS_DIR;'
