@@ -47,7 +47,11 @@ rocoto:
     metatask_EnsembleStat_point:
       task_run_MET_EnsembleStat_vx_#VAR#:
         dependency:
-
+          and:
+            metataskdep:
+            taskdep:
+              attrs:
+                task: run_MET_Pb2nc_obs
 
 
 global:

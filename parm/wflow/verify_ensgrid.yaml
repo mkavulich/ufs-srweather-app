@@ -153,6 +153,10 @@ metatask_EnsembleStat_point:
       OBTYPE: 'NDAS'
       ACCUM_HH: '01'
     dependency:
-      metataskdep:
-        attrs:
-          metatask: run_ens_post
+      and:
+        metataskdep:
+          attrs:
+            metatask: run_ens_post
+        taskdep:
+          attrs:
+            task: run_MET_Pb2nc_obs
