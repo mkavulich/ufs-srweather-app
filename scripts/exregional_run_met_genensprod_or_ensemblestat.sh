@@ -214,15 +214,15 @@ for (( i=0; i<${NUM_ENS_MEMBERS}; i++ )); do
   time_lag=$( bc -l <<< "${ENS_TIME_LAG_HRS[$i]}*${SECS_PER_HOUR}" )
 
   if [ "${RUN_ENVIR}" = "nco" ]; then
-    DOT_ENSMEM_OR_NULL=".mem${mem_indx_fmt}"
+    cdate_ensmem_subdir_or_null=""
   else
-    DOT_ENSMEM_OR_NULL=""
+    cdate_ensmem_subdir_or_null="${CDATE}/mem${mem_indx_fmt}"
   fi
 
   if [ "${field_is_APCPgt01h}" = "TRUE" ]; then
-    template="mem${ENSMEM_INDX}/metprd/PcpCombine_fcst/${FCST_FN_METPROC_TEMPLATE}"
+    template="${cdate_ensmem_subdir_or_null}/metprd/PcpCombine_fcst/${FCST_FN_METPROC_TEMPLATE}"
   else
-    template="${FCST_FN_TEMPLATE}"
+    template="${CDATE}/mem${mem_indx_fmt}/postprd/${FCST_FN_TEMPLATE}"
   fi
 
   if [ -z "${FCST_INPUT_FN_TEMPLATE}" ]; then
