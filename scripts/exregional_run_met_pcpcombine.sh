@@ -165,7 +165,7 @@ if [ "${obs_or_fcst}" = "obs" ]; then
 elif [ "${obs_or_fcst}" = "fcst" ]; then
 
   FCST_INPUT_DIR="$( eval echo ${vx_fcst_input_basedir})"
-  FCST_INPUT_FN_TEMPLATE=$( eval echo ${CDATE}/mem${ENSMEM_INDX}/postprd/${FCST_FN_TEMPLATE} )
+  FCST_INPUT_FN_TEMPLATE=$( eval echo ${CDATE}${SLASH_ENSMEM_SUBDIR}/postprd/${FCST_FN_TEMPLATE} )
 
   OUTPUT_BASE="${VX_OUTPUT_BASEDIR}/${CDATE}/mem${ENSMEM_INDX}"
   OUTPUT_DIR="${OUTPUT_BASE}/metprd/${metplus_tool_name}_fcst"
