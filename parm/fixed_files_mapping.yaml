@@ -113,6 +113,7 @@ fixed_files:
   "global_tg3clim.2.6x1.5.grb",
   "global_solarconstant_noaa_an.txt",
   "global_albedo4.1x1.grb",
+  "geo_em.d01.nc_RAPX",
   "geo_em.d01.lat-lon.2.5m.HGT_M.nc",
   "HGT.Beljaars_filtered.lat-lon.30s_res.nc",
   "replace_with_FIXgsm_ozone_prodloss_filename"

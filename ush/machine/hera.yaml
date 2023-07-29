@@ -31,7 +31,7 @@ platform:
   FIXgsm: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/fix/fix_am
   FIXlut: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/fix/fix_lut
   FIXorg: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/fix/fix_orog
-  FIXsfc: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/fix/fix_sfc_climo
+  FIXsfc: /scratch1/NCEPDEV/global/glopara/fix/sfc_climo/20221017/
   FIXshp: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/NaturalEarth
   EXTRN_MDL_DATA_STORES: hpss aws nomads
 

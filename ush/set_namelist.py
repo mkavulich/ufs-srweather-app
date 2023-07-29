@@ -38,6 +38,12 @@ Examples
 
     set_namelist.py -h
 
+  To produce a namelist (fv3_expt.nml) that updates an existing namelist input.nml
+  to specify 'mosaic_soil=0' under namelist section '&gfs_physics_nml':
+
+    set_namelist.py -n input.nml -u '{ gfs_physics_nml: { mosaic_soil: 0 } }'
+        -o input.nml
+
   To produce a namelist (fv3_expt.nml) by specifying a physics package:
 
     set_namelist.py -n ../parm/input.nml.FV3 -c ../parm/FV3.input.yml FV3_HRRR

@@ -80,25 +80,42 @@ cd_vrfy $DATA
 #
 #-----------------------------------------------------------------------
 #
-cat << EOF > ./fort.41
-&config
-input_facsf_file="${FIXsfc}/facsf.1.0.nc"
-input_substrate_temperature_file="${FIXsfc}/substrate_temperature.2.6x1.5.nc"
-input_maximum_snow_albedo_file="${FIXsfc}/maximum_snow_albedo.0.05.nc"
-input_snowfree_albedo_file="${FIXsfc}/snowfree_albedo.4comp.0.05.nc"
-input_slope_type_file="${FIXsfc}/slope_type.1.0.nc"
-input_soil_type_file="${FIXsfc}/soil_type.statsgo.0.05.nc"
-input_vegetation_type_file="${FIXsfc}/vegetation_type.igbp.0.05.nc"
-input_vegetation_greenness_file="${FIXsfc}/vegetation_greenness.0.144.nc"
-mosaic_file_mdl="${FIXlam}/${CRES}${DOT_OR_USCORE}mosaic.halo${NH4}.nc"
-orog_dir_mdl="${FIXlam}"
-orog_files_mdl="${CRES}${DOT_OR_USCORE}oro_data.tile${TILE_RGNL}.halo${NH4}.nc"
-halo=${NH4}
-maximum_snow_albedo_method="bilinear"
-snowfree_albedo_method="bilinear"
-vegetation_greenness_method="bilinear"
-/
-EOF
+sfc_climo_gen_nml='fort.41'
+  settings="
+config: {
+    input_facsf_file: ${FIXsfc}/facsf.1.0.nc,
+    input_substrate_temperature_file: ${FIXsfc}/substrate_temperature.2.6x1.5.nc,
+    input_maximum_snow_albedo_file: ${FIXsfc}/maximum_snow_albedo.0.05.nc,
+    input_snowfree_albedo_file: ${FIXsfc}/snowfree_albedo.4comp.0.05.nc,
+    input_slope_type_file: ${FIXsfc}/slope_type.1.0.nc,
+    input_soil_type_file: ${FIXsfc}/soil_type.statsgo.0.05.nc,
+    input_vegetation_type_file: ${FIXsfc}/vegetation_type.igbp.0.05.nc,
+    input_vegetation_greenness_file: ${FIXsfc}/vegetation_greenness.0.144.nc,
+    mosaic_file_mdl: ${FIXlam}/${CRES}${DOT_OR_USCORE}mosaic.halo${NH4}.nc,
+    orog_dir_mdl: ${FIXlam},
+    orog_files_mdl: ${CRES}${DOT_OR_USCORE}oro_data.tile${TILE_RGNL}.halo${NH4}.nc,
+    halo: ${NH4},
+    maximum_snow_albedo_method: bilinear,
+    snowfree_albedo_method: bilinear,
+    vegetation_greenness_method: bilinear,
+    fract_vegsoil_type: ${VEGSOILT_FRAC}
+ }
+"
+#
+# Call the python script to create the namelist file.
+#
+  ${USHdir}/set_namelist.py -u "$settings" -o ${sfc_climo_gen_nml} || \
+    print_err_msg_exit "\
+Call to python script set_namelist.py to set the variables in the
+regional_esg_grid namelist file failed.  Parameters passed to this script
+are:
+  Namelist file:
+    sfc_climo_gen_nml = \"${sfc_climo_gen_nml}\"
+  Namelist settings specified on command line (these have highest precedence):
+    settings =
+$settings"
+
+
 #
 #-----------------------------------------------------------------------
 #

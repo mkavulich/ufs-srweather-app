@@ -8,7 +8,7 @@
 #-----------------------------------------------------------------------
 #
 . $USHdir/source_util_funcs.sh
-source_config_for_task "task_run_fcst|task_run_post|task_get_extrn_ics|task_get_extrn_lbcs" ${GLOBAL_VAR_DEFNS_FP}
+source_config_for_task "task_make_sfc_climo|task_run_fcst|task_run_post|task_get_extrn_ics|task_get_extrn_lbcs" ${GLOBAL_VAR_DEFNS_FP}
 #
 #-----------------------------------------------------------------------
 #
@@ -569,6 +569,24 @@ for the current cycle's (cdate) run directory (DATA) failed:
     create_symlink_to_file target="$target" symlink="$symlink" relative="${relative_link_flag}"
   done
   cd_vrfy ${DATA}   
+fi
+#-----------------------------------------------------------------------
+#
+# If not using new fractional soil/vegetation, need to make sure these
+# variables are set to 0
+#
+#-----------------------------------------------------------------------
+if [ "${VEGSOILT_FRAC}" = "FALSE" ]; then
+  settings='{ gfs_physics_nml: { mosaic_soil: 0, mosaic_lu: 0 } }'
+  #
+  # Call the python script to update the namelist file.
+  #
+  ${USHdir}/set_namelist.py -q -n ${DATA}/${FV3_NML_FN} -u "$settings" -o ${DATA}/${FV3_NML_FN} || \
+    print_err_msg_exit "\
+  Call to python script set_namelist.py to set the variables in the
+  regional_esg_grid namelist file failed.  The failed command was:
+    ${USHdir}/set_namelist.py -q -n ${DATA}/${FV3_NML_FN} -u "$settings" -o ${DATA}/${FV3_NML_FN}
+  "
 fi
 #
 #-----------------------------------------------------------------------

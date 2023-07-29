@@ -1260,6 +1260,7 @@ task_make_sfc_climo:
   OMP_NUM_THREADS_MAKE_SFC_CLIMO: 1
   OMP_STACKSIZE_MAKE_SFC_CLIMO: "1024m"
   SFC_CLIMO_DIR: '{{ [workflow.EXPTDIR, "sfc_climo"]|path_join if rocoto.tasks.get("task_make_sfc_climo") else "" }}'
+  VEGSOILT_FRAC: False
 
 #----------------------------
 # EXTRN ICS config parameters

@@ -99,8 +99,8 @@ FV3_HRRR:
     iems: 2
     isncond_opt: 2
     isncovr_opt: 3
-    mosaic_lu: 0
-    mosaic_soil: 0
+    mosaic_lu: 1
+    mosaic_soil: 1
     thsfc_loc: False
     nst_anl:
     nstf_name:
