@@ -72,6 +72,7 @@ task_run_fcst:
   DO_FCST_RESTART: false
 task_run_post:
   POST_OUTPUT_DOMAIN_NAME: 793
+  POSTXCONFIG_FP: '{{ [user.PARMdir, "upp"]|path_join }}/postxconfig-NT-AQM.txt'
 global:
   DO_ENSEMBLE: false
   NUM_ENS_MEMBERS: 2

@@ -1022,35 +1022,33 @@ def setup(USHdir, user_config_fn="config.yaml", debug: bool = False):
     # -----------------------------------------------------------------------
     #
 
-    # If using a custom post configuration file, make sure that it exists.
+    # Check that post configuration file exists
     post_config = expt_config["task_run_post"]
-    if post_config.get("USE_CUSTOM_POST_CONFIG_FILE"):
-        custom_post_config_fp = post_config.get("CUSTOM_POST_CONFIG_FP")
-        try:
-            # os.path.exists returns exception if passed None, so use
-            # "try/except" to catch it and the non-existence of a
-            # provided path
-            if not os.path.exists(custom_post_config_fp):
-                raise FileNotFoundError(
-                    dedent(
-                        f"""
-                    USE_CUSTOM_POST_CONFIG_FILE has been set, but the custom post configuration file
-                    CUSTOM_POST_CONFIG_FP = {custom_post_config_fp}
-                    could not be found."""
-                    )
-                ) from None
-        except TypeError:
-            raise TypeError(
+    post_config_fp = post_config["POSTXCONFIG_FP"]
+    try:
+        # os.path.exists returns exception if passed None, so use
+        # "try/except" to catch it and the non-existence of a
+        # provided path
+        if not os.path.exists(post_config_fp):
+            raise FileNotFoundError(
                 dedent(
                     f"""
-                USE_CUSTOM_POST_CONFIG_FILE has been set, but the custom
-                post configuration file path (CUSTOM_POST_CONFIG_FP) is
-                None.
-                """
+                    The post configuration file
+                    POSTXCONFIG_FP = {post_config_fp}
+                    could not be found."""
                 )
             ) from None
-        except FileNotFoundError:
-            raise
+    except TypeError:
+        raise TypeError(
+            dedent(
+                f"""
+                The post configuration file
+                POSTXCONFIG_FP = {post_config_fp}
+                could not be found."""
+            )
+        ) from None
+    except FileNotFoundError:
+        raise
 
     # If using external CRTM fix files to allow post-processing of synthetic
     # satellite products from the UPP, make sure the CRTM fix file directory exists.

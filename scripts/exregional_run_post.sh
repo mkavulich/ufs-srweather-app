@@ -82,31 +82,16 @@ fi
 #
 rm_vrfy -f fort.*
 cp_vrfy ${PARMdir}/upp/nam_micro_lookup.dat ./eta_micro_lookup.dat
-if [ ${USE_CUSTOM_POST_CONFIG_FILE} = "TRUE" ]; then
-  post_config_fp="${CUSTOM_POST_CONFIG_FP}"
-  print_info_msg "
+post_config_fp="${POSTXCONFIG_FP}"
+print_info_msg "
 ====================================================================
-Copying the user-defined post flat file specified by CUSTOM_POST_CONFIG_FP
-to the temporary work directory (DATA_FHR):
-  CUSTOM_POST_CONFIG_FP = \"${CUSTOM_POST_CONFIG_FP}\"
-  DATA_FHR = \"${DATA_FHR}\"
-===================================================================="
-else
-  if [ "${CPL_AQM}" = "TRUE" ]; then
-    post_config_fp="${PARMdir}/upp/postxconfig-NT-AQM.txt"
-  else
-    post_config_fp="${PARMdir}/upp/postxconfig-NT-fv3lam.txt"
-  fi
-  print_info_msg "
-====================================================================
-Copying the default post flat file specified by post_config_fp to the 
+Copying the post flat file specified by POSTXCONFIG_FP to the 
 temporary work directory (DATA_FHR):
-  post_config_fp = \"${post_config_fp}\"
+  POSTXCONFIG_FP = \"${POSTXCONFIG_FP}\"
   DATA_FHR = \"${DATA_FHR}\"
 ===================================================================="
-fi
-cp_vrfy ${post_config_fp} ./postxconfig-NT.txt
-cp_vrfy ${PARMdir}/upp/params_grib2_tbl_new .
+cp ${post_config_fp} ./postxconfig-NT.txt
+cp ${PARMdir}/upp/params_grib2_tbl_new .
 if [ ${USE_CRTM} = "TRUE" ]; then
   cp_vrfy ${CRTM_DIR}/fix/EmisCoeff/IR_Water/Big_Endian/Nalli.IRwater.EmisCoeff.bin ./
   cp_vrfy ${CRTM_DIR}/fix/EmisCoeff/MW_Water/Big_Endian/FAST*.bin ./
