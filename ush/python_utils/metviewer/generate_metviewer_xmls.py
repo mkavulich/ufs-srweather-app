@@ -218,8 +218,42 @@ if __name__ == "__main__":
                           required=False, default='mv_gefs_gdas_rtps_href_spring_2022', 
                           help='Name of METViewer database')
 
+    required.add_argument('--metviewer_host',
+                          type=str,
+                          required=False, default='mohawk', 
+                          help='Host (name of machine) on which MetViewer is installed')
 
-    parser._action_groups.append(optional)
+    required.add_argument('--metviewer_user',
+                          type=str,
+                          required=False, default='mvuser', 
+                          help='MetViewer user')
+
+    required.add_argument('--metviewer_password',
+                          type=str,
+                          required=False, default='mvuser', 
+                          help='Password for MetViewer user')
+
+    required.add_argument('--metviewer_output_dir',
+                          type=str,
+                          required=False, default='./', 
+                          help='Directory in which to place output (e.g. plots) from MetViewer')
+
+    required.add_argument('--Rscript_fp',
+                          type=str,
+                          required=False, default='/usr/local/R/bin/Rscript',
+                          help='Full path to Rscript executable')
+
+    required.add_argument('--R_tmpl_dir',
+                          type=str,
+                          required=False, default='/opt/vxwww/tomcat/webapps/metviewer/R_tmpl',
+                          help='Directory in which R templates are located')
+
+    required.add_argument('--R_work_dir',
+                          type=str,
+                          required=False, default='/opt/vxwww/tomcat/webapps/metviewer/R_tmpl',
+                          help='Work directory for R')
+
+    #parser._action_groups.append(optional)
 
     args = parser.parse_args()
 
@@ -505,6 +539,13 @@ if __name__ == "__main__":
         """))
 
     settings = {"database": args.database,
+                "metviewer_host": args.metviewer_host,
+                "metviewer_user": args.metviewer_user,
+                "metviewer_password": args.metviewer_password,
+                "metviewer_output_dir": args.metviewer_output_dir,
+                "Rscript_fp": args.Rscript_fp,
+                "R_tmpl_dir": args.R_tmpl_dir,
+                "R_work_dir": args.R_work_dir,
                 "num_models": num_models,
                 "model_colors": model_colors,
                 "model_db_names": model_db_names,
