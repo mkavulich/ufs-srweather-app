@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<plot_spec>
+    <connection>
+        <host>mohawk</host>
+        <database>{{database}}</database>
+        <user>******</user>
+        <password>******</password>
+        <management_system>mariadb</management_system>
+    </connection>
+    <rscript>/usr/local/R/bin/Rscript</rscript>
+    <folders>
+        <r_tmpl>/opt/vxwww/tomcat/webapps/metviewer//R_tmpl</r_tmpl>
+        <r_work>/opt/vxwww/tomcat/webapps/metviewer//R_work</r_work>
+        <plots>/d2/www/dtcenter/met/metviewer_output//plots</plots>
+        <data>/d2/www/dtcenter/met/metviewer_output//data</data>
+        <scripts>/d2/www/dtcenter/met/metviewer_output//scripts</scripts>
+    </folders>
+    <plot>
+        <template>series_plot.R_tmpl</template>
+        <dep>
+            <dep1>
+                <fcst_var name="{{fcst_var_db_name}}">
+                    <stat>{{stat_mv}}</stat>
+                </fcst_var>
+            </dep1>
+            <dep2/>
+        </dep>
+        <series1>
+            <field name="model">
+{%- set fmt = "%02d" -%}
+{%- set indent = "\n                " -%}
+{%- for imdl in range(1, num_models+1) -%}
+  {%- set model = model_db_names[imdl-1] -%}
+  {%- if incl_ens_means -%}
+    {{- indent ~ "<val>" ~ model ~ "_mean" ~ "</val>" -}}
+  {%- endif -%}
+  {%- for imem in range(1, num_ens_mems[imdl-1]+1) -%}
+    {{- indent ~ "<val>" ~ model ~ "_mem" ~ fmt%imem ~ "</val>" -}}
+  {%- endfor -%}
+{%- endfor %}
+            </field>
+        </series1>
+        <series2/>
+{%- set ipf = -1 %}
+        <plot_fix>
+            <field equalize="false" name="fcst_lev">
+{%- set ipf = ipf+1 %}
+                <set name="fcst_lev_{{ipf}}">
+                    <val>{{level_or_accum_mv}}</val>
+                </set>
+            </field>
+{%- if (stat_uc == "FBIAS") %}
+            <field equalize="false" name="fcst_thresh">
+  {%- set ipf = ipf+1 %}
+                <set name="fcst_thresh_{{ipf}}">
+                    <val>{{xml_threshold}}</val>
+                </set>
+            </field>
+{%- endif %}
+        </plot_fix>
+        <plot_cond/>
+        <indep equalize="false" name="fcst_lead">
+{%- set indent = "\n            " -%}
+{%- for ihr in range(0, fcst_len_hrs+1) -%}
+  {{indent}}<val label="{{ihr}}" plot_val="">{{ihr*10000}}</val>
+{%- endfor %}
+        </indep>
+{%- if (stat_uc == "BIAS") %}
+        <plot_stat>mean</plot_stat>
+{%- elif (stat_uc == "FBIAS") %}
+        <agg_stat>
+            <agg_ctc>true</agg_ctc>
+            <boot_repl>1</boot_repl>
+            <boot_random_seed/>
+            <boot_ci>perc</boot_ci>
+            <eveq_dis>false</eveq_dis>
+            <cache_agg_stat>false</cache_agg_stat>
+            <circular_block_bootstrap>true</circular_block_bootstrap>
+        </agg_stat>
+        <plot_stat>median</plot_stat>
+{%- endif %}
+        <tmpl>
+            <data_file>plot_{{job_title}}.data</data_file>
+            <plot_file>plot_{{job_title}}.png</plot_file>
+            <r_file>plot_{{job_title}}.R</r_file>
+            <title>{{plot_title}}</title>
+            <x_label>Forecast Hour</x_label>
+            <y1_label>{{stat_uc}}</y1_label>
+            <y2_label/>
+            <caption/>
+            <job_title>{{job_title}}</job_title>
+            <keep_revisions>false</keep_revisions>
+            <listdiffseries1>list()</listdiffseries1>
+            <listdiffseries2>list()</listdiffseries2>
+        </tmpl>
+        <execution_type>Python</execution_type>
+        <event_equal>false</event_equal>
+        <vert_plot>false</vert_plot>
+        <x_reverse>false</x_reverse>
+        <num_stats>false</num_stats>
+        <indy1_stag>false</indy1_stag>
+        <indy2_stag>false</indy2_stag>
+        <start_from_zero>false</start_from_zero>
+        <grid_on>true</grid_on>
+        <sync_axes>false</sync_axes>
+        <dump_points1>false</dump_points1>
+        <dump_points2>false</dump_points2>
+        <log_y1>false</log_y1>
+        <log_y2>false</log_y2>
+        <varianceinflationfactor>false</varianceinflationfactor>
+        <plot_type>png16m</plot_type>
+        <plot_height>8.5</plot_height>
+        <plot_width>11</plot_width>
+        <plot_res>72</plot_res>
+        <plot_units>in</plot_units>
+        <mar>c(8,4,5,4)</mar>
+        <mgp>c(1,1,0)</mgp>
+        <cex>1</cex>
+        <title_weight>2</title_weight>
+        <title_size>1.4</title_size>
+        <title_offset>-2</title_offset>
+        <title_align>0.5</title_align>
+        <xtlab_orient>1</xtlab_orient>
+        <xtlab_perp>-0.75</xtlab_perp>
+        <xtlab_horiz>0.5</xtlab_horiz>
+        <xtlab_freq>0</xtlab_freq>
+        <xtlab_size>1</xtlab_size>
+        <xlab_weight>1</xlab_weight>
+        <xlab_size>1</xlab_size>
+        <xlab_offset>2</xlab_offset>
+        <xlab_align>0.5</xlab_align>
+        <ytlab_orient>1</ytlab_orient>
+        <ytlab_perp>0.5</ytlab_perp>
+        <ytlab_horiz>0.5</ytlab_horiz>
+        <ytlab_size>1</ytlab_size>
+        <ylab_weight>1</ylab_weight>
+        <ylab_size>1</ylab_size>
+        <ylab_offset>-8</ylab_offset>
+        <ylab_align>0.5</ylab_align>
+        <grid_lty>3</grid_lty>
+        <grid_col>#cccccc</grid_col>
+        <grid_lwd>1</grid_lwd>
+        <grid_x>listX</grid_x>
+        <x2tlab_orient>1</x2tlab_orient>
+        <x2tlab_perp>1</x2tlab_perp>
+        <x2tlab_horiz>0.5</x2tlab_horiz>
+        <x2tlab_size>0.8</x2tlab_size>
+        <x2lab_size>0.8</x2lab_size>
+        <x2lab_offset>-0.5</x2lab_offset>
+        <x2lab_align>0.5</x2lab_align>
+        <y2tlab_orient>1</y2tlab_orient>
+        <y2tlab_perp>0.5</y2tlab_perp>
+        <y2tlab_horiz>0.5</y2tlab_horiz>
+        <y2tlab_size>1</y2tlab_size>
+        <y2lab_size>1</y2lab_size>
+        <y2lab_offset>1</y2lab_offset>
+        <y2lab_align>0.5</y2lab_align>
+        <legend_box>o</legend_box>
+        <legend_inset>c(-.05, -.15)</legend_inset>
+        <legend_ncol>3</legend_ncol>
+        <legend_size>0.8</legend_size>
+        <caption_weight>1</caption_weight>
+        <caption_col>#333333</caption_col>
+        <caption_size>0.8</caption_size>
+        <caption_offset>3</caption_offset>
+        <caption_align>0</caption_align>
+        <ci_alpha>0.05</ci_alpha>
+        <eqbound_low>-0.001</eqbound_low>
+        <eqbound_high>0.001</eqbound_high>
+{#- #}
+        <!-- These are the flags that specify whether or not to plot
+             confidence interval for each line series. -->
+        <plot_ci>c(
+{%- set indent = "\n                   " -%}
+{%- for imdl in range(1, num_models+1) -%}
+  {%- if imdl > 1 -%} {{indent}} {%- endif -%}
+  {%- set plot_ci = "none" -%}
+  {%- if incl_ens_means -%} "{{plot_ci}}", {%- endif -%}
+  {%- for imem in range(1, num_ens_mems[imdl-1]) -%}
+    "{{plot_ci}}",
+  {%- endfor -%}
+  "{{plot_ci}}"
+  {%- if imdl != num_models -%} , \ {%- endif -%}
+{%- endfor -%})</plot_ci>
+{#- #}
+        <!-- These are the series ???. -->
+        <show_signif>c(
+{%- set indent = "\n                       " -%}
+{%- for imdl in range(1, num_models+1) -%}
+  {%- if imdl > 1 -%} {{indent}} {%- endif -%}
+  {%- set show_signif = "FALSE" -%}
+  {%- if incl_ens_means -%} {{show_signif}}, {%- endif -%}
+  {%- for imem in range(1, num_ens_mems[imdl-1]) -%}
+    {{show_signif}},
+  {%- endfor -%}
+  {{show_signif}}
+  {%- if imdl != num_models -%} , \ {%- endif -%}
+{%- endfor -%})</show_signif>
+{#- #}
+        <!-- These are the series ???. -->
+        <plot_disp>c(
+{%- set indent = "\n                     " -%}
+{%- for imdl in range(1, num_models+1) -%}
+  {%- if imdl > 1 -%} {{indent}} {%- endif -%}
+  {%- set plot_disp = "TRUE" -%}
+  {%- if incl_ens_means -%} {{plot_disp}}, {%- endif -%}
+  {%- for imem in range(1, num_ens_mems[imdl-1]) -%}
+    {{plot_disp}},
+  {%- endfor -%}
+  {{plot_disp}}
+  {%- if imdl != num_models -%} , \ {%- endif -%}
+{%- endfor -%})</plot_disp>
+{#- #}
+        <!-- These are the series colors. -->
+        <colors>c(
+{%- set indent = "\n                  " -%}
+{%- for imdl in range(1, num_models+1) -%}
+  {%- if imdl > 1 -%} {{indent}} {%- endif -%}
+  {%- set color = model_colors[imdl-1] -%}
+  {%- if incl_ens_means -%} "{{color}}", {%- endif -%}
+  {%- for imem in range(1, num_ens_mems[imdl-1]) -%}
+    "{{color}}",
+  {%- endfor -%}
+  "{{color}}"
+  {%- if imdl != num_models -%} , \ {%- endif -%}
+{%- endfor -%})</colors>
+{#- #}
+        <!-- These are the series ???. -->
+        <pch>c(
+{%- set indent = "\n               " -%}
+{%- for imdl in range(1, num_models+1) -%}
+  {%- if imdl > 1 -%} {{indent}} {%- endif -%}
+  {%- set pch = 20 -%}
+  {%- if incl_ens_means -%} {{pch}}, {%- endif -%}
+  {%- for imem in range(1, num_ens_mems[imdl-1]) -%}
+    {{pch}},
+  {%- endfor -%}
+  {{pch}}
+  {%- if imdl != num_models -%} , \ {%- endif -%}
+{%- endfor -%})</pch>
+{#- #}
+        <!-- These are the series line types.  "l" is for lines, and "b" is for "joined lines". -->
+        <type>c(
+{%- set indent = "\n                " -%}
+{%- for imdl in range(1, num_models+1) -%}
+  {%- if imdl > 1 -%} {{indent}} {%- endif -%}
+  {%- set ns = num_ens_mems[imdl-1] -%}
+  {%- if incl_ens_means -%} {%- set ns = ns+1 -%} {%- endif -%}
+  {%- for imem in range(0, ns-1) -%}
+    {%- set is = (imdl-1)*ns + imem -%}
+    {%- set line_type = line_types[is] -%}
+    "{{line_type}}",
+  {%- endfor -%}
+  {%- set imem = ns-1 -%}
+  {%- set is = (imdl-1)*ns + imem -%}
+  {%- set line_type = line_types[is] -%}
+  "{{line_type}}"
+  {%- if imdl != num_models -%} , \ {%- endif -%}
+{%- endfor -%})</type>
+{#- #}
+        <!-- These are the series ???. -->
+        <lty>c(
+{%- set indent = "\n               " -%}
+{%- for imdl in range(1, num_models+1) -%}
+  {%- if imdl > 1 -%} {{indent}} {%- endif -%}
+  {%- set lty = 1 -%}
+  {%- if incl_ens_means -%} {{lty}}, {%- endif -%}
+  {%- for imem in range(1, num_ens_mems[imdl-1]) -%}
+    {{lty}},
+  {%- endfor -%}
+  {{lty}}
+  {%- if imdl != num_models -%} , \ {%- endif -%}
+{%- endfor -%})</lty>
+{#- #}
+        <!-- These are the series line widths. -->
+        <lwd>c(
+{%- set indent = "\n               " -%}
+{%- for imdl in range(1, num_models+1) -%}
+  {%- if imdl > 1 -%} {{indent}} {%- endif -%}
+  {%- set line_width = line_widths[imdl-1] -%}
+  {%- if incl_ens_means -%} {{line_width*2}}, {%- endif -%}
+  {%- for imem in range(1, num_ens_mems[imdl-1]) -%}
+    {{line_width}},
+  {%- endfor -%}
+  {{line_width}}
+  {%- if imdl != num_models -%} , \ {%- endif -%}
+{%- endfor -%})</lwd>
+{#- #}
+        <!-- These are the series ???. -->
+        <con_series>c(
+{%- set indent = "\n                      " -%}
+{%- for imdl in range(1, num_models+1) -%}
+  {%- if imdl > 1 -%} {{indent}} {%- endif -%}
+  {%- set cs = 1 -%}
+  {%- if incl_ens_means -%} {{cs}}, {%- endif -%}
+  {%- for imem in range(1, num_ens_mems[imdl-1]) -%}
+    {{cs}},
+  {%- endfor -%}
+  {{cs}}
+  {%- if imdl != num_models -%} , \ {%- endif -%}
+{%- endfor -%})</con_series>
+{#- #}
+        <!-- These are the series orders. -->
+        <order_series>c(
+{%- set indent = "\n                        " -%}
+{%- set count = namespace(value=0) -%}
+{%- for imdl in range(1, num_models+1) -%}
+  {%- if imdl > 1 -%} {{indent}} {%- endif -%}
+  {%- set ns = num_ens_mems[imdl-1] -%}
+  {%- if incl_ens_means -%} {%- set ns = ns+1 -%} {%- endif -%}
+  {%- for imem in range(1, ns) -%}
+    {%- set iorder = order_series[count.value] -%}
+    {{iorder}},
+    {%- set count.value = count.value + 1 -%}
+  {%- endfor -%}
+  {%- set iorder = order_series[count.value] -%}
+  {{iorder}}
+  {%- if imdl != num_models -%} , \ {%- endif -%}
+  {%- set count.value = count.value + 1 -%}
+{%- endfor -%})</order_series>
+{#- #}
+        <plot_cmd/>
+        <!-- These are the series legend texts. -->
+        <legend>c(
+{%- set indent = "\n                  " -%}
+{%- set fmt = "%02d" -%}
+{%- for imdl in range(1, num_models+1) -%}
+  {%- if imdl > 1 -%} {{indent}} {%- endif -%}
+  {%- set model = model_names_short_uc[imdl-1] -%}
+  {%- if incl_ens_means -%} "{{model}}_mean", {%- endif -%}
+  {%- for imem in range(1, num_ens_mems[imdl-1]) -%}
+    "{{model}}{{fmt%imem}}",
+  {%- endfor -%}
+  {%- set imem = num_ens_mems[imdl-1] -%}
+  "{{model}}{{fmt%imem}}"
+  {%- if imdl != num_models -%} , \ {%- endif -%}
+{%- endfor -%})</legend>
+{#- #}
+        <create_html>TRUE</create_html>
+        <y1_lim>c()</y1_lim>
+        <x1_lim>c()</x1_lim>
+        <y1_bufr>0.04</y1_bufr>
+        <y2_lim>c()</y2_lim>
+    </plot>
+</plot_spec>
+
