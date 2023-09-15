@@ -235,7 +235,7 @@ if __name__ == "__main__":
 
     required.add_argument('--metviewer_output_dir',
                           type=str,
-                          required=False, default='./', 
+                          required=False, default='./mv_output', 
                           help='Directory in which to place output (e.g. plots) from MetViewer')
 
     required.add_argument('--Rscript_fp',
