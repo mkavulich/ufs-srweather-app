@@ -1,0 +1,125 @@
+auc:
+    apcp:
+        03hr:
+            thresholds: ['gt0.0mm', 'ge2.54mm']
+    dpt:
+        2m:
+            thresholds: ['ge288K', 'ge293K']
+    refc:
+        L0:
+            thresholds: ['ge20dBZ', 'ge30dBZ', 'ge40dBZ', 'ge50dBZ']
+    tmp:
+        2m:
+            thresholds: ['ge293K', 'ge298K']
+        850mb:
+            thresholds: ['ge288K']
+    wind:
+        10m:
+            thresholds: ['ge5mps', 'ge10mps']
+        700mb:
+            thresholds: ['ge10mps']
+
+bias:
+    dpt:
+        2m:
+            thresholds: ['']
+    refc:
+        L0:
+            thresholds: ['']
+    tmp:
+        2m:
+            thresholds: ['']
+        500mb:
+            thresholds: ['']
+        700mb:
+            thresholds: ['']
+        850mb:
+            thresholds: ['']
+    wind:
+        700mb:
+            thresholds: ['']
+        850mb:
+            thresholds: ['']
+
+brier:
+    apcp:
+        03hr:
+            thresholds: ['gt0.0mm', 'ge2.54mm']
+    dpt:
+        2m:
+            thresholds: ['ge288K', 'ge293K']
+    refc:
+        L0:
+            thresholds: ['ge20dBZ', 'ge30dBZ', 'ge40dBZ', 'ge50dBZ']
+    tmp:
+        2m:
+            thresholds: ['ge293K', 'ge298K']
+        850mb:
+            thresholds: ['ge288K']
+    wind:
+        10m:
+            thresholds: ['ge5mps', 'ge10mps']
+        700mb:
+            thresholds: ['ge10mps']
+
+fbias:
+    apcp:
+        03hr:
+            thresholds: ['gt0.0mm', 'ge2.54mm']
+    refc:
+        L0:
+            thresholds: ['ge20dBZ', 'ge30dBZ', 'ge40dBZ', 'ge50dBZ']
+
+rely:
+    apcp:
+        03hr:
+            thresholds: ['gt0.0mm', 'ge2.54mm']
+    dpt:
+        2m:
+            thresholds: ['ge288K']
+    refc:
+        L0:
+            thresholds: ['ge20dBZ', 'ge30dBZ', 'ge40dBZ']
+    tmp:
+        2m:
+            thresholds: ['ge293K', 'ge298K', 'ge303K']
+        850mb:
+            thresholds: ['ge288K']
+    wind:
+        10m:
+            thresholds: ['ge5mps', 'ge10mps']
+        700mb:
+            thresholds: ['ge10mps']
+
+rhist:
+    apcp:
+        03hr:
+            thresholds: ['']
+        06hr:
+            thresholds: ['']
+    cape:
+        # Not sure about what to use for level for cape.
+        L0:
+            thresholds: ['']
+    dpt:
+        2m:
+            thresholds: ['']
+    hgt:
+        500mb:
+            thresholds: ['']
+    refc:
+        L0:
+            thresholds: ['']
+    tmp:
+        2m:
+            thresholds: ['']
+        500mb:
+            thresholds: ['']
+        850mb:
+            thresholds: ['']
+    wind:
+        500mb:
+            thresholds: ['']
+        850mb:
+            thresholds: ['']
+

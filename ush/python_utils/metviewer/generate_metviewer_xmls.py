@@ -40,7 +40,7 @@ from python_utils import (
 )
 
 
-def generate_metviewer_xmls(argv):
+def generate_mv_xml(argv):
     """Function that creates a metviewer xml from a jinja template and
        calls metviewer in batch mode with the xml to create a vx plot.
 
@@ -572,9 +572,26 @@ def generate_metviewer_xmls(argv):
     args = ["-q", "-u", yaml_vars, '-t', template_fp, "-o", output_xml_fp]
     fill_jinja_template(args)
 
+    return(output_xml_fp)
+
+
+def generate_mv_plot(argv):
+    """Function that generates a verification plot using MetViewer.
+
+    Args:
+        argv:  Command-line arguments
+
+    Returns:
+        None
+    """
+
+    output_xml_fp = generate_mv_xml(argv)
+
     # Run MetViewer in batch mode on the xml.
-    MV_BATCH="/d2/projects/METViewer/src/apps/METviewer/bin/mv_batch.sh"
-    subprocess.run([MV_BATCH, output_xml_fp])
+    mv_batch = "/d2/projects/METViewer/src/apps/METviewer/bin/mv_batch.sh"
+    subprocess.run([mv_batch, output_xml_fp])
+
+
 #
 # -----------------------------------------------------------------------
 #
@@ -585,5 +602,7 @@ def generate_metviewer_xmls(argv):
 if __name__ == "__main__":
     # Pass command line arguments (except for very first one) to the function
     # that generates a MetViewer xml and then runs MetViewer on it.
-    generate_metviewer_xmls(sys.argv[1:])
+    #output_xml_fp = generate_mv_xml(sys.argv[1:])
+    generate_mv_plot(sys.argv[1:])
+
 
