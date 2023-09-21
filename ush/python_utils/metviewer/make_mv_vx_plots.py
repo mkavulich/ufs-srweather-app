@@ -17,10 +17,10 @@ from datetime import timedelta
 
 import subprocess
 
-from generate_metviewer_xmls import generate_metviewer_xmls
+from plot_vx_metviewer import plot_vx_metviewer
 
 import sys
-from pathlib import Path # if you haven't already done so
+from pathlib import Path
 file = Path(__file__).resolve()
 parent, root = file.parent, file.parents[1]
 ushdir = Path(os.path.join(root, '..')).resolve()
@@ -108,10 +108,10 @@ def load_user_config(ushdir, args):
                                 '--fcst_var', fcst_var,
                                 '--level_or_accum', level,
                                 '--threshold', thresh,
-                                '--metviewer_output_dir', base_dir]
+                                '--mv_output_dir', base_dir]
                         print(f"      args = {args}")
                         print(f"      CALLING generate ...")
-                        generate_metviewer_xmls(args)
+                        plot_vx_metviewer(args)
                         #generate_metviewer_xmls
                         print(f"      DONE CALLING generate ...")
                         #generate_metviewer_xmls(sys.argv[1:])
@@ -142,7 +142,7 @@ if __name__ == "__main__":
 
     parser.add_argument('--exclude_stats',
                         type=str,
-                        required=False, default=None,
+                        required=False, default=[],
                         choices=['auc', 'bias', 'brier', 'fbias', 'rely', 'rhist', 'ss'],
                         help='Stats to exclude from verification plot generation')
 

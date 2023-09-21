@@ -6,7 +6,7 @@ import glob
 import argparse
 import yaml
 import re
-from fill_jinja_template import fill_jinja_template
+#from fill_jinja_template import fill_jinja_template
 
 import logging
 from textwrap import dedent
@@ -39,10 +39,18 @@ from python_utils import (
     load_config_file,
 )
 
+# Add directories for accessing scripts/modules from workflow-tools repo.
+wt_src_dir = os.path.join(ush_dir, 'python_utils', 'workflow-tools', 'src')
+sys.path.append(str(wt_src_dir))
+wt_scripts_dir = os.path.join(ush_dir, 'python_utils', 'workflow-tools', 'scripts')
+sys.path.append(str(wt_scripts_dir))
+from templater import (
+    set_template,
+)
 
-def generate_mv_xml(argv):
-    """Function that creates a metviewer xml from a jinja template and
-       calls metviewer in batch mode with the xml to create a vx plot.
+def generate_metviewer_xml(argv):
+    """Function that generates an xml file that MetViewer can read (in order
+       to create a verification plot).
 
     Args:
         argv:  Command-line arguments
@@ -53,6 +61,33 @@ def generate_mv_xml(argv):
 
     # Set the logging level.
     logging.basicConfig(level=logging.INFO)
+
+    # Parse arguments.
+    parser = argparse.ArgumentParser(epilog="For more information about config arguments (denoted "\
+                                            "in CAPS), see ush/config_defaults.yaml\n")
+    # Create a group for optional arguments so they can be listed after required args
+    optional = parser._action_groups.pop()
+    required = parser.add_argument_group('required arguments')
+
+    required.add_argument('--mv_host',
+                          type=str,
+                          required=False, default='mohawk', 
+                          help='Host (name of machine) on which MetViewer is installed')
+
+    required.add_argument('--mv_machine_config',
+                          type=str,
+                          required=False, default='config_mv_machine.yml', 
+                          help='MetViewer machine (host) configuration file')
+
+    required.add_argument('--mv_database',
+                          type=str,
+                          required=False, default='mv_gefs_gdas_rtps_href_spring_2022', 
+                          help='Name of MetViewer database on the machine')
+
+    required.add_argument('--mv_output_dir',
+                          type=str,
+                          required=False, default='./mv_output', 
+                          help='Directory in which to place output (e.g. plots) from MetViewer')
 
     # Short and long names of verification statistics that may be plotted.
     stat_long_names = {'auc': 'Area Under the Curve',
@@ -73,13 +108,6 @@ def generate_mv_xml(argv):
                            'tmp': 'Temperature',
                            'wind': 'Wind'}
     choices_fcst_vars = sorted(list(fcst_var_long_names.keys()))
-
-    # Parse arguments.
-    parser = argparse.ArgumentParser(epilog="For more information about config arguments (denoted "\
-                                            "in CAPS), see ush/config_defaults.yaml\n")
-    # Create a group for optional arguments so they can be listed after required args
-    optional = parser._action_groups.pop()
-    required = parser.add_argument_group('required arguments')
 
     # Short names and names in MetViewer database of the models on which verification
     # can be run.  These have to be available (loaded) in the database.
@@ -205,46 +233,6 @@ def generate_mv_xml(argv):
                           required=True,
                           help='Forecast length (in integer hours)')
 
-    required.add_argument('--mv_database',
-                          type=str,
-                          required=False, default='mv_gefs_gdas_rtps_href_spring_2022', 
-                          help='Name of METViewer database')
-
-    required.add_argument('--mv_host',
-                          type=str,
-                          required=False, default='mohawk', 
-                          help='Host (name of machine) on which MetViewer is installed')
-
-    required.add_argument('--mv_user',
-                          type=str,
-                          required=False, default='mvuser', 
-                          help='MetViewer user name')
-
-    required.add_argument('--mv_password',
-                          type=str,
-                          required=False, default='mvuser', 
-                          help='Password for MetViewer user')
-
-    required.add_argument('--mv_output_dir',
-                          type=str,
-                          required=False, default='./mv_output', 
-                          help='Directory in which to place output (e.g. plots) from MetViewer')
-
-    required.add_argument('--mv_Rscript_fp',
-                          type=str,
-                          required=False, default='/usr/local/R/bin/Rscript',
-                          help='Full path to Rscript executable used by MetViewer')
-
-    required.add_argument('--mv_R_tmpl_dir',
-                          type=str,
-                          required=False, default='/opt/vxwww/tomcat/webapps/metviewer/R_tmpl',
-                          help='Directory in which R templates used by MetViewer are located')
-
-    required.add_argument('--mv_R_work_dir',
-                          type=str,
-                          required=False, default='/opt/vxwww/tomcat/webapps/metviewer/R_tmpl',
-                          help='Work directory for R used by MetViewer')
-
     args = parser.parse_args(argv)
 
     args_str = pprint.pformat(vars(args))
@@ -253,6 +241,28 @@ def generate_mv_xml(argv):
         List of arguments passed to this script:
           args = {args_str}
         """))
+
+    mv_machine_config_fp = Path(os.path.join(args.mv_machine_config)).resolve()
+    mv_machine_config = load_config_file(mv_machine_config_fp)
+
+    mv_host = args.mv_host
+    all_hosts = sorted(list(mv_machine_config.keys()))
+    if args.mv_host not in all_hosts:
+        logging.error(dedent(f"""
+            The machine/host specified on the command line (mv_host) does not have a
+            corresponding entry in the MetViewer host configuration file (mv_machine_config_fp):
+              mv_host = {mv_host}
+              mv_machine_config_fp = {mv_machine_config_fp}
+            Machines that do have an entry in the host configuration file are:
+              {all_hosts}
+            Either run on one of these hosts, or add an entry in the configuration file for "{mv_host}".
+            """))
+        error_out
+
+    mv_machine_config_dict = mv_machine_config[mv_host]
+    print(f"")
+    print(f"mv_machine_config_dict = {mv_machine_config_dict}")
+    #aaaaaaaaaaaa
 
     fcst_init_time_first = datetime.strptime(args.fcst_init_info[0], '%Y%m%d%H')
     num_fcsts = int(args.fcst_init_info[1])
@@ -489,14 +499,10 @@ def generate_mv_xml(argv):
 
     # Create dictionary containing values for the variables appearing in the
     # jinja template.
-    jinja_vars = {"mv_database": args.mv_database,
-                  "mv_host": args.mv_host,
-                  "mv_user": args.mv_user,
-                  "mv_password": args.mv_password,
+    jinja_vars = {"mv_host": args.mv_host,
+                  "mv_machine_config_dict": mv_machine_config_dict,
+                  "mv_database": args.mv_database,
                   "mv_output_dir": args.mv_output_dir,
-                  "mv_Rscript_fp": args.mv_Rscript_fp,
-                  "mv_R_tmpl_dir": args.mv_R_tmpl_dir,
-                  "mv_R_work_dir": args.mv_R_work_dir,
                   "num_models": num_models,
                   "model_colors": model_colors,
                   "model_db_names": model_db_names,
@@ -532,7 +538,6 @@ def generate_mv_xml(argv):
           {jinja_vars_str}
         """))
 
-    #templates_dir = os.path.join(crnt_script_dir, 'templates')
     templates_dir = os.path.join(home_dir, 'parm', 'metviewer')
     template_fn = "".join([args.stat, '.xml'])
     if (args.stat in ['auc', 'brier']):
@@ -550,7 +555,7 @@ def generate_mv_xml(argv):
           template_fp = {template_fp}
         """))
 
-    #output_xml_dir = Path(os.path.join(home_dir, '..', 'expts_dir', 'output_xmls', args.stat)).resolve()
+    # Place 
     output_xml_dir = Path(os.path.join(args.mv_output_dir, 'plots')).resolve()
     if not os.path.exists(output_xml_dir):
         os.makedirs(output_xml_dir)
@@ -565,17 +570,24 @@ def generate_mv_xml(argv):
           output_xml_fp = {output_xml_fp}
         """))
 
-    # Convert the dictionary of jinja variable settings above to yaml format.
-    yaml_vars = yaml.dump(jinja_vars)
+    # Convert the dictionary of jinja variable settings above to yaml format
+    # and write it to a temporary yaml file for reading by the set_template
+    # function.
+    tmp_fn = 'tmp.yaml'
+    with open(f'{tmp_fn}', 'w') as fn:
+        yaml_vars = yaml.dump(jinja_vars, fn)
 
     # Create MetViewer XML from Jinja template.
-    args = ["-q", "-u", yaml_vars, '-t', template_fp, "-o", output_xml_fp]
-    fill_jinja_template(args)
+    #yaml_vars = yaml.dump(jinja_vars)
+    #args = ["-q", "-u", yaml_vars, '-t', template_fp, "-o", output_xml_fp]
+    #fill_jinja_template(args)
+    args = ['--quiet', '--config_file', tmp_fn, '--input_template', template_fp, "--outfile", output_xml_fp]
+    set_template(args)
 
     return(output_xml_fp)
 
 
-def generate_mv_plot(argv):
+def plot_vx_metviewer(argv):
     """Function that generates a verification plot using MetViewer.
 
     Args:
@@ -585,7 +597,7 @@ def generate_mv_plot(argv):
         None
     """
 
-    output_xml_fp = generate_mv_xml(argv)
+    output_xml_fp = generate_metviewer_xml(argv)
 
     # Run MetViewer in batch mode on the xml.
     mv_batch = "/d2/projects/METViewer/src/apps/METviewer/bin/mv_batch.sh"
@@ -602,7 +614,6 @@ def generate_mv_plot(argv):
 if __name__ == "__main__":
     # Pass command line arguments (except for very first one) to the function
     # that generates a MetViewer xml and then runs MetViewer on it.
-    #output_xml_fp = generate_mv_xml(sys.argv[1:])
-    generate_mv_plot(sys.argv[1:])
+    plot_vx_metviewer(sys.argv[1:])
 
 

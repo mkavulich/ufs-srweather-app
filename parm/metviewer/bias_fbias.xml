@@ -3,19 +3,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <plot_spec>
     <connection>
-        <host>{{metviewer_host}}</host>
-        <database>{{database}}</database>
-        <user>{{metviewer_user}}</user>
-        <password>{{metviewer_password}}</password>
+        <host>{{mv_host}}</host>
+        <database>{{mv_database}}</database>
+        <user>{{mv_machine_config_dict["user"]}}</user>
+        <password>{{mv_machine_config_dict["password"]}}</password>
         <management_system>mariadb</management_system>
     </connection>
-    <rscript>{{Rscript_fp}}</rscript>
+    <rscript>{{mv_machine_config_dict["Rscript_fp"]}}</rscript>
     <folders>
-        <r_tmpl>{{R_tmpl_dir}}</r_tmpl>
-        <r_work>{{R_work_dir}}</r_work>
-        <plots>{{metviewer_output_dir}}/plots</plots>
-        <data>{{metviewer_output_dir}}/data</data>
-        <scripts>{{metviewer_output_dir}}/scripts</scripts>
+        <r_tmpl>{{mv_machine_config_dict["R_tmpl_dir"]}}</r_tmpl>
+        <r_work>{{mv_machine_config_dict["R_work_dir"]}}</r_work>
+        <plots>{{mv_output_dir}}/plots</plots>
+        <data>{{mv_output_dir}}/data</data>
+        <scripts>{{mv_output_dir}}/scripts</scripts>
     </folders>
     <plot>
         <template>series_plot.R_tmpl</template>
