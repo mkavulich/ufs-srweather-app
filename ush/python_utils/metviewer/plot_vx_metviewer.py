@@ -110,7 +110,7 @@ def generate_metviewer_xml(argv):
     expts_dir = Path(os.path.join(home_dir, '../expts_dir')).resolve()
     parser.add_argument('--mv_output_dir',
                         type=str,
-                        required=False, default=os.path.join(expts_dir, 'mv_output2'),
+                        required=False, default=os.path.join(expts_dir, 'mv_output'),
                         help='Directory in which to place output (e.g. plots) from MetViewer')
 
     # Short and long names of verification statistics that may be plotted.
@@ -559,8 +559,10 @@ def generate_metviewer_xml(argv):
     output_xml_dir = Path(os.path.join(args.mv_output_dir, 'plots')).resolve()
     if not os.path.exists(output_xml_dir):
         os.makedirs(output_xml_dir)
-    output_xml_fn = '_'.join(filter(None,[args.stat, ''.join([args.fcst_var.upper(), level_or_accum_str]),
-                                          args.threshold, models_str]))
+    output_xml_fn = '_'.join(filter(None,
+                    ['plot', args.stat,
+                     ''.join([args.fcst_var.upper(), level_or_accum_str]),
+                     args.threshold, models_str]))
     output_xml_fn = ''.join([output_xml_fn, '.xml'])
     output_xml_fp = os.path.join(output_xml_dir, output_xml_fn)
     logging.info(dedent(f"""
