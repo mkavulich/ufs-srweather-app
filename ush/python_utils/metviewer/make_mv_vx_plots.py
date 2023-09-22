@@ -6,9 +6,6 @@ import glob
 import argparse
 import yaml
 import re
-#import fill_jinja_template
-#from socket import socket
-from fill_jinja_template import fill_jinja_template
 
 import logging
 from textwrap import dedent
@@ -23,15 +20,15 @@ import sys
 from pathlib import Path
 file = Path(__file__).resolve()
 parent, root = file.parent, file.parents[1]
-ushdir = Path(os.path.join(root, '..')).resolve()
-#    ushdir=os.path.join(homedir,'ush')
+ush_dir = Path(os.path.join(root, '..')).resolve()
+#    ush_dir=os.path.join(homedir,'ush')
 print(f"")
 print(f"AAAAAAAAAAAAAAAAAAAAAAAAAAA")
 print(f"__file__ = {__file__}")
 print(f"parent = {parent}")
 print(f"root = {root}")
-print(f"ushdir = {ushdir}")
-sys.path.append(str(ushdir))
+print(f"ush_dir = {ush_dir}")
+sys.path.append(str(ush_dir))
 
 from python_utils import (
     log_info,
@@ -39,43 +36,37 @@ from python_utils import (
 )
 
 
-#def load_config_for_setup(ushdir, default_config, user_config):
-def load_user_config(ushdir, args):
-    """Load in the default, machine, and user configuration files into
-    Python dictionaries. Return the combined experiment dictionary.
+def make_mv_vx_plots(args):
+    """Make multiple verification plots using MetViewer and the settings
+    file specified as part of args.
 
-    Args:
-      ushdir             (str): Path to the ush directory for SRW
-      default_config     (str): Path to the default config YAML
-      user_config        (str): Path to the user-provided config YAML
-
-    Returns:
-      Python dict of configuration settings from YAML files.
+    Arguments:
+      args:  Dictionary of arguments.
     """
 
     logging.basicConfig(level=logging.INFO)
-    ## Load the default config.
-    #logging.debug(f"Loading config defaults file {default_config}")
-    #cfg_d = load_config_file(default_config)
-    #logging.debug(f"Read in the following values from config defaults file:\n")
-    #logging.debug(cfg_d)
 
-    fcst_init_time_first = '2022050100'
-    num_fcsts = 12
-    fcst_init_intvl = 24
-    fcst_len_hrs = 36
-    models = ['href', 'gdas', 'gefs']
-    num_ens_mems = [10, 10, 10]
-    base_dir = '/home/ketefian/ufs-srweather-app/ush/python_utils/metviewer/mv_output'
+    #base_dir = '/home/ketefian/ufs-srweather-app/ush/python_utils/metviewer/mv_output'
 
-    user_config = args.config
-    cfg_u = load_config_file(user_config)
-    logging.debug(f"Read in the following values from YAML config file {user_config}:\n")
-    logging.debug(cfg_u)
+    config_fn = args.config
+    config_dict = load_config_file(config_fn)
+    logging.info(dedent(f"""
+        Reading in configuration file {config_fn} ...
+        """))
 
-    print(f"cfg_u = {cfg_u}")
+    fcst_init_info = config_dict['fcst_init_info']
+    fcst_init_info = map(str, list(fcst_init_info.values()))
+    # fcst_init_info is a list containing both strings and integers.  For use below,
+    # convert it to a list of strings only.
+    fcst_init_info = [str(elem) for elem in fcst_init_info]
 
-    for stat, stat_dict in cfg_u.items():
+    fcst_len_hrs = str(config_dict['fcst_len_hrs'])
+    model_info = config_dict['model_info']
+    model_names = model_info['model_names']
+    num_ens_mems = [str(elem) for elem in model_info['num_ens_mems']]
+
+    vx_stats_dict = config_dict["vx_stats"]
+    for stat, stat_dict in vx_stats_dict.items():
 
         print(f"")
         print(f"stat = {stat}")
@@ -99,22 +90,19 @@ def load_user_config(ushdir, args):
                     for thresh in thresholds:
                         print(f"      thresh = {thresh}")
 
-                        args = ['--fcst_init', fcst_init_time_first] \
-                             + [str(num_fcsts), str(fcst_init_intvl)] \
-                             + ['--fcst_len_hrs', str(fcst_len_hrs), 
-                                '--models', ] + models \
-                             + ['--num_ens'] + [str(n) for n in num_ens_mems] + \
-                               ['--stat', stat,
-                                '--fcst_var', fcst_var,
-                                '--level_or_accum', level,
-                                '--threshold', thresh,
-                                '--mv_output_dir', base_dir]
-                        print(f"      args = {args}")
-                        print(f"      CALLING generate ...")
-                        plot_vx_metviewer(args)
-                        #generate_metviewer_xmls
-                        print(f"      DONE CALLING generate ...")
-                        #generate_metviewer_xmls(sys.argv[1:])
+                        args_list = ['--model_names', ] + model_names \
+                                  + ['--num_ens_mems'] + num_ens_mems \
+                                  + ['--stat', stat,
+                                     '--fcst_init_info'] + fcst_init_info \
+                                  + ['--fcst_len_hrs', fcst_len_hrs, 
+                                     '--fcst_var', fcst_var,
+                                     '--level_or_accum', level,
+                                     '--threshold', thresh]
+                        #             '--mv_output_dir', base_dir]
+                        print(f"      args_list = {args_list}")
+                        print(f"      CALLING MetViewer plotting script...")
+                        plot_vx_metviewer(args_list)
+                        print(f"      DONE CALLING MetViewer plotting script...")
 
 #
 # -----------------------------------------------------------------------
@@ -124,7 +112,6 @@ def load_user_config(ushdir, args):
 # -----------------------------------------------------------------------
 #
 if __name__ == "__main__":
-    USHdir = os.path.dirname(os.path.abspath(__file__))
 
     parser = argparse.ArgumentParser(
         description='Call MetViewer to create vx plots.'
@@ -137,7 +124,7 @@ if __name__ == "__main__":
 
     parser.add_argument('--config',
                         type=str,
-                        required=False, default='config_mv_plots.yml',
+                        required=False, default='config_mv_plots.default.yml',
                         help='Name of yaml user configuration file for MetViewer plot generation')
 
     parser.add_argument('--exclude_stats',
@@ -148,5 +135,5 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    load_user_config(USHdir, args)
+    make_mv_vx_plots(args)
 

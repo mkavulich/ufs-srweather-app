@@ -6,7 +6,6 @@ import glob
 import argparse
 import yaml
 import re
-#from fill_jinja_template import fill_jinja_template
 
 import logging
 from textwrap import dedent
@@ -16,21 +15,17 @@ from datetime import timedelta
 import pprint
 import subprocess
 
-# Find the absolute path to the subdirectory "ush" under the SRW App
-# clone.  This is needed to locate ourselves in the directory structure.
+# Find the absolute paths to various directories.
 from pathlib import Path
 crnt_script_fp = Path(__file__).resolve()
 # The index of file.parents will have to be changed if this script is moved to 
 # elsewhere in the SRW directory structure.
 ush_dir = crnt_script_fp.parents[2]
+# The directory in which the SRW App is cloned.  This is one level up from ush_dir.
 home_dir = Path(os.path.join(ush_dir, '..')).resolve()
 # Get directory and name of current script.
-crnt_script_dir = str(crnt_script_fp.parent)
-crnt_script_fn = str(crnt_script_fp.name)
-#print(f"crnt_script_dir = {crnt_script_dir}")
-#print(f"crnt_script_fn = {crnt_script_fn}")
-#print(f"home_dir = {home_dir}")
-#jijijijijijij
+#crnt_script_dir = str(crnt_script_fp.parent)
+#crnt_script_fn = str(crnt_script_fp.name)
 
 # Add ush_dir to the path so that python_utils can be imported.
 sys.path.append(str(ush_dir))
@@ -39,7 +34,7 @@ from python_utils import (
     load_config_file,
 )
 
-# Add directories for accessing scripts/modules from workflow-tools repo.
+# Add directories for accessing scripts/modules in the workflow-tools repo.
 wt_src_dir = os.path.join(ush_dir, 'python_utils', 'workflow-tools', 'src')
 sys.path.append(str(wt_src_dir))
 wt_scripts_dir = os.path.join(ush_dir, 'python_utils', 'workflow-tools', 'scripts')
@@ -48,105 +43,6 @@ from templater import (
     set_template,
 )
 
-def generate_metviewer_xml(argv):
-    """Function that generates an xml file that MetViewer can read (in order
-       to create a verification plot).
-
-    Args:
-        argv:  Command-line arguments
-
-    Returns:
-        None
-    """
-
-    # Set the logging level.
-    logging.basicConfig(level=logging.INFO)
-
-    # Parse arguments.
-    parser = argparse.ArgumentParser(epilog="For more information about config arguments (denoted "\
-                                            "in CAPS), see ush/config_defaults.yaml\n")
-    # Create a group for optional arguments so they can be listed after required args
-    optional = parser._action_groups.pop()
-    required = parser.add_argument_group('required arguments')
-
-    required.add_argument('--mv_host',
-                          type=str,
-                          required=False, default='mohawk', 
-                          help='Host (name of machine) on which MetViewer is installed')
-
-    required.add_argument('--mv_machine_config',
-                          type=str,
-                          required=False, default='config_mv_machine.yml', 
-                          help='MetViewer machine (host) configuration file')
-
-    required.add_argument('--mv_database',
-                          type=str,
-                          required=False, default='mv_gefs_gdas_rtps_href_spring_2022', 
-                          help='Name of MetViewer database on the machine')
-
-    required.add_argument('--mv_output_dir',
-                          type=str,
-                          required=False, default='./mv_output', 
-                          help='Directory in which to place output (e.g. plots) from MetViewer')
-
-    # Short and long names of verification statistics that may be plotted.
-    stat_long_names = {'auc': 'Area Under the Curve',
-                       'bias': 'Bias',
-                       'brier': 'Brier Score',
-                       'fbias': 'Frequency Bias',
-                       'rely': 'Reliability',
-                       'rhist': 'Rank Histogram',
-                       'ss': 'Spread-Skill Ratio'}
-    choices_stats = sorted(list(stat_long_names.keys()))
-
-    # Short and long names of forecast variables on which verification may be run.
-    fcst_var_long_names = {'apcp': 'Accumulated Precipitation',
-                           'cape': 'Convenctive Available Potential Energy',
-                           'dpt': 'Dew Point Temperature',
-                           'hgt': 'Height',
-                           'refc': 'Composite Reflectivity',
-                           'tmp': 'Temperature',
-                           'wind': 'Wind'}
-    choices_fcst_vars = sorted(list(fcst_var_long_names.keys()))
-
-    # Short names and names in MetViewer database of the models on which verification
-    # can be run.  These have to be available (loaded) in the database.
-    model_names_in_mv_database = {'gdas': 'RRFS_GDAS_GF.SPP.SPPT',
-                                  'gefs': 'RRFS_GEFS_GF.SPP.SPPT',
-                                  'href': 'HREF'}
-    choices_models = sorted(list(model_names_in_mv_database.keys()))
-    required.add_argument('--models', nargs='+',
-                          type=str.lower,
-                          required=True,
-                          choices=choices_models,
-                          help='Names of models to include in xml and plots')
-
-    required.add_argument('--num_ens_mems', nargs='+',
-                          type=int,
-                          required=True,
-                          help='Number of ensemble members per model; if only one number is specified, all models are assumed to have the same number of members')
-
-    # Set of allowed colors and the corresponding color codes that MetViewer recognizes.
-    # NOTE:  These are incorrect, need to fix!!
-    avail_metviewer_colors = {'red': '#ff0000FF',
-                              'blue': '#8a2be2FF',
-                              'green': '#32cd32FF'}
-    choices_colors = list(avail_metviewer_colors.keys())
-    required.add_argument('--colors', nargs='+',
-                          type=int,
-                          required=False, default=choices_colors,
-                          choices=choices_colors,
-                          help='Color of each model used in line series, histogram, etc plots')
-
-    required.add_argument('--stat',
-                          type=str.lower,
-                          required=True,
-                          choices=choices_stats,
-                          help='Name of verification statistic/metric')
-
-    required.add_argument('--incl_ens_means',
-                          required=False, action=argparse.BooleanOptionalAction, default=argparse.SUPPRESS,
-                          help='Flag for including ensemble mean curves in plot')
 #
 # Note:
 # * BIAS, RHST, SS dont use thresholds.
@@ -174,16 +70,126 @@ def generate_metviewer_xml(argv):
 # tmp         2m, 850mb         ge288K (AUC,BRIER,RELY), ge293K (AUC,BRIER,RELY), ge298K (AUC,BRIER,RELY), ge303K (RELY)
 # wind        10m, 700mb        ge5mps (AUC,BRIER,RELY), ge10mps (AUC,BRIER,RELY)
 #
-    required.add_argument('--fcst_var',
-                          type=str.lower,
-                          required=True, 
-                          choices=choices_fcst_vars,
-                          help='Name of forecast variable to verify')
+def generate_metviewer_xml(argv):
+    """Function that generates an xml file that MetViewer can read (in order
+       to create a verification plot).
 
-    required.add_argument('--fcst_init_info', nargs=3,
-                          type=str,
-                          required=True, 
-                          help='Initialization time of first forecast (in YYYYMMDDHH), number of forecasts, and forecast initialization interval (in HH)')
+    Args:
+        argv:  Command-line arguments
+
+    Returns:
+        None
+    """
+
+    # Set the logging level.
+    logging.basicConfig(level=logging.INFO)
+
+    # Parse arguments.
+    parser = argparse.ArgumentParser(description=dedent(f'''
+             Function to generate an xml file that MetViewer can read in order 
+             to create a verification plot.
+             '''))
+
+    parser.add_argument('--mv_host',
+                        type=str,
+                        required=False, default='mohawk', 
+                        help='Host (name of machine) on which MetViewer is installed')
+
+    parser.add_argument('--mv_machine_config',
+                        type=str,
+                        required=False, default='config_mv_machine.yml', 
+                        help='MetViewer machine (host) configuration file')
+
+    parser.add_argument('--mv_database',
+                        type=str,
+                        required=False, default='mv_gefs_gdas_rtps_href_spring_2022', 
+                        help='Name of MetViewer database on the machine')
+
+    crnt_script_fp = Path(__file__).resolve()
+    home_dir = crnt_script_fp.parents[3]
+    expts_dir = Path(os.path.join(home_dir, '../expts_dir')).resolve()
+    parser.add_argument('--mv_output_dir',
+                        type=str,
+                        required=False, default=os.path.join(expts_dir, 'mv_output2'),
+                        help='Directory in which to place output (e.g. plots) from MetViewer')
+
+    # Short and long names of verification statistics that may be plotted.
+    stat_long_names = {'auc': 'Area Under the Curve',
+                       'bias': 'Bias',
+                       'brier': 'Brier Score',
+                       'fbias': 'Frequency Bias',
+                       'rely': 'Reliability',
+                       'rhist': 'Rank Histogram',
+                       'ss': 'Spread-Skill Ratio'}
+    choices_stats = sorted(list(stat_long_names.keys()))
+
+    # Short and long names of forecast variables on which verification may be run.
+    fcst_var_long_names = {'apcp': 'Accumulated Precipitation',
+                           'cape': 'Convenctive Available Potential Energy',
+                           'dpt': 'Dew Point Temperature',
+                           'hgt': 'Height',
+                           'refc': 'Composite Reflectivity',
+                           'tmp': 'Temperature',
+                           'wind': 'Wind'}
+    choices_fcst_vars = sorted(list(fcst_var_long_names.keys()))
+
+    # Short names and names in MetViewer database of the models on which verification
+    # can be run.  These have to be available (loaded) in the database.
+    model_names_in_mv_database = {'gdas': 'RRFS_GDAS_GF.SPP.SPPT',
+                                  'gefs': 'RRFS_GEFS_GF.SPP.SPPT',
+                                  'href': 'HREF'}
+    choices_models = sorted(list(model_names_in_mv_database.keys()))
+    parser.add_argument('--model_names', nargs='+',
+                        type=str.lower,
+                        required=True,
+                        choices=choices_models,
+                        help='Names of models to include in xml and plots')
+
+    parser.add_argument('--num_ens_mems', nargs='+',
+                        type=int,
+                        required=True,
+                        help=dedent(f'''Number of ensemble members per model; if only one number
+                                        is specified, all models are assumed to have the same
+                                        number of members'''))
+
+    # Set of allowed colors and the corresponding color codes that MetViewer recognizes.
+    # NOTE:  These are incorrect, need to fix!!
+    avail_metviewer_colors = {'red': '#ff0000FF',
+                              'blue': '#8a2be2FF',
+                              'green': '#32cd32FF'}
+    choices_colors = list(avail_metviewer_colors.keys())
+    parser.add_argument('--colors', nargs='+',
+                        type=int,
+                        required=False, default=choices_colors,
+                        choices=choices_colors,
+                        help='Color of each model used in line series, histogram, etc plots')
+
+    parser.add_argument('--stat',
+                        type=str.lower,
+                        required=True,
+                        choices=choices_stats,
+                        help='Name of verification statistic/metric')
+
+    parser.add_argument('--incl_ens_means',
+                        required=False, action=argparse.BooleanOptionalAction, default=argparse.SUPPRESS,
+                        help='Flag for including ensemble mean curves in plot')
+
+    parser.add_argument('--fcst_init_info', nargs=3,
+                        type=str,
+                        required=True, 
+                        help=dedent(f'''Initialization time of first forecast (in YYYYMMDDHH),
+                                        number of forecasts, and forecast initialization interval (in HH)'''))
+
+    parser.add_argument('--fcst_len_hrs',
+                        type=int,
+                        required=True,
+                        help='Forecast length (in integer hours)')
+
+    parser.add_argument('--fcst_var',
+                        type=str.lower,
+                        required=True, 
+                        choices=choices_fcst_vars,
+                        help='Name of forecast variable to verify')
 
     # Define dictionary containing the valid levels/accumulations for 
     # each valid forecast variable.
@@ -204,11 +210,11 @@ def generate_metviewer_xml(argv):
     choices_level_or_accum = [item for sublist in valid_levels_or_accums_by_fcst_var.values() for item in sublist]
     choices_level_or_accum = sorted(list(set(choices_level_or_accum)))
 
-    required.add_argument('--level_or_accum',
-                          type=str,
-                          required=False,
-                          choices=choices_level_or_accum,
-                          help='Vertical level or accumulation period')
+    parser.add_argument('--level_or_accum',
+                        type=str,
+                        required=False,
+                        choices=choices_level_or_accum,
+                        help='Vertical level or accumulation period')
 
     valid_thresholds_by_fcst_var = {
         'apcp': ['gt0.0mm', 'ge2.54mm'],
@@ -222,16 +228,11 @@ def generate_metviewer_xml(argv):
     choices_thresholds = [item for sublist in valid_thresholds_by_fcst_var.values() for item in sublist]
     choices_thresholds = sorted(list(set(choices_thresholds)))
 
-    required.add_argument('--threshold',
-                          type=str,
-                          required=False, default='',
-                          choices=choices_thresholds,
-                          help='Threshold')
-
-    required.add_argument('--fcst_len_hrs',
-                          type=int,
-                          required=True,
-                          help='Forecast length (in integer hours)')
+    parser.add_argument('--threshold',
+                        type=str,
+                        required=False, default='',
+                        choices=choices_thresholds,
+                        help='Threshold for specified forecast variable')
 
     args = parser.parse_args(argv)
 
@@ -262,7 +263,6 @@ def generate_metviewer_xml(argv):
     mv_machine_config_dict = mv_machine_config[mv_host]
     print(f"")
     print(f"mv_machine_config_dict = {mv_machine_config_dict}")
-    #aaaaaaaaaaaa
 
     fcst_init_time_first = datetime.strptime(args.fcst_init_info[0], '%Y%m%d%H')
     num_fcsts = int(args.fcst_init_info[1])
@@ -402,7 +402,7 @@ def generate_metviewer_xml(argv):
     thresh_str = ''.join(filter(None, [thresh_comp_oper, thresh_value, thresh_units]))
     var_lvl_thresh_str = '_'.join(filter(None, [var_lvl_str, thresh_str]))
 
-    models_str = '_'.join(args.models)
+    models_str = '_'.join(args.model_names)
     job_title = '_'.join([args.stat, var_lvl_thresh_str, models_str])
 
     logging.info(dedent(f"""
@@ -416,7 +416,7 @@ def generate_metviewer_xml(argv):
           models_str = {models_str}
         """))
 
-    num_models = len(args.models)
+    num_models = len(args.model_names)
     len_num_ens_mems = len(args.num_ens_mems)
     if len_num_ens_mems == 1:
         args.num_ens_mems = [args.num_ens_mems[0] for n in range(num_models)]
@@ -433,8 +433,7 @@ def generate_metviewer_xml(argv):
                 """))
             error_out
 
-    # Need code to check that the number of ensemble members is > 0 for all members.
-    for i,model in enumerate(args.models):
+    for i,model in enumerate(args.model_names):
         num_ens_mems = args.num_ens_mems[i]
         if num_ens_mems <= 0:
             logging.error(dedent(f"""
@@ -449,8 +448,8 @@ def generate_metviewer_xml(argv):
     # available colors.
     model_colors = [avail_metviewer_colors[m] for m in args.colors]
 
-    model_db_names = [model_names_in_mv_database[m] for m in args.models]
-    model_names_short_uc = [m.upper() for m in args.models]
+    model_db_names = [model_names_in_mv_database[m] for m in args.model_names]
+    model_names_short_uc = [m.upper() for m in args.model_names]
 
     line_types = list()
     for imod in range(0,num_models):
@@ -555,7 +554,8 @@ def generate_metviewer_xml(argv):
           template_fp = {template_fp}
         """))
 
-    # Place 
+    # Place xmls generated below in the same directory as the plots that 
+    # MetViewer will generate from the xmls.
     output_xml_dir = Path(os.path.join(args.mv_output_dir, 'plots')).resolve()
     if not os.path.exists(output_xml_dir):
         os.makedirs(output_xml_dir)
@@ -577,33 +577,35 @@ def generate_metviewer_xml(argv):
     with open(f'{tmp_fn}', 'w') as fn:
         yaml_vars = yaml.dump(jinja_vars, fn)
 
-    # Create MetViewer XML from Jinja template.
-    #yaml_vars = yaml.dump(jinja_vars)
-    #args = ["-q", "-u", yaml_vars, '-t', template_fp, "-o", output_xml_fp]
-    #fill_jinja_template(args)
     args = ['--quiet', '--config_file', tmp_fn, '--input_template', template_fp, "--outfile", output_xml_fp]
     set_template(args)
+    os.remove(tmp_fn)
 
-    return(output_xml_fp)
+    return(mv_machine_config_dict["mv_batch"], output_xml_fp)
 
 
-def plot_vx_metviewer(argv):
+def run_mv_batch(mv_batch, output_xml_fp):
     """Function that generates a verification plot using MetViewer.
 
     Args:
-        argv:  Command-line arguments
+        mv_batch:       Path to MetViewer batch plotting script.
+        output_xml_fp:  Full path to the xml to pass to the batch script.
 
     Returns:
         None
     """
 
-    output_xml_fp = generate_metviewer_xml(argv)
-
     # Run MetViewer in batch mode on the xml.
-    mv_batch = "/d2/projects/METViewer/src/apps/METviewer/bin/mv_batch.sh"
     subprocess.run([mv_batch, output_xml_fp])
 
 
+def plot_vx_metviewer(args):
+
+    # Pass command line arguments (except for very first one) to the function
+    # that generates a MetViewer xml.
+    mv_batch, output_xml_fp = generate_metviewer_xml(args)
+    # Run MetViewer on the xml.
+    run_mv_batch(mv_batch, output_xml_fp)
 #
 # -----------------------------------------------------------------------
 #
@@ -612,8 +614,5 @@ def plot_vx_metviewer(argv):
 # -----------------------------------------------------------------------
 #
 if __name__ == "__main__":
-    # Pass command line arguments (except for very first one) to the function
-    # that generates a MetViewer xml and then runs MetViewer on it.
     plot_vx_metviewer(sys.argv[1:])
-
 
