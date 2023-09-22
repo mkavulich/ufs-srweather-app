@@ -123,3 +123,33 @@ rhist:
         850mb:
             thresholds: ['']
 
+ss:
+    apcp:
+        03hr:
+            thresholds: ['']
+    dpt:
+        2m:
+            thresholds: ['']
+    hgt:
+        500mb:
+            thresholds: ['']
+    refc:
+        L0:
+            thresholds: ['']
+    tmp:
+        2m:
+            thresholds: ['']
+        500mb:
+            thresholds: ['']
+        700mb:
+            thresholds: ['']
+        850mb:
+            thresholds: ['']
+    wind:
+        500mb:
+            thresholds: ['']
+        700mb:
+            thresholds: ['']
+        850mb:
+            thresholds: ['']
+
