@@ -161,7 +161,7 @@ def parse_args(argv, static):
 
     parser.add_argument('--mv_machine_config',
                         type=str,
-                        required=False, default='config_mv_machine.yml', 
+                        required=False, default='mv_machine_config.yml', 
                         help='MetViewer machine (host) configuration file')
 
     parser.add_argument('--mv_database',
