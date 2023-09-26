@@ -136,7 +136,20 @@ def get_static_vals(static_fp):
 
     return static
 
-def parse_args(argv, static):
+
+def get_database_info(mv_database_config_fp):
+    '''
+    Function to read in information about the MetViewer database from which
+    verification statistics will be plotted.
+    '''
+
+    # Load the yaml file containing database information.
+    mv_database_info = load_config_file(mv_database_config_fp)
+
+    return mv_database_info
+
+
+def parse_args(argv, static, mv_database_info):
     '''
     Function to parse arguments for this script.
     '''
@@ -148,6 +161,10 @@ def parse_args(argv, static):
     stat_need_thresh = static['stat_need_thresh']
     mv_color_codes = static['mv_color_codes']
     choices = static['choices']
+
+    # For uniformity, add the allowed values for the model names to the "choices"
+    # dictionary.
+    choices['model'] = mv_database_info['models'].keys()
 
     parser = argparse.ArgumentParser(description=dedent(f'''
              Function to generate an xml file that MetViewer can read in order 
@@ -164,11 +181,10 @@ def parse_args(argv, static):
                         required=False, default='mv_machine_config.yml', 
                         help='MetViewer machine (host) configuration file')
 
-    parser.add_argument('--mv_database',
+    parser.add_argument('--mv_database_config',
                         type=str,
-                        required=True,
-                        help='Name of MetViewer database on the machine')
-                        #required=False, default='mv_gefs_gdas_rtps_href_spring_2022', 
+                        required=True, default='mv_database_config.yml',
+                        help='MetViewer database configuration file')
 
     crnt_script_fp = Path(__file__).resolve()
     home_dir = crnt_script_fp.parents[3]
@@ -178,24 +194,11 @@ def parse_args(argv, static):
                         required=False, default=os.path.join(expts_dir, 'mv_output'),
                         help='Directory in which to place output (e.g. plots) from MetViewer')
 
-    # Short names and names in MetViewer database of the models on which verification
-    # can be run.  These have to be available (loaded) in the database.
-    model_names_in_mv_database = {'gdas': 'RRFS_GDAS_GF.SPP.SPPT',
-                                  'gefs': 'RRFS_GEFS_GF.SPP.SPPT',
-                                  'href': 'HREF'}
-    choices_models = sorted(list(model_names_in_mv_database.keys()))
     parser.add_argument('--model_names', nargs='+',
                         type=str.lower,
                         required=True,
-                        choices=choices_models,
+                        choices=choices['model'],
                         help='Names of models to include in xml and plots')
-
-    parser.add_argument('--num_ens_mems', nargs='+',
-                        type=int,
-                        required=True,
-                        help=dedent(f'''Number of ensemble members per model; if only one number
-                                        is specified, all models are assumed to have the same
-                                        number of members'''))
 
     parser.add_argument('--colors', nargs='+',
                         type=int,
@@ -256,11 +259,10 @@ def parse_args(argv, static):
           cla = {cla_str}
         """))
 
-    return cla, static, \
-           model_names_in_mv_database
+    return cla
 
 
-def generate_metviewer_xml(cla, static, model_names_in_mv_database):
+def generate_metviewer_xml(cla, static, mv_database_info):
     """Function that generates an xml file that MetViewer can read (in order
        to create a verification plot).
 
@@ -449,31 +451,17 @@ def generate_metviewer_xml(cla, static, model_names_in_mv_database):
           models_str = {models_str}
         """))
 
-    num_models = len(cla.model_names)
-    len_num_ens_mems = len(cla.num_ens_mems)
-    if len_num_ens_mems == 1:
-        cla.num_ens_mems = [cla.num_ens_mems[0] for n in range(num_models)]
-        len_num_ens_mems = len(cla.num_ens_mems)
-    else:
-        if len_num_ens_mems != num_models:
-            logging.error(dedent(f"""
-                Each model must have a number of ensemble members specified, or only 
-                one number must be specified on the command line that represents the
-                number of ensemble members for all specified models (i.e. num_models
-                must equal len_num_ens_mems):
-                  num_models = {num_models}
-                  len_num_ens_mems = {len_num_ens_mems}
-                """))
-            error_out
-
+    model_info = mv_database_info['models']
+    num_models = len(model_info)
+    num_ens_mems = [model_info[m]['num_ens_mems'] for m in cla.model_names]
     for i,model in enumerate(cla.model_names):
-        num_ens_mems = cla.num_ens_mems[i]
-        if num_ens_mems <= 0:
+        n_ens = num_ens_mems[i]
+        if n_ens <= 0:
             logging.error(dedent(f"""
                 The number of ensemble members for the current model must be greater
                 than or equal to 0:
                   model = {model}
-                  num_ens_mems = {num_ens_mems}
+                  n_ens = {n_ens}
                 """))
             error_out
 
@@ -481,17 +469,17 @@ def generate_metviewer_xml(cla, static, model_names_in_mv_database):
     # available colors.
     model_color_codes = [mv_color_codes[m] for m in cla.colors]
 
-    model_db_names = [model_names_in_mv_database[m] for m in cla.model_names]
+    model_db_names = [model_info[m]['name_in_db'] for m in cla.model_names]
     model_names_short_uc = [m.upper() for m in cla.model_names]
 
     line_types = list()
     for imod in range(0,num_models):
         if incl_ens_means: line_types.append('b')
-        line_types.extend(["l" for imem in range(0,cla.num_ens_mems[imod])])
+        line_types.extend(["l" for imem in range(0,num_ens_mems[imod])])
 
-    line_widths = [1 for imod in range(0,num_models) for imem in range(0,cla.num_ens_mems[imod])]
+    line_widths = [1 for imod in range(0,num_models) for imem in range(0,num_ens_mems[imod])]
 
-    num_series = sum(cla.num_ens_mems[0:num_models])
+    num_series = sum(num_ens_mems[0:num_models])
     if incl_ens_means: num_series = num_series + num_models
     order_series = [s for s in range(1,num_series+1)]
 
@@ -533,7 +521,7 @@ def generate_metviewer_xml(cla, static, model_names_in_mv_database):
     # jinja template.
     jinja_vars = {"mv_host": cla.mv_host,
                   "mv_machine_config_dict": mv_machine_config_dict,
-                  "mv_database": cla.mv_database,
+                  "mv_database": mv_database_info['db_name'],
                   "mv_output_dir": cla.mv_output_dir,
                   "num_models": num_models,
                   "model_color_codes": model_color_codes,
@@ -552,7 +540,7 @@ def generate_metviewer_xml(cla, static, model_names_in_mv_database):
                   "line_widths": line_widths,
                   "num_series": num_series,
                   "order_series": order_series,
-                  "num_ens_mems": cla.num_ens_mems,
+                  "num_ens_mems": num_ens_mems,
                   "thresh_comp_oper": thresh_comp_oper,
                   "thresh_value": thresh_value,
                   "thresh_units": thresh_units,
@@ -644,14 +632,17 @@ def plot_vx_metviewer(argv):
     static_fp = 'vx_plots_static.yml'
     static = get_static_vals(static_fp)
 
+    # Get MetViewer database information.
+    mv_database_config_fp = 'mv_database_config.yml'
+    mv_database_info = get_database_info(mv_database_config_fp)
+
     # Parse arguments.
-    cla, static, model_names_in_mv_database \
-    = parse_args(argv, static)
+    cla = parse_args(argv, static, mv_database_info)
 
     # Generates a MetViewer xml.
-    mv_batch, output_xml_fp = generate_metviewer_xml(cla, static, model_names_in_mv_database)
+    mv_batch, output_xml_fp = generate_metviewer_xml(cla, static, mv_database_info)
 
-    # Run MetViewer on the xml to create a plot.
+    # Run MetViewer on the xml to create a verification plot.
     run_mv_batch(mv_batch, output_xml_fp)
 #
 # -----------------------------------------------------------------------

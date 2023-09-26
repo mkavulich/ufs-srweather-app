@@ -1,0 +1,11 @@
+db_name: 'mv_gefs_gdas_rtps_href_spring_2022'
+models:
+    gdas:
+        name_in_db: 'RRFS_GDAS_GF.SPP.SPPT'
+        num_ens_mems: 10
+    gefs:
+        name_in_db: 'RRFS_GEFS_GF.SPP.SPPT'
+        num_ens_mems: 10
+    href:
+        name_in_db: 'HREF'
+        num_ens_mems: 10
