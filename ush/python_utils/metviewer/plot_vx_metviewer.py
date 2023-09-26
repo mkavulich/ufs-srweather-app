@@ -125,27 +125,29 @@ def get_static_vals(static_fp):
 
     choices['color'] = list(mv_color_codes.keys())
 
-    return fcst_var_long_names, \
-           valid_levels_or_accums_by_fcst_var, \
-           valid_thresholds_by_fcst_var, \
-           stat_long_names, stat_need_thresh, \
-           mv_color_codes, \
-           choices
+    static = {}
+    static['fcst_var_long_names'] = fcst_var_long_names
+    static['valid_levels_or_accums_by_fcst_var'] = valid_levels_or_accums_by_fcst_var
+    static['valid_thresholds_by_fcst_var'] = valid_thresholds_by_fcst_var
+    static['stat_long_names'] = stat_long_names
+    static['stat_need_thresh'] = stat_need_thresh
+    static['mv_color_codes'] = mv_color_codes 
+    static['choices'] = choices
 
-def parse_args(argv):
+    return static
+
+def parse_args(argv, static):
     '''
     Function to parse arguments for this script.
     '''
 
-    static_fp = 'vx_plots_static.yml'
-
-    fcst_var_long_names, \
-    valid_levels_or_accums_by_fcst_var, \
-    valid_thresholds_by_fcst_var, \
-    stat_long_names, stat_need_thresh, \
-    mv_color_codes, \
-    choices \
-    = get_static_vals(static_fp)
+    fcst_var_long_names = static['fcst_var_long_names']
+    valid_levels_or_accums_by_fcst_var = static['valid_levels_or_accums_by_fcst_var']
+    valid_thresholds_by_fcst_var = static['valid_thresholds_by_fcst_var']
+    stat_long_names = static['stat_long_names']
+    stat_need_thresh = static['stat_need_thresh']
+    mv_color_codes = static['mv_color_codes']
+    choices = static['choices']
 
     parser = argparse.ArgumentParser(description=dedent(f'''
              Function to generate an xml file that MetViewer can read in order 
@@ -254,16 +256,9 @@ def parse_args(argv):
           cla = {cla_str}
         """))
 
-    static = {}
-    static['fcst_var_long_names'] = fcst_var_long_names
-    static['valid_levels_or_accums_by_fcst_var'] = valid_levels_or_accums_by_fcst_var
-    static['valid_thresholds_by_fcst_var'] = valid_thresholds_by_fcst_var
-    static['stat_long_names'] = stat_long_names
-    static['stat_need_thresh'] = stat_need_thresh
-    static['mv_color_codes'] = mv_color_codes 
-
     return cla, static, \
            model_names_in_mv_database
+
 
 def generate_metviewer_xml(cla, static, model_names_in_mv_database):
     """Function that generates an xml file that MetViewer can read (in order
@@ -644,9 +639,14 @@ def run_mv_batch(mv_batch, output_xml_fp):
 
 def plot_vx_metviewer(argv):
 
+    # Get static parameters.  These include parameters (e.g. valid values) 
+    # needed to parse the command line arguments.
+    static_fp = 'vx_plots_static.yml'
+    static = get_static_vals(static_fp)
+
     # Parse arguments.
     cla, static, model_names_in_mv_database \
-    = parse_args(argv)
+    = parse_args(argv, static)
 
     # Generates a MetViewer xml.
     mv_batch, output_xml_fp = generate_metviewer_xml(cla, static, model_names_in_mv_database)
