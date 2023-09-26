@@ -21,13 +21,6 @@ from pathlib import Path
 file = Path(__file__).resolve()
 parent, root = file.parent, file.parents[1]
 ush_dir = Path(os.path.join(root, '..')).resolve()
-#    ush_dir=os.path.join(homedir,'ush')
-print(f"")
-print(f"AAAAAAAAAAAAAAAAAAAAAAAAAAA")
-print(f"__file__ = {__file__}")
-print(f"parent = {parent}")
-print(f"root = {root}")
-print(f"ush_dir = {ush_dir}")
 sys.path.append(str(ush_dir))
 
 from python_utils import (
@@ -46,8 +39,6 @@ def make_mv_vx_plots(args):
 
     logging.basicConfig(level=logging.INFO)
 
-    #base_dir = '/home/ketefian/ufs-srweather-app/ush/python_utils/metviewer/mv_output'
-
     config_fn = args.config
     config_dict = load_config_file(config_fn)
     logging.info(dedent(f"""
@@ -61,9 +52,7 @@ def make_mv_vx_plots(args):
     fcst_init_info = [str(elem) for elem in fcst_init_info]
 
     fcst_len_hrs = str(config_dict['fcst_len_hrs'])
-    model_info = config_dict['model_info']
-    model_names = model_info['model_names']
-    num_ens_mems = [str(elem) for elem in model_info['num_ens_mems']]
+    model_names = config_dict['model_names']
 
     vx_stats_dict = config_dict["vx_stats"]
     for stat, stat_dict in vx_stats_dict.items():
@@ -91,14 +80,13 @@ def make_mv_vx_plots(args):
                         print(f"      thresh = {thresh}")
 
                         args_list = ['--model_names', ] + model_names \
-                                  + ['--num_ens_mems'] + num_ens_mems \
                                   + ['--stat', stat,
                                      '--fcst_init_info'] + fcst_init_info \
                                   + ['--fcst_len_hrs', fcst_len_hrs, 
                                      '--fcst_var', fcst_var,
                                      '--level_or_accum', level,
-                                     '--threshold', thresh]
-                        #             '--mv_output_dir', base_dir]
+                                     '--threshold', thresh, 
+                                     '--mv_output_dir', args.output_dir]
                         print(f"      args_list = {args_list}")
                         print(f"      CALLING MetViewer plotting script...")
                         plot_vx_metviewer(args_list)
@@ -117,10 +105,13 @@ if __name__ == "__main__":
         description='Call MetViewer to create vx plots.'
     )
 
+    crnt_script_fp = Path(__file__).resolve()
+    home_dir = crnt_script_fp.parents[3]
+    expts_dir = Path(os.path.join(home_dir, '../expts_dir')).resolve()
     parser.add_argument('--output_dir',
                         type=str,
-                        required=False, default='mv_config.yml',
-                        help='Path of directory in which to place MetViewer output')
+                        required=False, default=os.path.join(expts_dir, 'mv_output'),
+                        help='Directory in which to place MetViewer output')
 
     parser.add_argument('--config',
                         type=str,

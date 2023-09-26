@@ -183,7 +183,7 @@ def parse_args(argv, static, mv_database_info):
 
     parser.add_argument('--mv_database_config',
                         type=str,
-                        required=True, default='mv_database_config.yml',
+                        required=False, default='mv_database_config.yml',
                         help='MetViewer database configuration file')
 
     crnt_script_fp = Path(__file__).resolve()
