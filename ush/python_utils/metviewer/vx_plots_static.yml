@@ -1,0 +1,58 @@
+fcst_vars:
+    apcp:
+        long_name: 'Accumulated Precipitation'
+        valid_levels: ['3h', '3hr', '03h', '03hr', '6h', '6hr', '06h', '06hr', ]
+        valid_thresholds: ['gt0.0mm', 'ge2.54mm']
+    cape:
+        long_name: 'Convenctive Available Potential Energy'
+        valid_levels: ['']
+        valid_thresholds: ['']
+    dpt:
+        long_name: 'Dew Point Temperature'
+        valid_levels: ['2m', '02m']
+        valid_thresholds: ['ge288K', 'ge293K']
+    hgt:
+        long_name: 'Height'
+        valid_levels: ['500mb']
+        valid_thresholds: ['']
+    refc:
+        long_name: 'Composite Reflectivity'
+        valid_levels: ['L0']
+        valid_thresholds: ['ge20dBZ', 'ge30dBZ', 'ge40dBZ', 'ge50dBZ']
+    tmp:
+        long_name: 'Temperature'
+        valid_levels: ['2m', '02m', '500mb', '700mb', '850mb']
+        valid_thresholds: ['ge288K', 'ge293K', 'ge298K', 'ge303K']
+    wind:
+        long_name: 'Wind'
+        valid_levels: ['10m', '500mb', '700mb', '850mb']
+        valid_thresholds: ['ge5mps', 'ge10mps']
+
+stats:
+    auc:
+        long_name: 'Area Under the Curve'
+        need_thresh: True
+    bias:
+        long_name: 'Bias'
+        need_thresh: False
+    brier:
+        long_name: 'Brier Score'
+        need_thresh: True
+    fbias:
+        long_name: 'Frequency Bias'
+        need_thresh: True
+    rely:
+        long_name: 'Reliability'
+        need_thresh: True
+    rhist:
+        long_name: 'Rank Histogram'
+        need_thresh: False
+    ss:
+        long_name: 'Spread-Skill Ratio'
+        need_thresh: False
+
+mv_color_codes:
+    red: '#ff0000FF'
+    blue: '#8a2be2FF'
+    green: '#32cd32FF'
+

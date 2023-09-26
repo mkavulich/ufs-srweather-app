@@ -230,10 +230,10 @@
 {#- #}
         <!-- These are the series colors. -->
         <colors>c(
-{%- set color = model_colors[0] -%}
+{%- set color = model_color_codes[0] -%}
 "{{color}}"
 {%- for imdl in range(2, num_models+1) -%}
-  {%- set color = model_colors[imdl-1] -%}
+  {%- set color = model_color_codes[imdl-1] -%}
   ,"{{color}}"
 {%- endfor -%})</colors>
 {#- #}

@@ -71,10 +71,114 @@ from templater import (
 # wind        10m, 700mb        ge5mps (AUC,BRIER,RELY), ge10mps (AUC,BRIER,RELY)
 #
 
+def get_static_vals(static_fp):
+    '''
+    Function to read in mostly static values (e.g. valid values for various parameters).
+    '''
+
+    # Load the yaml file containing valid values for various quantities.
+    #static_fp = Path(os.path.join(cla.static_fp)).resolve()
+    valid_vals = load_config_file(static_fp)
+
+    #print(f"")
+    #print(f"valid_vals = {valid_vals}")
+    #mv_color_codes = valid_vals['mv_color_codes']
+    #print(f"")
+    #print(f"mv_color_codes = {mv_color_codes}")
+    #alsdfj
+
+    # Define local dictionaries containing valid values.
+    valid_fcst_vars = valid_vals['fcst_vars'].keys()
+    fcst_var_long_names = {}
+    valid_levels_or_accums_by_fcst_var = {}
+    valid_thresholds_by_fcst_var = {}
+    for fcst_var in valid_fcst_vars:
+        print(f"  fcst_var = {fcst_var}")
+        fcst_var_long_names[fcst_var] = valid_vals['fcst_vars'][fcst_var]['long_name']
+        valid_levels_or_accums_by_fcst_var[fcst_var] = valid_vals['fcst_vars'][fcst_var]['valid_levels']
+        valid_thresholds_by_fcst_var[fcst_var] = valid_vals['fcst_vars'][fcst_var]['valid_thresholds']
+
+    print(f"")
+    print(f"fcst_var_long_names = {fcst_var_long_names}")
+    print(f"valid_levels_or_accums_by_fcst_var = {valid_levels_or_accums_by_fcst_var}")
+    print(f"valid_thresholds_by_fcst_var = {valid_thresholds_by_fcst_var}")
+
+    valid_stats = valid_vals['stats'].keys()
+    stat_long_names = {}
+    stat_need_thresh = {}
+    for stat in valid_stats:
+        print(f"  stat = {stat}")
+        stat_long_names[stat] = valid_vals['stats'][stat]['long_name']
+        stat_need_thresh[stat] = valid_vals['stats'][stat]['need_thresh']
+    #print(f"")
+    #print(f"stat_long_names = {stat_long_names}")
+    #print(f"stat_need_thresh = {stat_need_thresh}")
+    #uuuuuuuu
+
+    ## List of verification stats for which a threshold is not needed.
+    #no_thresh_stats = ['bias', 'rhist', 'ss']
+    ## List of verification stats for which a threshold must be specified.
+    #thresh_stats = [s for s in choices['stat'] if s not in no_thresh_stats]
+
+    mv_color_codes = valid_vals['mv_color_codes']
+
+    #print(f"")
+    #print(f"mv_color_codes = {mv_color_codes}")
+    #alsdfj
+
+    # Set list of choices for various parameters.
+    choices = {}
+
+    #choices['fcst_var'] = sorted(list(fcst_var_long_names.keys()))
+    choices['fcst_var'] = sorted(valid_fcst_vars)
+
+    choices['level'] = [item for sublist in valid_levels_or_accums_by_fcst_var.values() for item in sublist]
+    # The above list of level (or accumulation) choices may contain duplicate values and is unsorted.
+    # Remove duplicates and sort.
+    choices['level'] = sorted(list(set(choices['level'])))
+
+    choices['threshold'] = [item for sublist in valid_thresholds_by_fcst_var.values() for item in sublist]
+    # The above list of threshold choices may contain duplicate values and is unsorted.
+    # Remove duplicates and sort.
+    choices['threshold'] = sorted(list(set(choices['threshold'])))
+
+    #choices['stat'] = sorted(list(stat_long_names.keys()))
+    choices['stat'] = sorted(valid_stats)
+
+    choices['color'] = list(mv_color_codes.keys())
+    #choices[''] = 
+    #choices[''] = 
+    #choices[''] = 
+    #choices[''] = 
+
+    print(f"")
+    print(f"choices = {choices}")
+
+    return fcst_var_long_names, \
+           valid_levels_or_accums_by_fcst_var, \
+           valid_thresholds_by_fcst_var, \
+           stat_long_names, stat_need_thresh, \
+           mv_color_codes, \
+           choices
+
 def parse_args(argv):
     '''
     Function to parse arguments for this script.
     '''
+
+    static_fp = 'vx_plots_static.yml'
+
+    fcst_var_long_names, \
+    valid_levels_or_accums_by_fcst_var, \
+    valid_thresholds_by_fcst_var, \
+    stat_long_names, stat_need_thresh, \
+    mv_color_codes, \
+    choices \
+    = get_static_vals(static_fp)
+
+    #print(f"")
+    #print(f"mv_color_codes = {mv_color_codes}")
+    #lllllllll
 
     parser = argparse.ArgumentParser(description=dedent(f'''
              Function to generate an xml file that MetViewer can read in order 
@@ -106,24 +210,24 @@ def parse_args(argv):
                         help='Directory in which to place output (e.g. plots) from MetViewer')
 
     # Short and long names of verification statistics that may be plotted.
-    stat_long_names = {'auc': 'Area Under the Curve',
-                       'bias': 'Bias',
-                       'brier': 'Brier Score',
-                       'fbias': 'Frequency Bias',
-                       'rely': 'Reliability',
-                       'rhist': 'Rank Histogram',
-                       'ss': 'Spread-Skill Ratio'}
-    choices_stats = sorted(list(stat_long_names.keys()))
+    #stat_long_names = {'auc': 'Area Under the Curve',
+    #                   'bias': 'Bias',
+    #                   'brier': 'Brier Score',
+    #                   'fbias': 'Frequency Bias',
+    #                   'rely': 'Reliability',
+    #                   'rhist': 'Rank Histogram',
+    #                   'ss': 'Spread-Skill Ratio'}
+    #choices_stats = sorted(list(stat_long_names.keys()))
 
-    # Short and long names of forecast variables on which verification may be run.
-    fcst_var_long_names = {'apcp': 'Accumulated Precipitation',
-                           'cape': 'Convenctive Available Potential Energy',
-                           'dpt': 'Dew Point Temperature',
-                           'hgt': 'Height',
-                           'refc': 'Composite Reflectivity',
-                           'tmp': 'Temperature',
-                           'wind': 'Wind'}
-    choices_fcst_vars = sorted(list(fcst_var_long_names.keys()))
+    ## Short and long names of forecast variables on which verification may be run.
+    #fcst_var_long_names = {'apcp': 'Accumulated Precipitation',
+    #                       'cape': 'Convenctive Available Potential Energy',
+    #                       'dpt': 'Dew Point Temperature',
+    #                       'hgt': 'Height',
+    #                       'refc': 'Composite Reflectivity',
+    #                       'tmp': 'Temperature',
+    #                       'wind': 'Wind'}
+    #choices_fcst_vars = sorted(list(fcst_var_long_names.keys()))
 
     # Short names and names in MetViewer database of the models on which verification
     # can be run.  These have to be available (loaded) in the database.
@@ -146,20 +250,22 @@ def parse_args(argv):
 
     # Set of allowed colors and the corresponding color codes that MetViewer recognizes.
     # NOTE:  These are incorrect, need to fix!!
-    avail_metviewer_colors = {'red': '#ff0000FF',
-                              'blue': '#8a2be2FF',
-                              'green': '#32cd32FF'}
-    choices_colors = list(avail_metviewer_colors.keys())
+    #mv_color_codes = {'red': '#ff0000FF',
+    #                          'blue': '#8a2be2FF',
+    #                          'green': '#32cd32FF'}
+    #choices_colors = list(mv_color_codes.keys())
     parser.add_argument('--colors', nargs='+',
                         type=int,
-                        required=False, default=choices_colors,
-                        choices=choices_colors,
+                        required=False, default=choices['color'],
+                        #choices=choices_colors,
+                        choices=choices['color'],
                         help='Color of each model used in line series, histogram, etc plots')
 
     parser.add_argument('--stat',
                         type=str.lower,
                         required=True,
-                        choices=choices_stats,
+                        #choices=choices_stats,
+                        choices=choices['stat'],
                         help='Name of verification statistic/metric')
 
     parser.add_argument('--incl_ens_means',
@@ -180,50 +286,60 @@ def parse_args(argv):
     parser.add_argument('--fcst_var',
                         type=str.lower,
                         required=True, 
-                        choices=choices_fcst_vars,
+                        #choices=choices_fcst_vars,
+                        choices=choices['fcst_var'],
                         help='Name of forecast variable to verify')
 
-    # Define dictionary containing the valid levels/accumulations for 
-    # each valid forecast variable.
-    valid_levels_or_accums_by_fcst_var = {
-        'apcp': ['3h', '3hr', '03h', '03hr',
-                 '6h', '6hr', '06h', '06hr', ],
-        'cape': [''],
-        'dpt': ['2m', '02m'],
-        'hgt': ['500mb'],
-        'refc': ['L0'],
-        'tmp': ['2m', '02m', '500mb', '700mb', '850mb'],
-        'wind': ['10m', '500mb', '700mb', '850mb']
-        }
+    ## Define dictionary containing the valid levels/accumulations for 
+    ## each valid forecast variable.
+    #valid_levels_or_accums_by_fcst_var = {
+    #    'apcp': ['3h', '3hr', '03h', '03hr',
+    #             '6h', '6hr', '06h', '06hr', ],
+    #    'cape': [''],
+    #    'dpt': ['2m', '02m'],
+    #    'hgt': ['500mb'],
+    #    'refc': ['L0'],
+    #    'tmp': ['2m', '02m', '500mb', '700mb', '850mb'],
+    #    'wind': ['10m', '500mb', '700mb', '850mb']
+    #    }
+    #print(f"")
+    #print(f"valid_levels_or_accums_by_fcst_var = {valid_levels_or_accums_by_fcst_var}")
+    #alsdfkj
+
     # Use the dictionary of valid levels/accumulations defined above to
     # create a list of valid values for the level/accumulation argument.
     # Note that this list does not contain duplicates and is sorted for
     # clarity.
-    choices_level_or_accum = [item for sublist in valid_levels_or_accums_by_fcst_var.values() for item in sublist]
-    choices_level_or_accum = sorted(list(set(choices_level_or_accum)))
+    #choices_level_or_accum = [item for sublist in valid_levels_or_accums_by_fcst_var.values() for item in sublist]
+    #choices_level_or_accum = sorted(list(set(choices_level_or_accum)))
+    #print(f"")
+    #print(f"choices_level_or_accum = {choices_level_or_accum}")
+    #lkjlkjlkjlkjjkl
 
     parser.add_argument('--level_or_accum',
                         type=str,
                         required=False,
-                        choices=choices_level_or_accum,
+                        #choices=choices_level_or_accum,
+                        choices=choices['level'],
                         help='Vertical level or accumulation period')
 
-    valid_thresholds_by_fcst_var = {
-        'apcp': ['gt0.0mm', 'ge2.54mm'],
-        'cape': [''],
-        'dpt': ['ge288K', 'ge293K'],
-        'hgt': [''],
-        'refc': ['ge20dBZ', 'ge30dBZ', 'ge40dBZ', 'ge50dBZ'],
-        'tmp': ['ge288K', 'ge293K', 'ge298K', 'ge303K'],
-        'wind': ['ge5mps', 'ge10mps'],
-        }
-    choices_thresholds = [item for sublist in valid_thresholds_by_fcst_var.values() for item in sublist]
-    choices_thresholds = sorted(list(set(choices_thresholds)))
+    #valid_thresholds_by_fcst_var = {
+    #    'apcp': ['gt0.0mm', 'ge2.54mm'],
+    #    'cape': [''],
+    #    'dpt': ['ge288K', 'ge293K'],
+    #    'hgt': [''],
+    #    'refc': ['ge20dBZ', 'ge30dBZ', 'ge40dBZ', 'ge50dBZ'],
+    #    'tmp': ['ge288K', 'ge293K', 'ge298K', 'ge303K'],
+    #    'wind': ['ge5mps', 'ge10mps'],
+    #    }
+    #choices_thresholds = [item for sublist in valid_thresholds_by_fcst_var.values() for item in sublist]
+    #choices_thresholds = sorted(list(set(choices_thresholds)))
 
     parser.add_argument('--threshold',
                         type=str,
                         required=False, default='',
-                        choices=choices_thresholds,
+                        #choices=choices_thresholds,
+                        choices=choices['threshold'],
                         help='Threshold for specified forecast variable')
 
     cla = parser.parse_args(argv)
@@ -235,24 +351,36 @@ def parse_args(argv):
           cla = {cla_str}
         """))
 
-    return cla, \
-           valid_levels_or_accums_by_fcst_var, \
-           valid_thresholds_by_fcst_var, \
-           choices_stats, \
-           stat_long_names, \
-           fcst_var_long_names, \
-           avail_metviewer_colors, \
+    #print(f"")
+    #print(f"mv_color_codes = {mv_color_codes}")
+    #qqqqqqqqqqqqq
+
+    static = {}
+    static['fcst_var_long_names'] = fcst_var_long_names
+    static['valid_levels_or_accums_by_fcst_var'] = valid_levels_or_accums_by_fcst_var
+    static['valid_thresholds_by_fcst_var'] = valid_thresholds_by_fcst_var
+    static['stat_long_names'] = stat_long_names
+    static['stat_need_thresh'] = stat_need_thresh
+    static['mv_color_codes'] = mv_color_codes 
+
+    return cla, static, \
            model_names_in_mv_database
 
+           #valid_levels_or_accums_by_fcst_var, \
+           #valid_thresholds_by_fcst_var, \
+           #stat_long_names, \
+           #stat_need_thresh, \
+           #fcst_var_long_names, \
+           #mv_color_codes, \
 
-def generate_metviewer_xml(abcd):
+def generate_metviewer_xml(cla, static, model_names_in_mv_database):
         #cla,
         #valid_levels_or_accums_by_fcst_var,
         #valid_thresholds_by_fcst_var,
         #choices_stats,
         #stat_long_names,
         #fcst_var_long_names,
-        #avail_metviewer_colors,
+        #mv_color_codes,
         #model_names_in_mv_database):
 
     """Function that generates an xml file that MetViewer can read (in order
@@ -264,18 +392,31 @@ def generate_metviewer_xml(abcd):
     Returns:
         None
     """
-    cla = abcd[0]
-    valid_levels_or_accums_by_fcst_var = abcd[1]
-    valid_thresholds_by_fcst_var = abcd[2]
-    choices_stats = abcd[3]
-    stat_long_names = abcd[4]
-    fcst_var_long_names = abcd[5]
-    avail_metviewer_colors = abcd[6]
-    model_names_in_mv_database = abcd[7]
+    #cla = abcd[0]
+    #valid_levels_or_accums_by_fcst_var = abcd[1]
+    #valid_thresholds_by_fcst_var = abcd[2]
+    #stat_long_names = abcd[3]
+    #stat_need_thresh = abcd[4]
+    #fcst_var_long_names = abcd[5]
+    #mv_color_codes = abcd[6]
+    #model_names_in_mv_database = abcd[7]
+
+    fcst_var_long_names = static['fcst_var_long_names']
+    valid_levels_or_accums_by_fcst_var = static['valid_levels_or_accums_by_fcst_var']
+    valid_thresholds_by_fcst_var = static['valid_thresholds_by_fcst_var']
+    stat_long_names = static['stat_long_names']
+    stat_need_thresh = static['stat_need_thresh']
+    mv_color_codes = static['mv_color_codes']
+
+    #print(f"")
+    #print(f"mv_color_codes = {mv_color_codes}")
+    #rrrrrrrrrrr
 
     # Set the logging level.
     logging.basicConfig(level=logging.INFO)
 
+    # Load the machine configuration file into a dictionary and find in it the
+    # machine specified on the command line.
     mv_machine_config_fp = Path(os.path.join(cla.mv_machine_config)).resolve()
     mv_machine_config = load_config_file(mv_machine_config_fp)
 
@@ -367,12 +508,13 @@ def generate_metviewer_xml(abcd):
     elif loa_units in ['h', 'hr']:
         level_or_accum_mv = ''.join(['A', loa_value_no0pad])
 
-    # List of verification stats for which a threshold is not needed.
-    no_thresh_stats = ['bias', 'rhist', 'ss']
-    # List of verification stats for which a threshold must be specified.
-    thresh_stats = [s for s in choices_stats if s not in no_thresh_stats]
+    ## List of verification stats for which a threshold is not needed.
+    #no_thresh_stats = ['bias', 'rhist', 'ss']
+    ## List of verification stats for which a threshold must be specified.
+    #thresh_stats = [s for s in choices['stat'] if s not in no_thresh_stats]
 
-    if (cla.stat in no_thresh_stats) and (cla.threshold):
+    #if (cla.stat in no_thresh_stats) and (cla.threshold):
+    if (not stat_need_thresh[cla.stat]) and (cla.threshold):
         no_thresh_stats_fmt_str = ",\n".join("              {!r}: {!r}".format(k, v) for k, v in stat_long_names.items() if k in no_thresh_stats).lstrip()
         logging.info(dedent(f"""
             A threshold is not needed when working with one of the following verification stats:
@@ -381,7 +523,8 @@ def generate_metviewer_xml(abcd):
             """))
         cla.threshold = ''
 
-    elif (cla.stat in thresh_stats):
+    #elif (cla.stat in thresh_stats):
+    elif (stat_need_thresh[cla.stat]):
         valid_thresholds = valid_thresholds_by_fcst_var[cla.fcst_var]
         if cla.threshold not in valid_thresholds:
             logging.error(dedent(f"""
@@ -479,7 +622,9 @@ def generate_metviewer_xml(abcd):
 
     # Pick out the plot color associated with each model from the list of 
     # available colors.
-    model_colors = [avail_metviewer_colors[m] for m in cla.colors]
+    print(f"")
+    print(f"mv_color_codes = {mv_color_codes}")
+    model_color_codes = [mv_color_codes[m] for m in cla.colors]
 
     model_db_names = [model_names_in_mv_database[m] for m in cla.model_names]
     model_names_short_uc = [m.upper() for m in cla.model_names]
@@ -536,7 +681,7 @@ def generate_metviewer_xml(abcd):
                   "mv_database": cla.mv_database,
                   "mv_output_dir": cla.mv_output_dir,
                   "num_models": num_models,
-                  "model_colors": model_colors,
+                  "model_color_codes": model_color_codes,
                   "model_db_names": model_db_names,
                   "model_names_short_uc": model_names_short_uc,
                   "fcst_var_uc": fcst_var_uc,
@@ -646,20 +791,22 @@ def plot_vx_metviewer(argv):
     #choices_stats, \
     #stat_long_names, \
     #fcst_var_long_names, \
-    #avail_metviewer_colors, \
+    #mv_color_codes, \
     #model_names_in_mv_database \
-    abcd \
+    #abcd \
+    cla, static, model_names_in_mv_database \
     = parse_args(argv)
     # Pass command line arguments (except for very first one) to the function
     # that generates a MetViewer xml.
-    mv_batch, output_xml_fp = generate_metviewer_xml(abcd) 
+    #mv_batch, output_xml_fp = generate_metviewer_xml(abcd) 
+    mv_batch, output_xml_fp = generate_metviewer_xml(cla, static, model_names_in_mv_database)
                               #cla,
                               #valid_levels_or_accums_by_fcst_var,
                               #valid_thresholds_by_fcst_var,
                               #choices_stats,
                               #stat_long_names,
                               #fcst_var_long_names,
-                              #avail_metviewer_colors,
+                              #mv_color_codes,
                               #model_names_in_mv_database)
     # Run MetViewer on the xml.
     run_mv_batch(mv_batch, output_xml_fp)

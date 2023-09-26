@@ -226,7 +226,7 @@
   {%- set indent = " \\\n                  " -%}
 {%- endif -%}
 {%- for imdl in range(1, num_models+1) -%}
-  {%- set color = model_colors[imdl-1] -%}
+  {%- set color = model_color_codes[imdl-1] -%}
   {%- if incl_ens_means -%} "{{color}}", {%- endif -%}
   {%- for imem in range(1, num_ens_mems[imdl-1]) -%}
     "{{color}}",

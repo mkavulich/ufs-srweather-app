@@ -268,7 +268,7 @@
 {%- set indent = "" -%}
 {%- for imdl in range(1, num_models+1) -%}
   {%- if imdl > 1 -%} {{indent}} {%- endif -%}
-  {%- set color = model_colors[imdl-1] -%}
+  {%- set color = model_color_codes[imdl-1] -%}
   {%- for iseries in range(1,num_series_per_model) -%}
     "{{color}}",
   {%- endfor -%}
