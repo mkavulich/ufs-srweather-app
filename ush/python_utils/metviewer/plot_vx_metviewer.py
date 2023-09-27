@@ -121,7 +121,7 @@ def get_static_vals(static_fp):
     # Remove duplicates and sort.
     choices['threshold'] = sorted(list(set(choices['threshold'])))
 
-    choices['stat'] = sorted(valid_stats)
+    choices['vx_stat'] = sorted(valid_stats)
 
     choices['color'] = list(mv_color_codes.keys())
 
@@ -149,7 +149,7 @@ def get_database_info(mv_database_config_fp):
     return mv_database_info
 
 
-def parse_args(argv, static, mv_database_info):
+def parse_args(argv, static):
     '''
     Function to parse arguments for this script.
     '''
@@ -161,10 +161,6 @@ def parse_args(argv, static, mv_database_info):
     stat_need_thresh = static['stat_need_thresh']
     mv_color_codes = static['mv_color_codes']
     choices = static['choices']
-
-    # For uniformity, add the allowed values for the model names to the "choices"
-    # dictionary.
-    choices['model'] = mv_database_info['models'].keys()
 
     parser = argparse.ArgumentParser(description=dedent(f'''
              Function to generate an xml file that MetViewer can read in order 
@@ -186,6 +182,11 @@ def parse_args(argv, static, mv_database_info):
                         required=False, default='mv_database_config.yml',
                         help='MetViewer database configuration file')
 
+    parser.add_argument('--mv_database_name',
+                        type=str,
+                        required=True,
+                        help='Name of MetViewer database')
+
     crnt_script_fp = Path(__file__).resolve()
     home_dir = crnt_script_fp.parents[3]
     expts_dir = Path(os.path.join(home_dir, '../expts_dir')).resolve()
@@ -197,21 +198,18 @@ def parse_args(argv, static, mv_database_info):
     parser.add_argument('--model_names', nargs='+',
                         type=str.lower,
                         required=True,
-                        choices=choices['model'],
                         help='Names of models to include in xml and plots')
 
     parser.add_argument('--colors', nargs='+',
                         type=int,
                         required=False, default=choices['color'],
-                        #choices=choices_colors,
                         choices=choices['color'],
                         help='Color of each model used in line series, histogram, etc plots')
 
-    parser.add_argument('--stat',
+    parser.add_argument('--vx_stat',
                         type=str.lower,
                         required=True,
-                        #choices=choices_stats,
-                        choices=choices['stat'],
+                        choices=choices['vx_stat'],
                         help='Name of verification statistic/metric')
 
     parser.add_argument('--incl_ens_means',
@@ -232,21 +230,18 @@ def parse_args(argv, static, mv_database_info):
     parser.add_argument('--fcst_var',
                         type=str.lower,
                         required=True, 
-                        #choices=choices_fcst_vars,
                         choices=choices['fcst_var'],
                         help='Name of forecast variable to verify')
 
     parser.add_argument('--level_or_accum',
                         type=str,
                         required=False,
-                        #choices=choices_level_or_accum,
                         choices=choices['level'],
                         help='Vertical level or accumulation period')
 
     parser.add_argument('--threshold',
                         type=str,
                         required=False, default='',
-                        #choices=choices_thresholds,
                         choices=choices['threshold'],
                         help='Threshold for specified forecast variable')
 
@@ -319,7 +314,7 @@ def generate_metviewer_xml(cla, static, mv_database_info):
 
     if ('incl_ens_means' not in cla):
         incl_ens_means = False
-        if (cla.stat == 'bias'): incl_ens_means = True
+        if (cla.vx_stat == 'bias'): incl_ens_means = True
     else:
         incl_ens_means = cla.incl_ens_means
     # Apparently we can just reset or create incl_ens_means within the cla Namespace
@@ -374,7 +369,7 @@ def generate_metviewer_xml(cla, static, mv_database_info):
     elif loa_units in ['h', 'hr']:
         level_or_accum_mv = ''.join(['A', loa_value_no0pad])
 
-    if (not stat_need_thresh[cla.stat]) and (cla.threshold):
+    if (not stat_need_thresh[cla.vx_stat]) and (cla.threshold):
         no_thresh_stats_fmt_str = ",\n".join("              {!r}: {!r}".format(k, v) for k, v in stat_long_names.items() if k in no_thresh_stats).lstrip()
         logging.info(dedent(f"""
             A threshold is not needed when working with one of the following verification stats:
@@ -383,7 +378,7 @@ def generate_metviewer_xml(cla, static, mv_database_info):
             """))
         cla.threshold = ''
 
-    elif (stat_need_thresh[cla.stat]):
+    elif (stat_need_thresh[cla.vx_stat]):
         valid_thresholds = valid_thresholds_by_fcst_var[cla.fcst_var]
         if cla.threshold not in valid_thresholds:
             logging.error(dedent(f"""
@@ -430,7 +425,7 @@ def generate_metviewer_xml(cla, static, mv_database_info):
     level_or_accum_str = cla.level_or_accum
     if level_or_accum_str == 'L0': level_or_accum_str = ''
     plot_title = " ".join(filter(None,
-                          [stat_long_names[cla.stat], 'for',
+                          [stat_long_names[cla.vx_stat], 'for',
                            level_or_accum_str, fcst_var_long_names[cla.fcst_var],
                            xml_threshold, thresh_units]))
     var_lvl_str = ''.join(filter(None, [cla.fcst_var.upper(), level_or_accum_str]))
@@ -438,7 +433,7 @@ def generate_metviewer_xml(cla, static, mv_database_info):
     var_lvl_thresh_str = '_'.join(filter(None, [var_lvl_str, thresh_str]))
 
     models_str = '_'.join(cla.model_names)
-    job_title = '_'.join([cla.stat, var_lvl_thresh_str, models_str])
+    job_title = '_'.join([cla.vx_stat, var_lvl_thresh_str, models_str])
 
     logging.info(dedent(f"""
         Various auxiliary string values:
@@ -451,7 +446,18 @@ def generate_metviewer_xml(cla, static, mv_database_info):
           models_str = {models_str}
         """))
 
-    model_info = mv_database_info['models']
+    if cla.mv_database_name not in mv_database_info.keys():
+        logging.error(dedent(f"""
+            The database specified on the command line (cla.mv_database_name) is not
+            in the set of MetViewer databases specified in the database configuration
+            file (cla.mv_database_config):
+              cla.mv_database_name = {cla.mv_database_name}
+              cla.mv_database_config = {cla.mv_database_config}
+            """))
+        error_out
+
+    model_info = mv_database_info[cla.mv_database_name]
+
     num_models = len(model_info)
     num_ens_mems = [model_info[m]['num_ens_mems'] for m in cla.model_names]
     for i,model in enumerate(cla.model_names):
@@ -487,15 +493,15 @@ def generate_metviewer_xml(cla, static, mv_database_info):
     fcst_var_uc = cla.fcst_var.upper()
     fcst_var_db_name = fcst_var_uc
     if fcst_var_uc == 'APCP': fcst_var_db_name = '_'.join([fcst_var_db_name, cla.level_or_accum[0:2]])
-    if cla.stat in ['auc', 'brier', 'rely']: fcst_var_db_name = '_'.join([fcst_var_db_name, "ENS_FREQ"])
-    if cla.stat in ['auc', 'brier', 'rely', 'rhist']:
+    if cla.vx_stat in ['auc', 'brier', 'rely']: fcst_var_db_name = '_'.join([fcst_var_db_name, "ENS_FREQ"])
+    if cla.vx_stat in ['auc', 'brier', 'rely', 'rhist']:
         fcst_var_db_name = '_'.join(filter(None,[fcst_var_db_name, ''.join([thresh_comp_oper, thresh_value])]))
 
     # Generate name for the verification statistic that MetViewer understands.
-    stat_mv = cla.stat.upper()
-    if stat_mv == 'BIAS': stat_mv = 'ME'
-    elif stat_mv == 'AUC': stat_mv = 'PSTD_ROC_AUC'
-    elif stat_mv == 'BRIER': stat_mv = 'PSTD_BRIER'
+    vx_stat_mv = cla.vx_stat.upper()
+    if vx_stat_mv == 'BIAS': vx_stat_mv = 'ME'
+    elif vx_stat_mv == 'AUC': vx_stat_mv = 'PSTD_ROC_AUC'
+    elif vx_stat_mv == 'BRIER': vx_stat_mv = 'PSTD_BRIER'
 
     # For the given forecast variable, generate a name for the corresponding
     # observation type in the MetViewer database.
@@ -513,7 +519,7 @@ def generate_metviewer_xml(cla, static, mv_database_info):
         Strings passed to jinja template:
           fcst_var_uc = {fcst_var_uc}
           fcst_var_db_name = {fcst_var_db_name}
-          stat_mv = {stat_mv}
+          vx_stat_mv = {vx_stat_mv}
           obs_type = {obs_type}
         """))
 
@@ -521,7 +527,7 @@ def generate_metviewer_xml(cla, static, mv_database_info):
     # jinja template.
     jinja_vars = {"mv_host": cla.mv_host,
                   "mv_machine_config_dict": mv_machine_config_dict,
-                  "mv_database": mv_database_info['db_name'],
+                  "mv_database": cla.mv_database_name,
                   "mv_output_dir": cla.mv_output_dir,
                   "num_models": num_models,
                   "model_color_codes": model_color_codes,
@@ -533,9 +539,9 @@ def generate_metviewer_xml(cla, static, mv_database_info):
                   "level_or_accum_no0pad": loa_value_no0pad,
                   "xml_threshold": xml_threshold,
                   "obs_type": obs_type,
-                  "stat_uc": cla.stat.upper(),
-                  "stat_lc": cla.stat.lower(),
-                  "stat_mv": stat_mv,
+                  "stat_uc": cla.vx_stat.upper(),
+                  "stat_lc": cla.vx_stat.lower(),
+                  "stat_mv": vx_stat_mv,
                   "line_types": line_types,
                   "line_widths": line_widths,
                   "num_series": num_series,
@@ -559,12 +565,12 @@ def generate_metviewer_xml(cla, static, mv_database_info):
         """))
 
     templates_dir = os.path.join(home_dir, 'parm', 'metviewer')
-    template_fn = "".join([cla.stat, '.xml'])
-    if (cla.stat in ['auc', 'brier']):
+    template_fn = "".join([cla.vx_stat, '.xml'])
+    if (cla.vx_stat in ['auc', 'brier']):
         template_fn = 'auc_brier.xml'
-    elif (cla.stat in ['bias', 'fbias']):
+    elif (cla.vx_stat in ['bias', 'fbias']):
         template_fn = 'bias_fbias.xml'
-    elif (cla.stat in ['rely', 'rhist']):
+    elif (cla.vx_stat in ['rely', 'rhist']):
         template_fn = 'rely_rhist.xml'
     template_fp = os.path.join(templates_dir, template_fn)
 
@@ -581,7 +587,7 @@ def generate_metviewer_xml(cla, static, mv_database_info):
     if not os.path.exists(output_xml_dir):
         os.makedirs(output_xml_dir)
     output_xml_fn = '_'.join(filter(None,
-                    ['plot', cla.stat,
+                    ['plot', cla.vx_stat,
                      ''.join([cla.fcst_var.upper(), level_or_accum_str]),
                      cla.threshold, models_str]))
     output_xml_fn = ''.join([output_xml_fn, '.xml'])
@@ -632,12 +638,11 @@ def plot_vx_metviewer(argv):
     static_fp = 'vx_plots_static.yml'
     static = get_static_vals(static_fp)
 
-    # Get MetViewer database information.
-    mv_database_config_fp = 'mv_database_config.yml'
-    mv_database_info = get_database_info(mv_database_config_fp)
-
     # Parse arguments.
-    cla = parse_args(argv, static, mv_database_info)
+    cla = parse_args(argv, static)
+
+    # Get MetViewer database information.
+    mv_database_info = get_database_info(cla.mv_database_config)
 
     # Generates a MetViewer xml.
     mv_batch, output_xml_fp = generate_metviewer_xml(cla, static, mv_database_info)
