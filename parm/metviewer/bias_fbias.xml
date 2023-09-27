@@ -45,14 +45,14 @@
         <series2/>
 {%- set ipf = -1 %}
         <plot_fix>
-            <field equalize="false" name="fcst_lev">
+            <field equalize="true" name="fcst_lev">
 {%- set ipf = ipf+1 %}
                 <set name="fcst_lev_{{ipf}}">
                     <val>{{level_or_accum_mv}}</val>
                 </set>
             </field>
 {%- if (vx_stat_uc == "FBIAS") %}
-            <field equalize="false" name="fcst_thresh">
+            <field equalize="true" name="fcst_thresh">
   {%- set ipf = ipf+1 %}
                 <set name="fcst_thresh_{{ipf}}">
                     <val>{{xml_threshold}}</val>
@@ -61,15 +61,13 @@
 {%- endif %}
         </plot_fix>
         <plot_cond/>
-        <indep equalize="false" name="fcst_lead">
+        <indep equalize="true" name="fcst_lead">
 {%- set indent = "\n            " -%}
 {%- for ihr in range(0, fcst_len_hrs+1) -%}
   {{indent}}<val label="{{ihr}}" plot_val="">{{ihr*10000}}</val>
 {%- endfor %}
         </indep>
-{%- if (vx_stat_uc == "BIAS") %}
-        <plot_stat>mean</plot_stat>
-{%- elif (vx_stat_uc == "FBIAS") %}
+{%- if (vx_stat_uc == "FBIAS") %}
         <agg_stat>
             <agg_ctc>true</agg_ctc>
             <boot_repl>1</boot_repl>
@@ -79,8 +77,8 @@
             <cache_agg_stat>false</cache_agg_stat>
             <circular_block_bootstrap>true</circular_block_bootstrap>
         </agg_stat>
-        <plot_stat>median</plot_stat>
 {%- endif %}
+        <plot_stat>median</plot_stat>
         <tmpl>
             <data_file>plot_{{job_title}}.data</data_file>
             <plot_file>plot_{{job_title}}.png</plot_file>
@@ -96,7 +94,7 @@
             <listdiffseries2>list()</listdiffseries2>
         </tmpl>
         <execution_type>Python</execution_type>
-        <event_equal>false</event_equal>
+        <event_equal>true</event_equal>
         <vert_plot>false</vert_plot>
         <x_reverse>false</x_reverse>
         <num_stats>false</num_stats>
