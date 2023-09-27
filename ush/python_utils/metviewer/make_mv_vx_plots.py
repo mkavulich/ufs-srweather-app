@@ -64,7 +64,7 @@ def make_mv_vx_plots(args):
 
         if stat in args.exclude_stats:
             logging.info(f'Skipping plotting of statistic "{stat}"...')
-        else:
+        elif args.include_stats and stat in args.include_stats:
             for fcst_var, fcst_var_dict in stat_dict.items():
                 print(f"")
                 print(f"  fcst_var = {fcst_var}")
@@ -119,6 +119,14 @@ if __name__ == "__main__":
                         type=str,
                         required=False, default='config_mv_plots.default.yml',
                         help='Name of yaml user configuration file for MetViewer plot generation')
+
+    parser.add_argument('--include_stats',
+                        type=str,
+                        required=False, default=[],
+                        choices=['auc', 'bias', 'brier', 'fbias', 'rely', 'rhist', 'ss'],
+                        help=dedent(f'''Stats to include in verification plot generation.  A stat
+                                        included here will still be excluded if it is not in the
+                                        yaml configuration file.'''))
 
     parser.add_argument('--exclude_stats',
                         type=str,
