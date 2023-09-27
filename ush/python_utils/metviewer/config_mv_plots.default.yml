@@ -49,6 +49,8 @@ vx_stats:
             850mb:
                 thresholds: ['']
         wind:
+            10m:
+                thresholds: ['']
             700mb:
                 thresholds: ['']
             850mb:
