@@ -19,7 +19,7 @@
         <template>series_plot.R_tmpl</template>
         <dep>
             <dep1>
-                <fcst_var name="{{fcst_var_db_name}}">
+                <fcst_var name="{{fcst_var_name_in_db}}">
                     <stat>ECNT_RMSE</stat>
                     <stat>ECNT_SPREAD</stat>
                 </fcst_var>
@@ -31,7 +31,7 @@
 {%- set prob_or_null = "" -%}
 {%- set indent = "\n                " -%}
 {%- for imdl in range(1, num_models+1) -%}
-  {%- set model = model_db_names[imdl-1] -%}
+  {%- set model = model_names_in_db[imdl-1] -%}
   {{- indent ~ "<val>" ~ model ~ prob_or_null ~ "</val>" -}}
 {%- endfor %}
             </field>
@@ -117,7 +117,7 @@
 {%- set indent = "\n                                  " -%}
 {%- for imdl in range(1, num_models+1) -%}
   {%- if imdl > 1 -%} {{indent}} {%- endif -%}c(
-  {%- set model = model_db_names[imdl-1] -%}
+  {%- set model = model_names_in_db[imdl-1] -%}
   {%- for iseries in range(1,num_series_per_model) -%}
     {%- set series_type = series_types[iseries-1] -%}
     "{{model}} {{fcst_var_uc}} ECNT_{{series_type}}",

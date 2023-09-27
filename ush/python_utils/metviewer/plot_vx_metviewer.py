@@ -71,7 +71,7 @@ from templater import (
 # wind        10m, 700mb        ge5mps (AUC,BRIER,RELY), ge10mps (AUC,BRIER,RELY)
 #
 
-def get_static_vals(static_fp):
+def get_static_info(static_fp):
     '''
     Function to read in values that are mostly static, i.e. they're usually
     not expected to change from one call to this script to another (e.g.
@@ -125,16 +125,16 @@ def get_static_vals(static_fp):
 
     choices['color'] = list(mv_color_codes.keys())
 
-    static = {}
-    static['fcst_var_long_names'] = fcst_var_long_names
-    static['valid_levels_or_accums_by_fcst_var'] = valid_levels_or_accums_by_fcst_var
-    static['valid_thresholds_by_fcst_var'] = valid_thresholds_by_fcst_var
-    static['stat_long_names'] = stat_long_names
-    static['stat_need_thresh'] = stat_need_thresh
-    static['mv_color_codes'] = mv_color_codes 
-    static['choices'] = choices
+    static_info = {}
+    static_info['fcst_var_long_names'] = fcst_var_long_names
+    static_info['valid_levels_or_accums_by_fcst_var'] = valid_levels_or_accums_by_fcst_var
+    static_info['valid_thresholds_by_fcst_var'] = valid_thresholds_by_fcst_var
+    static_info['stat_long_names'] = stat_long_names
+    static_info['stat_need_thresh'] = stat_need_thresh
+    static_info['mv_color_codes'] = mv_color_codes 
+    static_info['choices'] = choices
 
-    return static
+    return static_info
 
 
 def get_database_info(mv_database_config_fp):
@@ -149,18 +149,12 @@ def get_database_info(mv_database_config_fp):
     return mv_database_info
 
 
-def parse_args(argv, static):
+def parse_args(argv, static_info):
     '''
     Function to parse arguments for this script.
     '''
 
-    fcst_var_long_names = static['fcst_var_long_names']
-    valid_levels_or_accums_by_fcst_var = static['valid_levels_or_accums_by_fcst_var']
-    valid_thresholds_by_fcst_var = static['valid_thresholds_by_fcst_var']
-    stat_long_names = static['stat_long_names']
-    stat_need_thresh = static['stat_need_thresh']
-    mv_color_codes = static['mv_color_codes']
-    choices = static['choices']
+    choices = static_info['choices']
 
     parser = argparse.ArgumentParser(description=dedent(f'''
              Function to generate an xml file that MetViewer can read in order 
@@ -248,16 +242,16 @@ def parse_args(argv, static):
     cla = parser.parse_args(argv)
 
     cla_str = pprint.pformat(vars(cla))
-    cla_str = '\n                 '.join(cla_str.splitlines())
+    cla_str = '\n                '.join(cla_str.splitlines())
     logging.info(dedent(f"""
-        List of arguments passed to this script:
+        List of arguments passed to script:
           cla = {cla_str}
         """))
 
     return cla
 
 
-def generate_metviewer_xml(cla, static, mv_database_info):
+def generate_metviewer_xml(cla, static_info, mv_database_info):
     """Function that generates an xml file that MetViewer can read (in order
        to create a verification plot).
 
@@ -268,15 +262,12 @@ def generate_metviewer_xml(cla, static, mv_database_info):
         None
     """
 
-    fcst_var_long_names = static['fcst_var_long_names']
-    valid_levels_or_accums_by_fcst_var = static['valid_levels_or_accums_by_fcst_var']
-    valid_thresholds_by_fcst_var = static['valid_thresholds_by_fcst_var']
-    stat_long_names = static['stat_long_names']
-    stat_need_thresh = static['stat_need_thresh']
-    mv_color_codes = static['mv_color_codes']
-
-    # Set the logging level.
-    logging.basicConfig(level=logging.INFO)
+    fcst_var_long_names = static_info['fcst_var_long_names']
+    valid_levels_or_accums_by_fcst_var = static_info['valid_levels_or_accums_by_fcst_var']
+    valid_thresholds_by_fcst_var = static_info['valid_thresholds_by_fcst_var']
+    stat_long_names = static_info['stat_long_names']
+    stat_need_thresh = static_info['stat_need_thresh']
+    mv_color_codes = static_info['mv_color_codes']
 
     # Load the machine configuration file into a dictionary and find in it the
     # machine specified on the command line.
@@ -475,7 +466,7 @@ def generate_metviewer_xml(cla, static, mv_database_info):
     # available colors.
     model_color_codes = [mv_color_codes[m] for m in cla.colors]
 
-    model_db_names = [model_info[m]['name_in_db'] for m in cla.model_names]
+    model_names_in_db = [model_info[m]['name_in_db'] for m in cla.model_names]
     model_names_short_uc = [m.upper() for m in cla.model_names]
 
     line_types = list()
@@ -491,11 +482,11 @@ def generate_metviewer_xml(cla, static, mv_database_info):
 
     # Generate name of forecast variable as it appears in the MetViewer database.
     fcst_var_uc = cla.fcst_var.upper()
-    fcst_var_db_name = fcst_var_uc
-    if fcst_var_uc == 'APCP': fcst_var_db_name = '_'.join([fcst_var_db_name, cla.level_or_accum[0:2]])
-    if cla.vx_stat in ['auc', 'brier', 'rely']: fcst_var_db_name = '_'.join([fcst_var_db_name, "ENS_FREQ"])
+    fcst_var_name_in_db = fcst_var_uc
+    if fcst_var_uc == 'APCP': fcst_var_name_in_db = '_'.join([fcst_var_name_in_db, cla.level_or_accum[0:2]])
+    if cla.vx_stat in ['auc', 'brier', 'rely']: fcst_var_name_in_db = '_'.join([fcst_var_name_in_db, "ENS_FREQ"])
     if cla.vx_stat in ['auc', 'brier', 'rely', 'rhist']:
-        fcst_var_db_name = '_'.join(filter(None,[fcst_var_db_name, ''.join([thresh_comp_oper, thresh_value])]))
+        fcst_var_name_in_db = '_'.join(filter(None,[fcst_var_name_in_db, ''.join([thresh_comp_oper, thresh_value])]))
 
     # Generate name for the verification statistic that MetViewer understands.
     vx_stat_mv = cla.vx_stat.upper()
@@ -516,9 +507,9 @@ def generate_metviewer_xml(cla, static, mv_database_info):
         obs_type = 'ADPUPA'
 
     logging.info(dedent(f"""
-        Strings passed to jinja template:
+        Subset of strings passed to jinja template:
           fcst_var_uc = {fcst_var_uc}
-          fcst_var_db_name = {fcst_var_db_name}
+          fcst_var_name_in_db = {fcst_var_name_in_db}
           vx_stat_mv = {vx_stat_mv}
           obs_type = {obs_type}
         """))
@@ -531,31 +522,31 @@ def generate_metviewer_xml(cla, static, mv_database_info):
                   "mv_output_dir": cla.mv_output_dir,
                   "num_models": num_models,
                   "model_color_codes": model_color_codes,
-                  "model_db_names": model_db_names,
+                  "model_names_in_db": model_names_in_db,
                   "model_names_short_uc": model_names_short_uc,
+                  "num_ens_mems": num_ens_mems,
                   "fcst_var_uc": fcst_var_uc,
-                  "fcst_var_db_name": fcst_var_db_name,
+                  "fcst_var_name_in_db": fcst_var_name_in_db,
                   "level_or_accum_mv": level_or_accum_mv,
                   "level_or_accum_no0pad": loa_value_no0pad,
                   "xml_threshold": xml_threshold,
-                  "obs_type": obs_type,
-                  "stat_uc": cla.vx_stat.upper(),
-                  "stat_lc": cla.vx_stat.lower(),
-                  "stat_mv": vx_stat_mv,
-                  "line_types": line_types,
-                  "line_widths": line_widths,
-                  "num_series": num_series,
-                  "order_series": order_series,
-                  "num_ens_mems": num_ens_mems,
                   "thresh_comp_oper": thresh_comp_oper,
                   "thresh_value": thresh_value,
                   "thresh_units": thresh_units,
+                  "obs_type": obs_type,
+                  "vx_stat_uc": cla.vx_stat.upper(),
+                  "vx_stat_lc": cla.vx_stat.lower(),
+                  "vx_stat_mv": vx_stat_mv,
                   "num_fcsts": num_fcsts,
                   "fcst_init_times": fcst_init_times,
                   "fcst_len_hrs": cla.fcst_len_hrs,
-                  "incl_ens_means": incl_ens_means,
                   "job_title": job_title,
-                  "plot_title": plot_title}
+                  "plot_title": plot_title,
+                  "incl_ens_means": incl_ens_means,
+                  "num_series": num_series,
+                  "order_series": order_series,
+                  "line_types": line_types,
+                  "line_widths": line_widths}
 
     jinja_vars_str = pprint.pformat(jinja_vars, compact=True)
     jinja_vars_str = '\n          '.join(jinja_vars_str.splitlines())
@@ -633,21 +624,39 @@ def run_mv_batch(mv_batch, output_xml_fp):
 
 def plot_vx_metviewer(argv):
 
+    # Set the logging level.
+    logging.basicConfig(level=logging.INFO)
+
     # Get static parameters.  These include parameters (e.g. valid values) 
     # needed to parse the command line arguments.
-    static_fp = 'vx_plots_static.yml'
-    static = get_static_vals(static_fp)
+    static_info_config_fp = 'vx_plots_static_info.yml'
+    logging.info(dedent(f"""
+        Obtaining static verification info from file {static_info_config_fp}...
+        """))
+    static_info = get_static_info(static_info_config_fp)
 
     # Parse arguments.
-    cla = parse_args(argv, static)
+    logging.info(dedent(f"""
+        Processing command line arguments...
+        """))
+    cla = parse_args(argv, static_info)
 
     # Get MetViewer database information.
+    logging.info(dedent(f"""
+        Obtaining MetViewer database info from file {cla.mv_database_config}...
+        """))
     mv_database_info = get_database_info(cla.mv_database_config)
 
-    # Generates a MetViewer xml.
-    mv_batch, output_xml_fp = generate_metviewer_xml(cla, static, mv_database_info)
+    # Generate a MetViewer xml.
+    logging.info(dedent(f"""
+        Generating a MetViewer xml...
+        """))
+    mv_batch, output_xml_fp = generate_metviewer_xml(cla, static_info, mv_database_info)
 
     # Run MetViewer on the xml to create a verification plot.
+    logging.info(dedent(f"""
+        Running MetViewer on xml file: {output_xml_fp}
+        """))
     run_mv_batch(mv_batch, output_xml_fp)
 #
 # -----------------------------------------------------------------------

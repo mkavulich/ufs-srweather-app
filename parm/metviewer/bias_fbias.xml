@@ -21,8 +21,8 @@
         <template>series_plot.R_tmpl</template>
         <dep>
             <dep1>
-                <fcst_var name="{{fcst_var_db_name}}">
-                    <stat>{{stat_mv}}</stat>
+                <fcst_var name="{{fcst_var_name_in_db}}">
+                    <stat>{{vx_stat_mv}}</stat>
                 </fcst_var>
             </dep1>
             <dep2/>
@@ -32,7 +32,7 @@
 {%- set fmt = "%02d" -%}
 {%- set indent = "\n                " -%}
 {%- for imdl in range(1, num_models+1) -%}
-  {%- set model = model_db_names[imdl-1] -%}
+  {%- set model = model_names_in_db[imdl-1] -%}
   {%- if incl_ens_means -%}
     {{- indent ~ "<val>" ~ model ~ "_mean" ~ "</val>" -}}
   {%- endif -%}
@@ -51,7 +51,7 @@
                     <val>{{level_or_accum_mv}}</val>
                 </set>
             </field>
-{%- if (stat_uc == "FBIAS") %}
+{%- if (vx_stat_uc == "FBIAS") %}
             <field equalize="false" name="fcst_thresh">
   {%- set ipf = ipf+1 %}
                 <set name="fcst_thresh_{{ipf}}">
@@ -67,9 +67,9 @@
   {{indent}}<val label="{{ihr}}" plot_val="">{{ihr*10000}}</val>
 {%- endfor %}
         </indep>
-{%- if (stat_uc == "BIAS") %}
+{%- if (vx_stat_uc == "BIAS") %}
         <plot_stat>mean</plot_stat>
-{%- elif (stat_uc == "FBIAS") %}
+{%- elif (vx_stat_uc == "FBIAS") %}
         <agg_stat>
             <agg_ctc>true</agg_ctc>
             <boot_repl>1</boot_repl>
@@ -87,7 +87,7 @@
             <r_file>plot_{{job_title}}.R</r_file>
             <title>{{plot_title}}</title>
             <x_label>Forecast Hour</x_label>
-            <y1_label>{{stat_uc}}</y1_label>
+            <y1_label>{{vx_stat_uc}}</y1_label>
             <y2_label/>
             <caption/>
             <job_title>{{job_title}}</job_title>
