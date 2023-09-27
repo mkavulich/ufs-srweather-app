@@ -52,6 +52,7 @@ def make_mv_vx_plots(args):
     fcst_init_info = [str(elem) for elem in fcst_init_info]
 
     fcst_len_hrs = str(config_dict['fcst_len_hrs'])
+    mv_database_name = config_dict['mv_database_name']
     model_names = config_dict['model_names']
 
     vx_stats_dict = config_dict["vx_stats"]
@@ -79,8 +80,9 @@ def make_mv_vx_plots(args):
                     for thresh in thresholds:
                         print(f"      thresh = {thresh}")
 
-                        args_list = ['--model_names', ] + model_names \
-                                  + ['--stat', stat,
+                        args_list = ['--mv_database_name', mv_database_name, \
+                                     '--model_names', ] + model_names \
+                                  + ['--vx_stat', stat,
                                      '--fcst_init_info'] + fcst_init_info \
                                   + ['--fcst_len_hrs', fcst_len_hrs, 
                                      '--fcst_var', fcst_var,

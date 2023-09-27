@@ -5,6 +5,8 @@ fcst_init_info:
 
 fcst_len_hrs: 36
 
+mv_database_name: 'mv_gefs_gdas_rtps_href_spring_2022'
+
 model_names: ['href', 'gdas', 'gefs']
 
 vx_stats:
