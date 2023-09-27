@@ -52,7 +52,8 @@ stats:
         need_thresh: False
 
 mv_color_codes:
-    red: '#ff0000FF'
-    blue: '#8a2be2FF'
-    green: '#32cd32FF'
+    red: '#ff0000'
+    blue: '#1e2ae3'
+    green: '#39d559'
+    purple: '#8a2be2FF'
 
