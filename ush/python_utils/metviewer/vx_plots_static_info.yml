@@ -1,8 +1,8 @@
 fcst_vars:
     apcp:
         long_name: 'Accumulated Precipitation'
-        valid_levels: ['3h', '3hr', '03h', '03hr', '6h', '6hr', '06h', '06hr', ]
-        valid_thresholds: ['gt0.0mm', 'ge2.54mm']
+        valid_levels: ['3h', '3hr', '03h', '03hr', '6h', '6hr', '06h', '06hr', '24h', '24hr']
+        valid_thresholds: ['gt0.0mm', 'ge0.508mm', 'ge2.54mm', 'ge6.35mm', 'ge12.7mm', 'ge25.4mm']
     cape:
         long_name: 'Convenctive Available Potential Energy'
         valid_levels: ['']

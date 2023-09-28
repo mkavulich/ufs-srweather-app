@@ -88,10 +88,14 @@ vx_stats:
     rely:
         apcp:
             03hr:
-                thresholds: ['gt0.0mm', 'ge2.54mm']
+                thresholds: ['gt0.0mm', 'ge0.508mm', 'ge2.54mm', 'ge6.35mm']
+            06hr:
+                thresholds: ['ge6.35mm', 'ge12.7mm']
+            24hr:
+                thresholds: ['ge25.4mm']
         dpt:
             2m:
-                thresholds: ['ge288K']
+                thresholds: ['ge288K', 'ge293K']
         refc:
             L0:
                 thresholds: ['ge20dBZ', 'ge30dBZ', 'ge40dBZ']
@@ -111,6 +115,8 @@ vx_stats:
             03hr:
                 thresholds: ['']
             06hr:
+                thresholds: ['']
+            24hr:
                 thresholds: ['']
         cape:
             # Not sure about what to use for level for cape.
@@ -133,6 +139,8 @@ vx_stats:
             850mb:
                 thresholds: ['']
         wind:
+            10m:
+                thresholds: ['']
             500mb:
                 thresholds: ['']
             850mb:
