@@ -397,7 +397,7 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
         if thresh_comp_oper[1] == 'e': 
             xml_threshold = "".join([xml_threshold, '='])
 
-        xml_threshold = "".join([xml_threshold, thresh_value])
+        xml_threshold = " ".join([xml_threshold, thresh_value])
 
     else:
         thresh_comp_oper = ''
@@ -487,6 +487,30 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
     if cla.vx_stat in ['auc', 'brier', 'rely']: fcst_var_name_in_db = '_'.join([fcst_var_name_in_db, "ENS_FREQ"])
     if cla.vx_stat in ['auc', 'brier', 'rely', 'rhist']:
         fcst_var_name_in_db = '_'.join(filter(None,[fcst_var_name_in_db, ''.join([thresh_comp_oper, thresh_value])]))
+        #
+        # For APCP thresholds of >= 6.35mm, >= 12.7mm, and >= 25.4mm, the SRW App's
+        # verification tasks pad the names of variables in the stat files with zeros
+        # such that there are three digits after the decimal.  Thus, for example, 
+        # variable names in the database are
+        #
+        #   APCP_06_ENS_FREQ_ge6.350
+        #   APCP_06_ENS_FREQ_ge12.700
+        #   APCP_24_ENS_FREQ_ge25.400
+        #
+        # instead of 
+        #
+        #   APCP_06_ENS_FREQ_ge6.35
+        #   APCP_06_ENS_FREQ_ge12.7
+        #   APCP_24_ENS_FREQ_ge25.4
+        #
+        # The following code appends the zeros to the variable name in the database
+        # (fcst_var_name_in_db).  Note that these zeros are not necessary; for simplicity,
+        # the METplus configuration files in the SRW App should be changed so that these
+        # zeros are not added.  Once that is done, the following code should be removed
+        # (otherwise the variables will not be found in the database).
+        #
+        if thresh_value in ['6.35']: fcst_var_name_in_db = ''.join([fcst_var_name_in_db, '0'])
+        elif thresh_value in ['12.7', '25.4']: fcst_var_name_in_db = ''.join([fcst_var_name_in_db, '00'])
 
     # Generate name for the verification statistic that MetViewer understands.
     vx_stat_mv = cla.vx_stat.upper()
@@ -530,9 +554,6 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
                   "level_or_accum_mv": level_or_accum_mv,
                   "level_or_accum_no0pad": loa_value_no0pad,
                   "xml_threshold": xml_threshold,
-                  "thresh_comp_oper": thresh_comp_oper,
-                  "thresh_value": thresh_value,
-                  "thresh_units": thresh_units,
                   "obs_type": obs_type,
                   "vx_stat_uc": cla.vx_stat.upper(),
                   "vx_stat_lc": cla.vx_stat.lower(),
