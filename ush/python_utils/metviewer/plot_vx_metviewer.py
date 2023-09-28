@@ -501,9 +501,9 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
         obs_type = 'CCPA'
     elif cla.fcst_var == 'refc' :
         obs_type = 'MRMS'
-    elif var_lvl_str in ['DPT2m','TMP2m','WIND10m']:
+    elif level_or_accum_str in ['2m','02m','10m']:
         obs_type = 'ADPSFC'
-    elif var_lvl_str in ['TMP850mb','WIND700mb']:
+    elif level_or_accum_str in ['500mb','700mb','850mb']:
         obs_type = 'ADPUPA'
 
     logging.info(dedent(f"""
