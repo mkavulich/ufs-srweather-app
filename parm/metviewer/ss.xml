@@ -21,7 +21,17 @@
             <dep1>
                 <fcst_var name="{{fcst_var_name_in_db}}">
                     <stat>ECNT_RMSE</stat>
-                    <stat>ECNT_SPREAD</stat>
+{#-
+The MetViewer database contains the statistic ECNT_SPREAD_PLUS_OERR for
+all forecast variables except REFC because the observation error for
+REFC is not known.  For REFC, only ECNT_SPREAD is available, so we use
+that.
+#}
+{%- set plus_oerr_or_null = "_PLUS_OERR" -%}
+{%- if fcst_var_uc == "REFC" %}
+  {%- set plus_oerr_or_null = "" -%}
+{%- endif %}
+                    <stat>ECNT_SPREAD{{plus_oerr_or_null}}</stat>
                 </fcst_var>
             </dep1>
             <dep2/>
@@ -90,8 +100,8 @@
         </indep>
         <agg_stat>
             <agg_ecnt>true</agg_ecnt>
-            <boot_repl>100</boot_repl>
-            <boot_random_seed/>
+            <boot_repl>1000</boot_repl>
+            <boot_random_seed>1</boot_random_seed>
             <boot_ci>perc</boot_ci>
             <eveq_dis>false</eveq_dis>
             <cache_agg_stat>false</cache_agg_stat>
