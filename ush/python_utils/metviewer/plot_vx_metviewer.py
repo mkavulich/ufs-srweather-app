@@ -323,7 +323,18 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
             """))
         error_out
 
+    # Parse the level/accumulation specified on the command line (cla.level_or_accum) 
+    # to obtain its value and units.  The returned value is a list.  If the regular
+    # expression doesn't match anything in cla.level_or_accum (e.g. if the latter is
+    # set to 'L0'), an empty list will be returned.  In that case, the else portion 
+    # of the if-else construct below will set loa_value and loa_units to empty strings.
     loa = re.findall(r'(\d*\.*\d+)([A-Za-z]+)', cla.level_or_accum)
+    level_or_accum_str = cla.level_or_accum
+    if level_or_accum_str == 'L0': level_or_accum_str = ''
+    print(f"")
+    print(f"loa = {loa}")
+    print(f"level_or_accum_str = {level_or_accum_str}")
+
     if loa:
         logging.info(dedent(f"""
             Parsing specified level or accumulation...
@@ -335,14 +346,24 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
 
     loa_value_no0pad = loa_value.lstrip('0')
     width_0pad = 0
-    if loa_units in ['m']:
+    if loa_units in ['h', 'hr']:
+        width_0pad = 2
+    elif loa_units in ['m']:
         width_0pad = 2
     elif loa_units == 'mb':
         width_0pad = 3
-    elif loa_units in ['h', 'hr']:
-        width_0pad = 2
-    loa_value_0pad = loa_value_no0pad.zfill(width_0pad)
+    else:
+        logging.error(dedent(f"""
+            Unknown units (loa_units) for level or accumulation:
+              loa_units = {loa_units}
+            Allowed units are 'h', 'hr', 'm', and 'mb'.  Related variables:
+              cla.level_or_accum = {cla.level_or_accum}
+              loa_value = {loa_value}
+              loa_value_no0pad = {loa_value_no0pad}
+            """))
+        error_out
 
+    loa_value_0pad = loa_value_no0pad.zfill(width_0pad)
     logging.info(dedent(f"""
         Level or accumulation parameters are set as follows:
           loa_value = {loa_value}
@@ -350,6 +371,7 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
           loa_value_0pad = {loa_value_0pad}
           loa_units = {loa_units}
         """))
+    lakjlkj
 
     # Name for the level or accumulation that MetViewer understands.
     level_or_accum_mv = cla.level_or_accum
@@ -390,27 +412,30 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
         thresh_comp_oper, thresh_value, thresh_units = list(threshold[0])
 
         if thresh_comp_oper[0] == 'l': 
-            xml_threshold = '&lt;'
+            thresh_comp_oper_xml = '&lt;'
         elif thresh_comp_oper[0] == 'g': 
-            xml_threshold = '&gt;'
+            thresh_comp_oper_xml = '&gt;'
 
         if thresh_comp_oper[1] == 'e': 
-            xml_threshold = "".join([xml_threshold, '='])
+            thresh_comp_oper_xml = "".join([thresh_comp_oper_xml, '='])
 
-        xml_threshold = " ".join([xml_threshold, thresh_value])
+        threshold_in_db = "".join([thresh_comp_oper_xml, thresh_value])
+        threshold_in_plot_title = " ".join([thresh_comp_oper_xml, thresh_value, thresh_units])
 
     else:
         thresh_comp_oper = ''
         thresh_value = ''
         thresh_units = ''
-        xml_threshold = ''
+        threshold_in_db = ''
+        threshold_in_plot_title = ''
 
     logging.info(dedent(f"""
         Threshold parameters are set as follows:
           thresh_comp_oper = {thresh_comp_oper}
           thresh_value = {thresh_value}
           thresh_units = {thresh_units}
-          xml_threshold = {xml_threshold}
+          threshold_in_db = {threshold_in_db}
+          threshold_in_plot_title = {threshold_in_plot_title}
         """))
 
     level_or_accum_str = cla.level_or_accum
@@ -418,8 +443,9 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
     plot_title = " ".join(filter(None,
                           [stat_long_names[cla.vx_stat], 'for',
                            level_or_accum_str, fcst_var_long_names[cla.fcst_var],
-                           xml_threshold, thresh_units]))
-    var_lvl_str = ''.join(filter(None, [cla.fcst_var.upper(), level_or_accum_str]))
+                           threshold_in_plot_title]))
+    fcst_var_uc = cla.fcst_var.upper()
+    var_lvl_str = ''.join(filter(None, [fcst_var_uc, level_or_accum_str]))
     thresh_str = ''.join(filter(None, [thresh_comp_oper, thresh_value, thresh_units]))
     var_lvl_thresh_str = '_'.join(filter(None, [var_lvl_str, thresh_str]))
 
@@ -481,12 +507,11 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
     order_series = [s for s in range(1,num_series+1)]
 
     # Generate name of forecast variable as it appears in the MetViewer database.
-    fcst_var_uc = cla.fcst_var.upper()
     fcst_var_name_in_db = fcst_var_uc
     if fcst_var_uc == 'APCP': fcst_var_name_in_db = '_'.join([fcst_var_name_in_db, cla.level_or_accum[0:2]])
-    if cla.vx_stat in ['auc', 'brier', 'rely']: fcst_var_name_in_db = '_'.join([fcst_var_name_in_db, "ENS_FREQ"])
-    if cla.vx_stat in ['auc', 'brier', 'rely', 'rhist']:
-        fcst_var_name_in_db = '_'.join(filter(None,[fcst_var_name_in_db, ''.join([thresh_comp_oper, thresh_value])]))
+    if cla.vx_stat in ['auc', 'brier', 'rely']:
+        fcst_var_name_in_db = '_'.join(filter(None,[fcst_var_name_in_db, 'ENS_FREQ', 
+                                                    ''.join([thresh_comp_oper, thresh_value])]))
         #
         # For APCP thresholds of >= 6.35mm, >= 12.7mm, and >= 25.4mm, the SRW App's
         # verification tasks pad the names of variables in the stat files with zeros
@@ -525,9 +550,9 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
         obs_type = 'CCPA'
     elif cla.fcst_var == 'refc' :
         obs_type = 'MRMS'
-    elif level_or_accum_str in ['2m','02m','10m']:
+    elif cla.level_or_accum in ['2m','02m','10m']:
         obs_type = 'ADPSFC'
-    elif level_or_accum_str in ['500mb','700mb','850mb']:
+    elif cla.level_or_accum in ['500mb','700mb','850mb']:
         obs_type = 'ADPUPA'
 
     logging.info(dedent(f"""
@@ -553,7 +578,7 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
                   "fcst_var_name_in_db": fcst_var_name_in_db,
                   "level_or_accum_mv": level_or_accum_mv,
                   "level_or_accum_no0pad": loa_value_no0pad,
-                  "xml_threshold": xml_threshold,
+                  "threshold_in_db": threshold_in_db,
                   "obs_type": obs_type,
                   "vx_stat_uc": cla.vx_stat.upper(),
                   "vx_stat_lc": cla.vx_stat.lower(),
@@ -598,9 +623,10 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
     output_xml_dir = Path(os.path.join(cla.mv_output_dir, 'plots')).resolve()
     if not os.path.exists(output_xml_dir):
         os.makedirs(output_xml_dir)
+                    #['plot', cla.vx_stat,
+                    # ''.join([fcst_var_uc, level_or_accum_str]),
     output_xml_fn = '_'.join(filter(None,
-                    ['plot', cla.vx_stat,
-                     ''.join([cla.fcst_var.upper(), level_or_accum_str]),
+                    ['plot', cla.vx_stat, var_lvl_str,
                      cla.threshold, models_str]))
     output_xml_fn = ''.join([output_xml_fn, '.xml'])
     output_xml_fp = os.path.join(output_xml_dir, output_xml_fn)
