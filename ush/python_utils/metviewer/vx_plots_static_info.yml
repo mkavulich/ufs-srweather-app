@@ -1,3 +1,40 @@
+#
+# Not sure if this mapping can change from one database to another or
+# if the values are standard in MetViewer.  If the former, then this
+# should be moved to the database configuration yaml file.
+#
+levels_to_levels_in_db: {'3h': 'A3', '3hr': 'A3', '03h': 'A3', '03hr': 'A3',
+                         '6h': 'A6', '6hr': 'A6', '06h': 'A6', '06hr': 'A6',
+                         '24h': 'A24', '24hr': 'A24',
+                         'L0': 'L0',
+                         '2m': 'Z2', '02m': 'Z2',
+                         '10m': 'Z10', 
+                         '500mb': 'P500',
+                         '700mb': 'P700',
+                         '850mb': 'P850'}
+#
+# Not sure if this mapping can change from one database to another or
+# if the values are standard in MetViewer.  If the former, then this
+# should be moved to the database configuration yaml file.
+#
+threshs_to_threshs_in_db: {'': '',
+                           'gt0.0mm': '&gt;0.0',
+                           'ge0.508mm': '&gt;=0.508',
+                           'ge2.54mm': '&gt;=2.54',
+                           'ge6.35mm': '&gt;=6.35',
+                           'ge12.7mm': '&gt;=12.7',
+                           'ge25.4mm': '&gt;=25.4',
+                           'ge20dBZ': '&gt;=20',
+                           'ge30dBZ': '&gt;=30',
+                           'ge40dBZ': '&gt;=40',
+                           'ge50dBZ': '&gt;=50',
+                           'ge288K': '&gt;=288',
+                           'ge293K': '&gt;=293',
+                           'ge298K': '&gt;=298',
+                           'ge303K': '&gt;=303',
+                           'ge5mps': '&gt;=5',
+                           'ge10mps': '&gt;=10'}
+ 
 fcst_vars:
     apcp:
         long_name: 'Accumulated Precipitation'
@@ -5,7 +42,7 @@ fcst_vars:
         valid_thresholds: ['gt0.0mm', 'ge0.508mm', 'ge2.54mm', 'ge6.35mm', 'ge12.7mm', 'ge25.4mm']
     cape:
         long_name: 'Convenctive Available Potential Energy'
-        valid_levels: ['']
+        valid_levels: ['L0']
         valid_thresholds: ['']
     dpt:
         long_name: 'Dew Point Temperature'

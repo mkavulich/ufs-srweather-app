@@ -119,7 +119,6 @@ vx_stats:
             24hr:
                 thresholds: ['']
         cape:
-            # Not sure about what to use for level for cape.
             L0:
                 thresholds: ['']
         dpt:

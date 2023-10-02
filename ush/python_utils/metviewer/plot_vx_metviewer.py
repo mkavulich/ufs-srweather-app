@@ -79,56 +79,83 @@ def get_static_info(static_fp):
     '''
 
     # Load the yaml file containing static values.
-    valid_vals = load_config_file(static_fp)
+    static_data = load_config_file(static_fp)
+
+    levels_to_levels_in_db = static_data['levels_to_levels_in_db']
+    all_valid_levels = list(levels_to_levels_in_db.keys())
+
+    threshs_to_threshs_in_db = static_data['threshs_to_threshs_in_db']
+    all_valid_threshs = list(threshs_to_threshs_in_db.keys())
 
     # Define local dictionaries containing static values that depend on the 
     # forecast variable.
-    valid_fcst_vars = valid_vals['fcst_vars'].keys()
+    valid_fcst_vars = static_data['fcst_vars'].keys()
     fcst_var_long_names = {}
-    valid_levels_or_accums_by_fcst_var = {}
-    valid_thresholds_by_fcst_var = {}
+    valid_levels_by_fcst_var = {}
+    valid_threshs_by_fcst_var = {}
     for fcst_var in valid_fcst_vars:
-        fcst_var_long_names[fcst_var] = valid_vals['fcst_vars'][fcst_var]['long_name']
-        valid_levels_or_accums_by_fcst_var[fcst_var] = valid_vals['fcst_vars'][fcst_var]['valid_levels']
-        valid_thresholds_by_fcst_var[fcst_var] = valid_vals['fcst_vars'][fcst_var]['valid_thresholds']
+
+        fcst_var_long_names[fcst_var] = static_data['fcst_vars'][fcst_var]['long_name']
+
+        # Get list of valid levels/accumulations for the current forecast
+        # variable.
+        valid_levels_by_fcst_var[fcst_var] = static_data['fcst_vars'][fcst_var]['valid_levels']
+        # Make sure all the levels/accumulations specified for the current
+        # forecast variable are in the master list of valid levels/accumulations.
+        for loa in valid_levels_by_fcst_var[fcst_var]:
+            if loa not in all_valid_levels:
+                logging.error(dedent(f"""
+                    The current level or accumulation (loa) specified for the current
+                    forecast variable (fcst_var) is not in the master list of valid
+                    levels/accumulations (all_valid_levels):
+                      fcst_var = {fcst_var}
+                      loa = {loa}
+                      all_valid_levels = {all_valid_levels}
+                    """))
+                error_out
+
+        # Get list of valid thresholds for the current forecast variable.
+        valid_threshs_by_fcst_var[fcst_var] = static_data['fcst_vars'][fcst_var]['valid_thresholds']
+        for thresh in valid_threshs_by_fcst_var[fcst_var]:
+            if thresh not in all_valid_threshs:
+                logging.error(dedent(f"""
+                    The current threshold (thresh) specified for the current forecast
+                    variable (fcst_var) is not in the master list of valid thresholds
+                    (all_valid_threshs):
+                      fcst_var = {fcst_var}
+                      thresh = {thresh}
+                      all_valid_threshs = {all_valid_threshs}
+                    """))
+                error_out
 
     # Define local dictionaries containing static values that depend on the 
     # verification statistic.
-    valid_stats = valid_vals['stats'].keys()
+    valid_stats = static_data['stats'].keys()
     stat_long_names = {}
     stat_need_thresh = {}
     for stat in valid_stats:
-        stat_long_names[stat] = valid_vals['stats'][stat]['long_name']
-        stat_need_thresh[stat] = valid_vals['stats'][stat]['need_thresh']
+        stat_long_names[stat] = static_data['stats'][stat]['long_name']
+        stat_need_thresh[stat] = static_data['stats'][stat]['need_thresh']
 
     # Get dictionary containing MetViewer color codes.  Keys are the color
     # names (e.g. 'red'), and values are the corresponding codes in MetViewer.
-    mv_color_codes = valid_vals['mv_color_codes']
+    mv_color_codes = static_data['mv_color_codes']
 
     # Create dictionary containing valid choices for various parameters.
     # This is needed by the argument parsing function below.
     choices = {}
-
     choices['fcst_var'] = sorted(valid_fcst_vars)
-
-    choices['level'] = [item for sublist in valid_levels_or_accums_by_fcst_var.values() for item in sublist]
-    # The above list of level (or accumulation) choices may contain duplicate values and is unsorted.
-    # Remove duplicates and sort.
-    choices['level'] = sorted(list(set(choices['level'])))
-
-    choices['threshold'] = [item for sublist in valid_thresholds_by_fcst_var.values() for item in sublist]
-    # The above list of threshold choices may contain duplicate values and is unsorted.
-    # Remove duplicates and sort.
-    choices['threshold'] = sorted(list(set(choices['threshold'])))
-
+    choices['level'] = all_valid_levels
+    choices['threshold'] = all_valid_threshs
     choices['vx_stat'] = sorted(valid_stats)
-
     choices['color'] = list(mv_color_codes.keys())
 
     static_info = {}
+    static_info['levels_to_levels_in_db'] = levels_to_levels_in_db
+    static_info['threshs_to_threshs_in_db'] = threshs_to_threshs_in_db
     static_info['fcst_var_long_names'] = fcst_var_long_names
-    static_info['valid_levels_or_accums_by_fcst_var'] = valid_levels_or_accums_by_fcst_var
-    static_info['valid_thresholds_by_fcst_var'] = valid_thresholds_by_fcst_var
+    static_info['valid_levels_by_fcst_var'] = valid_levels_by_fcst_var
+    static_info['valid_threshs_by_fcst_var'] = valid_threshs_by_fcst_var
     static_info['stat_long_names'] = stat_long_names
     static_info['stat_need_thresh'] = stat_need_thresh
     static_info['mv_color_codes'] = mv_color_codes 
@@ -262,9 +289,11 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
         None
     """
 
+    levels_to_levels_in_db = static_info['levels_to_levels_in_db']
+    threshs_to_threshs_in_db = static_info['threshs_to_threshs_in_db']
     fcst_var_long_names = static_info['fcst_var_long_names']
-    valid_levels_or_accums_by_fcst_var = static_info['valid_levels_or_accums_by_fcst_var']
-    valid_thresholds_by_fcst_var = static_info['valid_thresholds_by_fcst_var']
+    valid_levels_by_fcst_var = static_info['valid_levels_by_fcst_var']
+    valid_threshs_by_fcst_var = static_info['valid_threshs_by_fcst_var']
     stat_long_names = static_info['stat_long_names']
     stat_need_thresh = static_info['stat_need_thresh']
     mv_color_codes = static_info['mv_color_codes']
@@ -274,13 +303,12 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
     mv_machine_config_fp = Path(os.path.join(cla.mv_machine_config)).resolve()
     mv_machine_config = load_config_file(mv_machine_config_fp)
 
-    mv_host = cla.mv_host
     all_hosts = sorted(list(mv_machine_config.keys()))
     if cla.mv_host not in all_hosts:
         logging.error(dedent(f"""
-            The machine/host specified on the command line (mv_host) does not have a
+            The machine/host specified on the command line (cla.mv_host) does not have a
             corresponding entry in the MetViewer host configuration file (mv_machine_config_fp):
-              mv_host = {mv_host}
+              cla.mv_host = {cla.mv_host}
               mv_machine_config_fp = {mv_machine_config_fp}
             Machines that do have an entry in the host configuration file are:
               {all_hosts}
@@ -288,8 +316,47 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
             """))
         error_out
 
-    mv_machine_config_dict = mv_machine_config[mv_host]
+    mv_machine_config_dict = mv_machine_config[cla.mv_host]
 
+    # Make sure that the database specified on the command line exists in the
+    # list of databases in the database configuration file.
+    if cla.mv_database_name not in mv_database_info.keys():
+        logging.error(dedent(f"""
+            The database specified on the command line (cla.mv_database_name) is not
+            in the set of MetViewer databases specified in the database configuration
+            file (cla.mv_database_config):
+              cla.mv_database_name = {cla.mv_database_name}
+              cla.mv_database_config = {cla.mv_database_config}
+            """))
+        error_out
+
+    # Extract the MetViewer database information.
+    model_info = mv_database_info[cla.mv_database_name]
+    num_models = len(model_info)
+
+    # Get the number of ensemble members for each model and make sure all are
+    # positive.
+    num_ens_mems = [model_info[m]['num_ens_mems'] for m in cla.model_names]
+    for i,model in enumerate(cla.model_names):
+        n_ens = num_ens_mems[i]
+        if n_ens <= 0:
+            logging.error(dedent(f"""
+                The number of ensemble members for the current model must be greater
+                than or equal to 0:
+                  model = {model}
+                  n_ens = {n_ens}
+                """))
+            error_out
+
+    # Get the model names in the database as well as the model short names.
+    model_names_in_db = [model_info[m]['name_in_db'] for m in cla.model_names]
+    model_names_short_uc = [m.upper() for m in cla.model_names]
+
+    # Pick out the plot color associated with each model from the list of 
+    # available colors.
+    model_color_codes = [mv_color_codes[m] for m in cla.colors]
+
+    # Set the initialization times for the forecasts.
     fcst_init_time_first = datetime.strptime(cla.fcst_init_info[0], '%Y%m%d%H')
     num_fcsts = int(cla.fcst_init_info[1])
     fcst_init_intvl = timedelta(hours=int(cla.fcst_init_info[2]))
@@ -312,12 +379,12 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
     # as follows:
     cla.incl_ens_means = incl_ens_means
 
-    valid_levels_or_accums = valid_levels_or_accums_by_fcst_var[cla.fcst_var]
+    valid_levels_or_accums = valid_levels_by_fcst_var[cla.fcst_var]
     if cla.level_or_accum not in valid_levels_or_accums:
         logging.error(dedent(f"""
             The specified level or accumulation is not compatible with the specified forecast variable:
-              fcst_var = {cla.fcst_var}
-              level_or_accum = {cla.level_or_accum}
+              cla.fcst_var = {cla.fcst_var}
+              cla.level_or_accum = {cla.level_or_accum}
             Valid options for level or accumulation for this forecast variable are:
               {valid_levels_or_accums}
             """))
@@ -329,11 +396,6 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
     # set to 'L0'), an empty list will be returned.  In that case, the else portion 
     # of the if-else construct below will set loa_value and loa_units to empty strings.
     loa = re.findall(r'(\d*\.*\d+)([A-Za-z]+)', cla.level_or_accum)
-    level_or_accum_str = cla.level_or_accum
-    if level_or_accum_str == 'L0': level_or_accum_str = ''
-    print(f"")
-    print(f"loa = {loa}")
-    print(f"level_or_accum_str = {level_or_accum_str}")
 
     if loa:
         logging.info(dedent(f"""
@@ -348,11 +410,11 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
     width_0pad = 0
     if loa_units in ['h', 'hr']:
         width_0pad = 2
-    elif loa_units in ['m']:
+    elif loa_units == 'm':
         width_0pad = 2
     elif loa_units == 'mb':
         width_0pad = 3
-    else:
+    elif not (loa_units == '' and cla.level_or_accum == 'L0'):
         logging.error(dedent(f"""
             Unknown units (loa_units) for level or accumulation:
               loa_units = {loa_units}
@@ -371,19 +433,10 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
           loa_value_0pad = {loa_value_0pad}
           loa_units = {loa_units}
         """))
-    lakjlkj
-
-    # Name for the level or accumulation that MetViewer understands.
-    level_or_accum_mv = cla.level_or_accum
-    if loa_units == 'm':
-        level_or_accum_mv = ''.join(['Z', loa_value_no0pad])
-    elif loa_units == 'mb':
-        level_or_accum_mv = ''.join(['P', loa_value_no0pad])
-    elif loa_units in ['h', 'hr']:
-        level_or_accum_mv = ''.join(['A', loa_value_no0pad])
 
     if (not stat_need_thresh[cla.vx_stat]) and (cla.threshold):
-        no_thresh_stats_fmt_str = ",\n".join("              {!r}: {!r}".format(k, v) for k, v in stat_long_names.items() if k in no_thresh_stats).lstrip()
+        no_thresh_stats_fmt_str = ",\n".join("              {!r}: {!r}".format(k, v)
+                                             for k, v in stat_long_names.items() if k in no_thresh_stats).lstrip()
         logging.info(dedent(f"""
             A threshold is not needed when working with one of the following verification stats:
               {no_thresh_stats_fmt_str}
@@ -392,7 +445,7 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
         cla.threshold = ''
 
     elif (stat_need_thresh[cla.vx_stat]):
-        valid_thresholds = valid_thresholds_by_fcst_var[cla.fcst_var]
+        valid_thresholds = valid_threshs_by_fcst_var[cla.fcst_var]
         if cla.threshold not in valid_thresholds:
             logging.error(dedent(f"""
                 The specified threshold is not compatible with the specified forecast variable:
@@ -404,12 +457,12 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
             # Need proper exit here!
             error_out
 
-    threshold = re.findall(r'([A-Za-z]+)(\d*\.*\d+)([A-Za-z]+)', cla.threshold)
-    if threshold:
+    thresh = re.findall(r'([A-Za-z]+)(\d*\.*\d+)([A-Za-z]+)', cla.threshold)
+    if thresh:
         logging.info(dedent(f"""
             Parsing specified threshold to obtain comparison operator, value, and units...
             """))
-        thresh_comp_oper, thresh_value, thresh_units = list(threshold[0])
+        thresh_comp_oper, thresh_value, thresh_units = list(thresh[0])
 
         if thresh_comp_oper[0] == 'l': 
             thresh_comp_oper_xml = '&lt;'
@@ -419,33 +472,28 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
         if thresh_comp_oper[1] == 'e': 
             thresh_comp_oper_xml = "".join([thresh_comp_oper_xml, '='])
 
-        threshold_in_db = "".join([thresh_comp_oper_xml, thresh_value])
-        threshold_in_plot_title = " ".join([thresh_comp_oper_xml, thresh_value, thresh_units])
+        thresh_in_plot_title = " ".join([thresh_comp_oper_xml, thresh_value, thresh_units])
 
     else:
         thresh_comp_oper = ''
         thresh_value = ''
         thresh_units = ''
-        threshold_in_db = ''
-        threshold_in_plot_title = ''
+        thresh_in_plot_title = ''
 
     logging.info(dedent(f"""
         Threshold parameters are set as follows:
           thresh_comp_oper = {thresh_comp_oper}
           thresh_value = {thresh_value}
           thresh_units = {thresh_units}
-          threshold_in_db = {threshold_in_db}
-          threshold_in_plot_title = {threshold_in_plot_title}
+          thresh_in_plot_title = {thresh_in_plot_title}
         """))
 
-    level_or_accum_str = cla.level_or_accum
-    if level_or_accum_str == 'L0': level_or_accum_str = ''
     plot_title = " ".join(filter(None,
                           [stat_long_names[cla.vx_stat], 'for',
-                           level_or_accum_str, fcst_var_long_names[cla.fcst_var],
-                           threshold_in_plot_title]))
+                           loa_value, loa_units, fcst_var_long_names[cla.fcst_var],
+                           thresh_in_plot_title]))
     fcst_var_uc = cla.fcst_var.upper()
-    var_lvl_str = ''.join(filter(None, [fcst_var_uc, level_or_accum_str]))
+    var_lvl_str = ''.join(filter(None, [fcst_var_uc, loa_value, loa_units]))
     thresh_str = ''.join(filter(None, [thresh_comp_oper, thresh_value, thresh_units]))
     var_lvl_thresh_str = '_'.join(filter(None, [var_lvl_str, thresh_str]))
 
@@ -454,7 +502,6 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
 
     logging.info(dedent(f"""
         Various auxiliary string values:
-          level_or_accum_str = {level_or_accum_str}
           plot_title = {plot_title}
           var_lvl_str = {var_lvl_str}
           thresh_str = {thresh_str}
@@ -463,37 +510,10 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
           models_str = {models_str}
         """))
 
-    if cla.mv_database_name not in mv_database_info.keys():
-        logging.error(dedent(f"""
-            The database specified on the command line (cla.mv_database_name) is not
-            in the set of MetViewer databases specified in the database configuration
-            file (cla.mv_database_config):
-              cla.mv_database_name = {cla.mv_database_name}
-              cla.mv_database_config = {cla.mv_database_config}
-            """))
-        error_out
-
-    model_info = mv_database_info[cla.mv_database_name]
-
-    num_models = len(model_info)
-    num_ens_mems = [model_info[m]['num_ens_mems'] for m in cla.model_names]
-    for i,model in enumerate(cla.model_names):
-        n_ens = num_ens_mems[i]
-        if n_ens <= 0:
-            logging.error(dedent(f"""
-                The number of ensemble members for the current model must be greater
-                than or equal to 0:
-                  model = {model}
-                  n_ens = {n_ens}
-                """))
-            error_out
-
-    # Pick out the plot color associated with each model from the list of 
-    # available colors.
-    model_color_codes = [mv_color_codes[m] for m in cla.colors]
-
-    model_names_in_db = [model_info[m]['name_in_db'] for m in cla.model_names]
-    model_names_short_uc = [m.upper() for m in cla.model_names]
+    # Get names of level/accumulation, threshold, and models as they are set
+    # in the database.
+    level_in_db = levels_to_levels_in_db[cla.level_or_accum]
+    thresh_in_db = threshs_to_threshs_in_db[cla.threshold]
 
     line_types = list()
     for imod in range(0,num_models):
@@ -508,6 +528,7 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
 
     # Generate name of forecast variable as it appears in the MetViewer database.
     fcst_var_name_in_db = fcst_var_uc
+    # The following only works if the accumulations are specifed with a leading zero, e.g. 03h, 06h (24h doesn't matter).
     if fcst_var_uc == 'APCP': fcst_var_name_in_db = '_'.join([fcst_var_name_in_db, cla.level_or_accum[0:2]])
     if cla.vx_stat in ['auc', 'brier', 'rely']:
         fcst_var_name_in_db = '_'.join(filter(None,[fcst_var_name_in_db, 'ENS_FREQ', 
@@ -550,6 +571,10 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
         obs_type = 'CCPA'
     elif cla.fcst_var == 'refc' :
         obs_type = 'MRMS'
+    # The level for CAPE is 'L0', which means the surface, but its obtype is ADPUPA
+    # (upper air).  It's a bit unintuitive...
+    elif cla.fcst_var == 'cape' :
+        obs_type = 'ADPUPA'
     elif cla.level_or_accum in ['2m','02m','10m']:
         obs_type = 'ADPSFC'
     elif cla.level_or_accum in ['500mb','700mb','850mb']:
@@ -567,18 +592,18 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
     # jinja template.
     jinja_vars = {"mv_host": cla.mv_host,
                   "mv_machine_config_dict": mv_machine_config_dict,
-                  "mv_database": cla.mv_database_name,
+                  "mv_database_name": cla.mv_database_name,
                   "mv_output_dir": cla.mv_output_dir,
                   "num_models": num_models,
-                  "model_color_codes": model_color_codes,
+                  "num_ens_mems": num_ens_mems,
                   "model_names_in_db": model_names_in_db,
                   "model_names_short_uc": model_names_short_uc,
-                  "num_ens_mems": num_ens_mems,
+                  "model_color_codes": model_color_codes,
                   "fcst_var_uc": fcst_var_uc,
                   "fcst_var_name_in_db": fcst_var_name_in_db,
-                  "level_or_accum_mv": level_or_accum_mv,
+                  "level_in_db": level_in_db,
                   "level_or_accum_no0pad": loa_value_no0pad,
-                  "threshold_in_db": threshold_in_db,
+                  "thresh_in_db": thresh_in_db,
                   "obs_type": obs_type,
                   "vx_stat_uc": cla.vx_stat.upper(),
                   "vx_stat_lc": cla.vx_stat.lower(),
@@ -623,8 +648,6 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
     output_xml_dir = Path(os.path.join(cla.mv_output_dir, 'plots')).resolve()
     if not os.path.exists(output_xml_dir):
         os.makedirs(output_xml_dir)
-                    #['plot', cla.vx_stat,
-                    # ''.join([fcst_var_uc, level_or_accum_str]),
     output_xml_fn = '_'.join(filter(None,
                     ['plot', cla.vx_stat, var_lvl_str,
                      cla.threshold, models_str]))
@@ -651,7 +674,7 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
     set_template(args_list)
     os.remove(tmp_fn)
 
-    return(mv_machine_config_dict["mv_batch"], output_xml_fp)
+    return(mv_machine_config_dict['mv_batch'], output_xml_fp)
 
 
 def run_mv_batch(mv_batch, output_xml_fp):

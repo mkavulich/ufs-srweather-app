@@ -2,7 +2,7 @@
 <plot_spec>
     <connection>
         <host>{{mv_host}}</host>
-        <database>{{mv_database}}</database>
+        <database>{{mv_database_name}}</database>
         <user>{{mv_machine_config_dict["user"]}}</user>
         <password>{{mv_machine_config_dict["password"]}}</password>
         <management_system>mariadb</management_system>
@@ -73,7 +73,7 @@ that.
             <field equalize="true" name="fcst_lev">
 {%- set ipf = ipf+1 %}
                 <set name="fcst_lev_{{ipf}}">
-                    <val>{{level_or_accum_mv}}</val>
+                    <val>{{level_in_db}}</val>
                 </set>
             </field>
         </plot_fix>
@@ -123,6 +123,7 @@ that.
 {%- set series_types = ["RMSE", "Spread", "Ratio"] -%}
 {%- set num_series_per_model = series_types|length -%}
 {#- #}
+{#-
             <listdiffseries1>list(
 {%- set indent = "\n                                  " -%}
 {%- for imdl in range(1, num_models+1) -%}
@@ -137,10 +138,14 @@ that.
   "{{model}} {{fcst_var_uc}} ECNT_{{series_type}}"
   {%- if imdl != num_models -%} , \ {%- endif -%}
 {%- endfor -%})</listdiffseries1>
+#}
 {#- #}
+{#-
             <listdiffseries1>list(c("HREF REFC ECNT_SPREAD","HREF REFC ECNT_RMSE","RATIO"), \
                                   c("RRFSE_CONUS_ICperts_stoch.rrfs_conuscompact_3km REFC ECNT_SPREAD","RRFSE_CONUS_ICperts_stoch.rrfs_conuscompact_3km REFC ECNT_RMSE","RATIO"), \
                                   c("RTPS REFC ECNT_SPREAD","RTPS REFC ECNT_RMSE","RATIO"))</listdiffseries1>
+#}
+            <listdiffseries1>list(c("HREF APCP_03 ECNT_SPREAD_PLUS_OERR","HREF APCP_03 ECNT_RMSE","RATIO"),c("RRFSE_CONUS_ICperts_stoch.rrfs_conuscompact_3km APCP_03 ECNT_SPREAD_PLUS_OERR","RRFSE_CONUS_ICperts_stoch.rrfs_conuscompact_3km APCP_03 ECNT_RMSE","RATIO"),c("RTPS APCP_03 ECNT_SPREAD_PLUS_OERR","RTPS APCP_03 ECNT_RMSE","RATIO"))</listdiffseries1>
             <listdiffseries2>list()</listdiffseries2>
         </tmpl>
 {%- set vif = "" -%}
@@ -173,7 +178,11 @@ that.
         <dump_points2>false</dump_points2>
         <log_y1>false</log_y1>
         <log_y2>false</log_y2>
-        <varianceinflationfactor>true</varianceinflationfactor>
+{#-
+Turn off varianceinflationfactor for now.  This may be turned on later
+after discussion with DTC statisticians.
+#}
+        <varianceinflationfactor>false</varianceinflationfactor>
         <plot_type>png16m</plot_type>
         <plot_height>8.5</plot_height>
         <plot_width>11</plot_width>
@@ -396,6 +405,7 @@ on one line in the XML.
 {#- #}
         <plot_cmd/>
         <!-- These are the series legend texts. -->
+{#-
         <legend>c(
 {%- set indent = "" -%}
 {%- for imdl in range(1, num_models+1) -%}
@@ -410,6 +420,7 @@ on one line in the XML.
   "{{model}} {{series_type}}"
   {%- if imdl != num_models -%} , {%- endif -%}
 {%- endfor -%})</legend>
+-#}
 {#- #}
         <legend>c("HREF RMSE","RRFS_GEFS RMSE","RTPS RMSE","HREF Spread","RRFS_GEFS Spread","RTPS Spread","HREF Ratio","RRFS_GEFS Ratio","RTPS Ratio")</legend>
         <create_html>TRUE</create_html>

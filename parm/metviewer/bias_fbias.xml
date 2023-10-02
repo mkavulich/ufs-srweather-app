@@ -4,7 +4,7 @@
 <plot_spec>
     <connection>
         <host>{{mv_host}}</host>
-        <database>{{mv_database}}</database>
+        <database>{{mv_database_name}}</database>
         <user>{{mv_machine_config_dict["user"]}}</user>
         <password>{{mv_machine_config_dict["password"]}}</password>
         <management_system>mariadb</management_system>
@@ -69,14 +69,14 @@
             <field equalize="true" name="fcst_lev">
 {%- set ipf = ipf+1 %}
                 <set name="fcst_lev_{{ipf}}">
-                    <val>{{level_or_accum_mv}}</val>
+                    <val>{{level_in_db}}</val>
                 </set>
             </field>
 {%- if (vx_stat_uc == "FBIAS") %}
             <field equalize="true" name="fcst_thresh">
   {%- set ipf = ipf+1 %}
                 <set name="fcst_thresh_{{ipf}}">
-                    <val>{{xml_threshold}}</val>
+                    <val>{{thresh_in_db}}</val>
                 </set>
             </field>
 {%- endif %}
@@ -88,7 +88,21 @@
   {{indent}}<val label="{{ihr}}" plot_val="">{{ihr*10000}}</val>
 {%- endfor %}
         </indep>
-{%- if (vx_stat_uc == "FBIAS") %}
+{#-
+For continuous forecast fields (e.g. DPT, TMP, WIND), it is reasonable
+to use summary statistics (although aggregate statistics is probably
+better), but for discontinuous fields, aggregate statistics should be
+used.
+
+However, it is not yet clear whether the above rule applies only to 
+FBIAS or to both BIAS and FBIAS (and possibly other statistics).  Thus,
+for now we apply the rule only to FBIAS.
+#}
+{%- if (vx_stat_uc == "BIAS") %}
+        <plot_stat>median</plot_stat>
+{%- elif (vx_stat_uc == "FBIAS") %}
+{#- Known discontinuous variables.  Use aggregate statistics in this case. #}
+  {%- if fcst_var_uc in ["APCP", "CAPE", "REFC"] %}
         <agg_stat>
             <agg_ctc>true</agg_ctc>
             <boot_repl>1</boot_repl>
@@ -98,6 +112,13 @@
             <cache_agg_stat>false</cache_agg_stat>
             <circular_block_bootstrap>true</circular_block_bootstrap>
         </agg_stat>
+{#- Known continuous variables.  Use summary statistics in this case. #}
+  {%- elif fcst_var_uc in ["DPT", "HGT", "REFC", "TMP"] %}
+        <plot_stat>median</plot_stat>
+{#- Default to summary statistics for unexpected variables. #}
+  {%- else %}
+        <plot_stat>median</plot_stat>
+  {%- endif %}
 {%- endif %}
         <plot_stat>median</plot_stat>
         <tmpl>

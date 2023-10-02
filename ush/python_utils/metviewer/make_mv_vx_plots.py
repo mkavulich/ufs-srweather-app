@@ -55,6 +55,12 @@ def make_mv_vx_plots(args):
     mv_database_name = config_dict['mv_database_name']
     model_names = config_dict['model_names']
 
+    # Keep track of the number of times the script that generates a 
+    # MetViewer xml and calls MetViewer is called.  This can then be
+    # compared to the number of plots (png files) generated to see
+    # if any are missing/failed.
+    num_mv_calls = 0
+
     vx_stats_dict = config_dict["vx_stats"]
     for stat, stat_dict in vx_stats_dict.items():
 
@@ -63,9 +69,23 @@ def make_mv_vx_plots(args):
         print(f"stat_dict = {stat_dict}")
 
         if stat in args.exclude_stats:
-            logging.info(f'Skipping plotting of statistic "{stat}"...')
-        elif args.include_stats and stat in args.include_stats:
+            #logging.info(f'Skipping plotting of statistic "{stat}"...')
+            print(f"")
+            print(f'Skipping plotting of statistic "{stat}"...')
+
+        elif (not args.include_stats) or (args.include_stats and stat in args.include_stats):
+            #logging.info(f'NOT skipping plotting of statistic "{stat}"...')
+            print(f"")
+            print(f'NOT skipping plotting of statistic "{stat}"...')
+
+            print(f"")
+            print(f"  stat = {stat}")
+            print(f"  stat_dict = {stat_dict}")
+            print(f"  args.include_stats = {args.include_stats}")
+            print(f"  stat in args.include_stats = {stat in args.include_stats}")
+
             for fcst_var, fcst_var_dict in stat_dict.items():
+
                 print(f"")
                 print(f"  fcst_var = {fcst_var}")
                 print(f"  fcst_var_dict = {fcst_var_dict}")
@@ -90,10 +110,14 @@ def make_mv_vx_plots(args):
                                      '--threshold', thresh, 
                                      '--mv_output_dir', args.output_dir]
                         print(f"      args_list = {args_list}")
+                        num_mv_calls += 1
+                        print(f"=====>>>>> num_mv_calls = {num_mv_calls}")
                         print(f"      CALLING MetViewer plotting script...")
                         plot_vx_metviewer(args_list)
                         print(f"      DONE CALLING MetViewer plotting script...")
 
+    print(f"")
+    print(f"num_mv_calls = {num_mv_calls}")
 #
 # -----------------------------------------------------------------------
 #
@@ -120,16 +144,16 @@ if __name__ == "__main__":
                         required=False, default='config_mv_plots.default.yml',
                         help='Name of yaml user configuration file for MetViewer plot generation')
 
-    parser.add_argument('--include_stats',
-                        type=str,
+    parser.add_argument('--include_stats', nargs='+',
+                        type=str.lower,
                         required=False, default=[],
                         choices=['auc', 'bias', 'brier', 'fbias', 'rely', 'rhist', 'ss'],
                         help=dedent(f'''Stats to include in verification plot generation.  A stat
                                         included here will still be excluded if it is not in the
                                         yaml configuration file.'''))
 
-    parser.add_argument('--exclude_stats',
-                        type=str,
+    parser.add_argument('--exclude_stats', nargs='+',
+                        type=str.lower,
                         required=False, default=[],
                         choices=['auc', 'bias', 'brier', 'fbias', 'rely', 'rhist', 'ss'],
                         help='Stats to exclude from verification plot generation')

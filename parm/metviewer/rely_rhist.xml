@@ -2,7 +2,7 @@
 <plot_spec>
     <connection>
         <host>{{mv_host}}</host>
-        <database>{{mv_database}}</database>
+        <database>{{mv_database_name}}</database>
         <user>{{mv_machine_config_dict["user"]}}</user>
         <password>{{mv_machine_config_dict["password"]}}</password>
         <management_system>mariadb</management_system>
@@ -32,13 +32,13 @@
         </series1>
 {%- set ipf = -1 %}
         <plot_fix>
-            <field equalize="false" name="fcst_var">
+            <field equalize="true" name="fcst_var">
 {%- set ipf = ipf+1 %}
                 <set name="fcst_var_{{ipf}}">
                     <val>{{fcst_var_name_in_db}}</val>
                 </set>
             </field>
-            <field equalize="false" name="fcst_init_beg">
+            <field equalize="true" name="fcst_init_beg">
 {%- set ipf = ipf+1 %}
                 <set name="fcst_init_beg_{{ipf}}">
 {%- set indent = "\n                    " -%}
@@ -47,27 +47,27 @@
 {%- endfor %}
                 </set>
             </field>
-            <field equalize="false" name="vx_mask">
+            <field equalize="true" name="vx_mask">
 {%- set ipf = ipf+1 %}
                 <set name="vx_mask_{{ipf}}">
                     <val>CONUS</val>
                 </set>
             </field>
-            <field equalize="false" name="obtype">
+            <field equalize="true" name="obtype">
 {%- set ipf = ipf+1 %}
                 <set name="obtype_{{ipf}}">
                     <val>{{obs_type}}</val>
                 </set>
             </field>
-            <field equalize="false" name="fcst_lev">
+            <field equalize="true" name="fcst_lev">
 {%- set ipf = ipf+1 %}
                 <set name="fcst_lev_{{ipf}}">
-                    <val>{{level_or_accum_mv}}</val>
+                    <val>{{level_in_db}}</val>
                 </set>
             </field>
 {%- if (vx_stat_uc == "RELY") -%}
   {%- if (fcst_var_uc in ["APCP","REFC"]) %}
-            <field equalize="false" name="interp_mthd">
+            <field equalize="true" name="interp_mthd">
     {%- set ipf = ipf+1 %}
                 <set name="interp_mthd_{{ipf}}">
                     <val>NEAREST</val>
@@ -130,7 +130,7 @@
   {%- set legend_inset_y = "-.24" -%}
 {%- endif %}
         <execution_type>Python</execution_type>
-        <event_equal>false</event_equal>
+        <event_equal>true</event_equal>
         <vert_plot>false</vert_plot>
         <x_reverse>false</x_reverse>
         <num_stats>false</num_stats>
