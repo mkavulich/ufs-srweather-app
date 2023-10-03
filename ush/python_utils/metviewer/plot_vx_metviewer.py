@@ -94,7 +94,7 @@ def get_static_info(static_fp):
     valid_levels_by_fcst_var = {}
     valid_threshs_by_fcst_var = {}
     for fcst_var in valid_fcst_vars:
-
+  
         fcst_var_long_names[fcst_var] = static_data['fcst_vars'][fcst_var]['long_name']
 
         # Get list of valid levels/accumulations for the current forecast
