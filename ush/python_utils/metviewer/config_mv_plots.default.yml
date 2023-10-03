@@ -1,6 +1,6 @@
 fcst_init_info:
     fcst_init_time_first: '2022050100'
-    num_fcsts: 12
+    num_fcsts: 6
     fcst_init_intvl: 24
 
 fcst_len_hrs: 36
@@ -13,7 +13,7 @@ vx_stats:
     #
     auc:
         apcp:
-            03hr:
+            03h:
                 thresholds: ['gt0.0mm', 'ge2.54mm']
         dpt:
             2m:
@@ -58,7 +58,7 @@ vx_stats:
     #
     brier:
         apcp:
-            03hr:
+            03h:
                 thresholds: ['gt0.0mm', 'ge2.54mm']
         dpt:
             2m:
@@ -79,7 +79,7 @@ vx_stats:
     #
     fbias:
         apcp:
-            03hr:
+            03h:
                 thresholds: ['gt0.0mm', 'ge2.54mm']
         refc:
             L0:
@@ -87,11 +87,11 @@ vx_stats:
     #
     rely:
         apcp:
-            03hr:
+            03h:
                 thresholds: ['gt0.0mm', 'ge0.508mm', 'ge2.54mm', 'ge6.35mm']
-            06hr:
+            06h:
                 thresholds: ['ge6.35mm', 'ge12.7mm']
-            24hr:
+            24h:
                 thresholds: ['ge25.4mm']
         dpt:
             2m:
@@ -112,11 +112,11 @@ vx_stats:
     #
     rhist:
         apcp:
-            03hr:
+            03h:
                 thresholds: ['']
-            06hr:
+            06h:
                 thresholds: ['']
-            24hr:
+            24h:
                 thresholds: ['']
         cape:
             L0:
@@ -147,7 +147,7 @@ vx_stats:
     #
     ss:
         apcp:
-            03hr:
+            03h:
                 thresholds: ['']
         dpt:
             2m:

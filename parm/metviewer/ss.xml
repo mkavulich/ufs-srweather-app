@@ -102,7 +102,7 @@ that.
         </indep>
         <agg_stat>
             <agg_ecnt>true</agg_ecnt>
-            <boot_repl>100</boot_repl>
+            <boot_repl>1000</boot_repl>
             <boot_random_seed>1</boot_random_seed>
             <boot_ci>perc</boot_ci>
             <eveq_dis>false</eveq_dis>
