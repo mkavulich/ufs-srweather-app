@@ -149,8 +149,9 @@
         <ci_alpha>0.05</ci_alpha>
         <eqbound_low>-0.001</eqbound_low>
         <eqbound_high>0.001</eqbound_high>
-        <!-- These are the flags that specify whether or not to plot
-             confidence interval for each line series. -->
+        <!-- These appear in the MetViewer GUI under the column "Conf Interval".
+             They specify the type of confidence intervals to plot ("none" for 
+             no confidence intervals). -->
         <plot_ci>c(
 {%- set plot_ci = "none" -%}
 "{{plot_ci}}"
@@ -158,7 +159,8 @@
   ,"{{plot_ci}}"
 {%- endfor -%})</plot_ci>
 {#- #}
-        <!-- These are the series ???. -->
+        <!-- These appear in the MetViewer GUI under the column "Show Significant".
+             Not yet clear on what they do. -->
         <show_signif>c(
 {%- set show_signif = "FALSE" -%}
 {{show_signif}}
@@ -166,7 +168,10 @@
   ,{{show_signif}}
 {%- endfor -%})</show_signif>
 {#- #}
-        <!-- These are the series ???. -->
+        <!-- These appear in the MetViewer GUI under the column "Hide", although it
+             seems it is the opposite of this that is in the "Hide" column, i.e. if
+             an element is set to "TRUE" here, it will show up as "FALSE" in the GUI.
+             Not yet clear on what they do. -->
         <plot_disp>c(
 {%- set plot_disp = "TRUE" -%}
 {{plot_disp}}
@@ -174,7 +179,8 @@
   ,{{plot_disp}}
 {%- endfor -%})</plot_disp>
 {#- #}
-        <!-- These are the series colors. -->
+        <!-- These appear in the MetViewer GUI under the column "Line Color".
+             They control the line colors. -->
         <colors>c(
 {%- set color = model_color_codes[0] -%}
 "{{color}}"
@@ -183,7 +189,8 @@
   ,"{{color}}"
 {%- endfor -%})</colors>
 {#- #}
-        <!-- These are the series ???. -->
+        <!-- These appear in the MetViewer GUI under the column "Point Symbol".
+             They control the symbols used for the data points of each series. -->
         <pch>c(
 {%- set pch = "20" -%}
 {{pch}}
@@ -191,7 +198,9 @@
   ,{{pch}}
 {%- endfor -%})</pch>
 {#- #}
-        <!-- These are the series line types.  "l" is for lines, and "b" is for "joined lines". -->
+        <!-- These appear in the MetViewer GUI under the column "Series Line Type".
+             "l" is for lines, and "b" is for "joined lines".
+             Not yet clear on what they do. -->
         <type>c(
 {%- set type = "b" -%}
 "{{type}}"
@@ -199,7 +208,9 @@
   ,"{{type}}"
 {%- endfor -%})</type>
 {#- #}
-        <!-- These are the series ???. -->
+        <!-- These appear in the MetViewer GUI under the column "Line Type".
+             1 is for "solid", 3 is for "dotted".
+             They control the line types that join the data points. -->
         <lty>c(
 {%- set lty = "1" -%}
 {{lty}}
@@ -207,7 +218,8 @@
   ,{{lty}}
 {%- endfor -%})</lty>
 {#- #}
-        <!-- These are the series line widths. -->
+        <!-- These appear in the MetViewer GUI under the column "Line Width".
+             They control the widths of the lines that join the data points. -->
         <lwd>c(
 {%- set lwd = "2" -%}
 {{lwd}}
@@ -215,7 +227,9 @@
   ,{{lwd}}
 {%- endfor -%})</lwd>
 {#- #}
-        <!-- These are the series ???. -->
+        <!-- These appear in the MetViewer GUI under the column "Connect Across".
+             0 is "no" and 1 is "yes".  
+             Not yet clear on what they do. -->
         <con_series>c(
 {%- set cs = "1" -%}
 {{cs}}
@@ -223,7 +237,8 @@
   ,{{cs}}
 {%- endfor -%})</con_series>
 {#- #}
-        <!-- These are the series orders. -->
+        <!-- These appear in the MetViewer GUI under the column "#" (number sign).
+             They control the order of the series, although details aren't clear. -->
         <order_series>c(
 {%- set imdl = 1 -%}
 {{imdl}}
@@ -232,7 +247,8 @@
 {%- endfor -%})</order_series>
 {#- #}
         <plot_cmd/>
-        <!-- These are the series legend texts. -->
+        <!-- These appear in the MetViewer GUI under the column "Legend Text".
+             They specify the text that appears in the legend for each series. -->
         <legend>c(
 {%- set model = model_names_short_uc[0] -%}
 "{{model}}"
