@@ -1,3 +1,5 @@
+{%- set do_indent = false -%}
+{%- set indent = "" -%}
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <plot_spec>
     <connection>
@@ -85,7 +87,7 @@ that.
 {%- endif -%}
 {#- #}
 {%- set fhr_incr = 1 -%}
-{%- if obs_type == "ADPSFC" %}
+{%- if obs_type == "ADPUPA" %}
   {%- set fhr_incr = 12 -%}
 {%- elif fcst_var_uc == "APCP" %}
   {%- set fhr_incr = level_or_accum_no0pad | int -%}
@@ -100,7 +102,7 @@ that.
         </indep>
         <agg_stat>
             <agg_ecnt>true</agg_ecnt>
-            <boot_repl>1000</boot_repl>
+            <boot_repl>100</boot_repl>
             <boot_random_seed>1</boot_random_seed>
             <boot_ci>perc</boot_ci>
             <eveq_dis>false</eveq_dis>
@@ -119,51 +121,32 @@ that.
             <caption/>
             <job_title>{{job_title}}</job_title>
             <keep_revisions>false</keep_revisions>
+{%- set quantities_to_plot = ["RMSE", "Spread", "Ratio"] -%}
+{%- set num_quantities_per_model = quantities_to_plot|length -%}
+{#- Set the line types to use for each of the quantities specified
+    above.  1 is for "solid", 3 is for "dotted".  These are the 
+    types of the lines connecting the data points.  
+#}
+{%- set line_types_by_quantity = [1, 3, 1] -%}
 {#- #}
-{%- set series_types = ["RMSE", "Spread", "Ratio"] -%}
-{%- set num_series_per_model = series_types|length -%}
-{#- #}
-{#-
             <listdiffseries1>list(
-{%- set indent = "\n                                  " -%}
+{%- set indent = "" -%}
+{%- if do_indent -%}
+  {%- set indent = " \\\n                                  " -%}
+{%- endif -%}
 {%- for imdl in range(1, num_models+1) -%}
-  {%- if imdl > 1 -%} {{indent}} {%- endif -%}c(
+  {%- if imdl > 1 -%} {{indent}} {%- endif -%}
   {%- set model = model_names_in_db[imdl-1] -%}
-  {%- for iseries in range(1,num_series_per_model) -%}
-    {%- set series_type = series_types[iseries-1] -%}
-    "{{model}} {{fcst_var_uc}} ECNT_{{series_type}}",
-  {%- endfor -%}
-  {%- set iseries = num_series_per_model-1 -%}
-  {%- set series_type = series_types[iseries] -%}
-  "{{model}} {{fcst_var_uc}} ECNT_{{series_type}}"
-  {%- if imdl != num_models -%} , \ {%- endif -%}
+  {{ 'c(' -}}
+  {{ '"' ~ model ~ ' ' ~ fcst_var_name_in_db ~ ' ECNT_SPREAD' ~ plus_oerr_or_null ~ '",' -}}
+  {{ '"' ~ model ~ ' ' ~ fcst_var_name_in_db ~ ' ECNT_RMSE' ~ '",' -}}
+  {{ '"RATIO"' -}}
+  {{ ')' -}}
+  {%- if imdl != num_models -%} , {%- endif -%}
 {%- endfor -%})</listdiffseries1>
-#}
 {#- #}
-{#-
-            <listdiffseries1>list(c("HREF REFC ECNT_SPREAD","HREF REFC ECNT_RMSE","RATIO"), \
-                                  c("RRFSE_CONUS_ICperts_stoch.rrfs_conuscompact_3km REFC ECNT_SPREAD","RRFSE_CONUS_ICperts_stoch.rrfs_conuscompact_3km REFC ECNT_RMSE","RATIO"), \
-                                  c("RTPS REFC ECNT_SPREAD","RTPS REFC ECNT_RMSE","RATIO"))</listdiffseries1>
-#}
-            <listdiffseries1>list(c("HREF APCP_03 ECNT_SPREAD_PLUS_OERR","HREF APCP_03 ECNT_RMSE","RATIO"),c("RRFSE_CONUS_ICperts_stoch.rrfs_conuscompact_3km APCP_03 ECNT_SPREAD_PLUS_OERR","RRFSE_CONUS_ICperts_stoch.rrfs_conuscompact_3km APCP_03 ECNT_RMSE","RATIO"),c("RTPS APCP_03 ECNT_SPREAD_PLUS_OERR","RTPS APCP_03 ECNT_RMSE","RATIO"))</listdiffseries1>
             <listdiffseries2>list()</listdiffseries2>
         </tmpl>
-{%- set vif = "" -%}
-{%- set xlab_offset = "" -%}
-{%- set ylab_offset = "" -%}
-{%- set legend_inset_y = "" -%}
-{%- if (fcst_var_uc in ["a","b"]) -%}
-  {%- set vif = "true" -%}
-  {%- set xlab_offset = "2" -%}
-  {%- set ylab_offset = "-2" -%}
-  {%- set legend_inset_y = "-.25" -%}
-{%- elif (fcst_var_uc in ["c","d"]) -%}
-  {%- set vif = "false" -%}
-  {%- set xlab_offset = "6" -%}
-  {%- set ylab_offset = "-12" -%}
-  {%- set legend_inset_y = "-.24" -%}
-{%- endif %}
-{#- #}
         <execution_type>Python</execution_type>
         <event_equal>true</event_equal>
         <vert_plot>false</vert_plot>
@@ -242,127 +225,180 @@ after discussion with DTC statisticians.
         <ci_alpha>0.05</ci_alpha>
         <eqbound_low>-0.001</eqbound_low>
         <eqbound_high>0.001</eqbound_high>
-        <!-- These are the flags that specify whether or not to plot
-             confidence interval for each line series. -->
+        <!-- These appear in the MetViewer GUI under the column "Conf Interval".
+             They specify the type of confidence intervals to plot ("none" for 
+             no confidence intervals). -->
         <plot_ci>c(
 {%- set indent = "" -%}
-{%- for imdl in range(1, num_models+1) -%}
-  {%- if imdl > 1 -%} {{indent}} {%- endif -%}
+{%- if do_indent -%}
+  {%- set indent = " \\\n                   " -%}
+{%- endif -%}
+{%- for iquant in range(1,num_quantities_per_model+1) -%}
+  {%- if iquant > 1 -%} {{indent}} {%- endif -%}
   {%- set plot_ci = "boot" -%}
-  {%- for iseries in range(1,num_series_per_model) -%}
+  {%- for imdl in range(1, num_models) -%}
     "{{plot_ci}}",
   {%- endfor -%}
+  {%- set imdl = num_models -%}
   "{{plot_ci}}"
-  {%- if imdl != num_models -%} , {%- endif -%}
+  {%- if iquant != num_quantities_per_model -%} , {%- endif -%}
 {%- endfor -%})</plot_ci>
 {#- #}
-        <!-- These are the series ???. -->
+        <!-- These appear in the MetViewer GUI under the column "Show Significant".
+             Not yet clear on what they do. -->
         <show_signif>c(
 {%- set indent = "" -%}
-{%- for imdl in range(1, num_models+1) -%}
-  {%- if imdl > 1 -%} {{indent}} {%- endif -%}
+{%- if do_indent -%}
+  {%- set indent = " \\\n                       " -%}
+{%- endif -%}
+{%- for iquant in range(1,num_quantities_per_model+1) -%}
+  {%- if iquant > 1 -%} {{indent}} {%- endif -%}
   {%- set show_signif = "FALSE" -%}
-  {%- for iseries in range(1,num_series_per_model) -%}
+  {%- for imdl in range(1, num_models) -%}
     {{show_signif}},
   {%- endfor -%}
+  {%- set imdl = num_models -%}
   {{show_signif}}
-  {%- if imdl != num_models -%} , {%- endif -%}
+  {%- if iquant != num_quantities_per_model -%} , {%- endif -%}
 {%- endfor -%})</show_signif>
 {#- #}
-        <!-- These are the series ???. -->
+        <!-- These appear in the MetViewer GUI under the column "Hide", although it
+             seems it is the opposite of this that is in the "Hide" column, i.e. if
+             an element is set to "TRUE" here, it will show up as "FALSE" in the GUI.
+             Not yet clear on what they do. -->
         <plot_disp>c(
 {%- set indent = "" -%}
-{%- for imdl in range(1, num_models+1) -%}
-  {%- if imdl > 1 -%} {{indent}} {%- endif -%}
+{%- if do_indent -%}
+  {%- set indent = " \\\n                     " -%}
+{%- endif -%}
+{%- for iquant in range(1,num_quantities_per_model+1) -%}
+  {%- if iquant > 1 -%} {{indent}} {%- endif -%}
   {%- set plot_disp = "TRUE" -%}
-  {%- for iseries in range(1,num_series_per_model) -%}
+  {%- for imdl in range(1, num_models) -%}
     {{plot_disp}},
   {%- endfor -%}
+  {%- set imdl = num_models -%}
   {{plot_disp}}
-  {%- if imdl != num_models -%} , {%- endif -%}
+  {%- if iquant != num_quantities_per_model -%} , {%- endif -%}
 {%- endfor -%})</plot_disp>
 {#- #}
-        <!-- These are the series colors. -->
+        <!-- These appear in the MetViewer GUI under the column "Line Color".
+             They control the line colors. -->
         <colors>c(
 {%- set indent = "" -%}
-{%- for imdl in range(1, num_models+1) -%}
-  {%- if imdl > 1 -%} {{indent}} {%- endif -%}
-  {%- set color = model_color_codes[imdl-1] -%}
-  {%- for iseries in range(1,num_series_per_model) -%}
-    "{{color}}",
+{%- if do_indent -%}
+  {%- set indent = " \\\n                  " -%}
+{%- endif -%}
+{%- for iquant in range(1,num_quantities_per_model+1) -%}
+  {%- if iquant > 1 -%} {{indent}} {%- endif -%}
+  {%- set pch = 20 -%}
+  {%- for imdl in range(1, num_models) -%}
+    {%- set color = model_color_codes[imdl-1] -%}
+    {{color}},
   {%- endfor -%}
-  "{{color}}"
-  {%- if imdl != num_models -%} , {%- endif -%}
+  {%- set imdl = num_models -%}
+  {%- set color = model_color_codes[imdl-1] -%}
+  {{color}}
+  {%- if iquant != num_quantities_per_model -%} , {%- endif -%}
 {%- endfor -%})</colors>
 {#- #}
-        <!-- These are the series ???. -->
+        <!-- These appear in the MetViewer GUI under the column "Point Symbol".
+             They control the symbols used for the data points of each series. -->
         <pch>c(
 {%- set indent = "" -%}
-{%- for imdl in range(1, num_models+1) -%}
-  {%- if imdl > 1 -%} {{indent}} {%- endif -%}
+{%- if do_indent -%}
+  {%- set indent = " \\\n               " -%}
+{%- endif -%}
+{%- for iquant in range(1,num_quantities_per_model+1) -%}
+  {%- if iquant > 1 -%} {{indent}} {%- endif -%}
   {%- set pch = 20 -%}
-  {%- for iseries in range(1,num_series_per_model) -%}
+  {%- for imdl in range(1, num_models) -%}
     {{pch}},
   {%- endfor -%}
+  {%- set imdl = num_models -%}
   {{pch}}
-  {%- if imdl != num_models -%} , {%- endif -%}
+  {%- if iquant != num_quantities_per_model -%} , {%- endif -%}
 {%- endfor -%})</pch>
 {#- #}
-        <!-- These are the series line types.  "l" is for lines, and "b" is for "joined lines". -->
+        <!-- These appear in the MetViewer GUI under the column "Series Line Type".
+             "l" is for lines, and "b" is for "joined lines".
+             Not yet clear on what they do. -->
         <type>c(
 {%- set indent = "" -%}
-{%- for imdl in range(1, num_models+1) -%}
-  {%- if imdl > 1 -%} {{indent}} {%- endif -%}
-  {%- set line_type = "b" -%}
-  {%- set ns = num_ens_mems[imdl-1] -%}
-  {%- for iseries in range(1,num_series_per_model) -%}
-    "{{line_type}}",
+{%- if do_indent -%}
+  {%- set indent = " \\\n                " -%}
+{%- endif -%}
+{%- for iquant in range(1,num_quantities_per_model+1) -%}
+  {%- if iquant > 1 -%} {{indent}} {%- endif -%}
+  {%- set type = "b" -%}
+  {%- for imdl in range(1, num_models) -%}
+    "{{type}}",
   {%- endfor -%}
-  "{{line_type}}"
-  {%- if imdl != num_models -%} , {%- endif -%}
+  {%- set imdl = num_models -%}
+  "{{type}}"
+  {%- if iquant != num_quantities_per_model -%} , {%- endif -%}
 {%- endfor -%})</type>
 {#- #}
-        <!-- These are the series ???. -->
+        <!-- These appear in the MetViewer GUI under the column "Line Type".
+             1 is for "solid", 3 is for "dotted".
+             They control the line types that join the data points. -->
         <lty>c(
 {%- set indent = "" -%}
-{%- for imdl in range(1, num_models+1) -%}
-  {%- if imdl > 1 -%} {{indent}} {%- endif -%}
-  {%- set lty = 1 -%}
-  {%- if imdl == 2 -%} {%- set lty = 3 -%} {%- endif -%}
-  {%- for iseries in range(1,num_series_per_model) -%}
+{%- if do_indent -%}
+  {%- set indent = " \\\n               " -%}
+{%- endif -%}
+{%- for iquant in range(1,num_quantities_per_model+1) -%}
+  {%- if iquant > 1 -%} {{indent}} {%- endif -%}
+  {%- set lty = line_types_by_quantity[iquant-1] -%}
+  {%- for imdl in range(1, num_models) -%}
     {{lty}},
   {%- endfor -%}
+  {%- set imdl = num_models -%}
   {{lty}}
-  {%- if imdl != num_models -%} , {%- endif -%}
+  {%- if iquant != num_quantities_per_model -%} , {%- endif -%}
 {%- endfor -%})</lty>
 {#- #}
-        <!-- These are the series line widths. -->
+        <!-- These appear in the MetViewer GUI under the column "Line Width".
+             They control the widths of the lines that join the data points. -->
         <lwd>c(
 {%- set indent = "" -%}
-{%- for imdl in range(1, num_models+1) -%}
-  {%- if imdl > 1 -%} {{indent}} {%- endif -%}
-  {%- set line_width = 2 -%}
-  {%- for iseries in range(1,num_series_per_model) -%}
-    {{line_width}},
+{%- if do_indent -%}
+  {%- set indent = " \\\n               " -%}
+{%- endif -%}
+{%- for iquant in range(1,num_quantities_per_model+1) -%}
+  {%- if iquant > 1 -%} {{indent}} {%- endif -%}
+  {%- for imdl in range(1, num_models) -%}
+    {%- set lwd = 2 -%}
+    {{lwd}},
   {%- endfor -%}
-  {{line_width}}
-  {%- if imdl != num_models -%} , {%- endif -%}
+  {%- set imdl = num_models -%}
+  {%- set lwd = 2 -%}
+  {{lwd}}
+  {%- if iquant != num_quantities_per_model -%} , {%- endif -%}
 {%- endfor -%})</lwd>
 {#- #}
-        <!-- These are the series ???. -->
+        <!-- These appear in the MetViewer GUI under the column "Connect Across".
+             0 is "no" and 1 is "yes".  
+             Not yet clear on what they do. -->
         <con_series>c(
 {%- set indent = "" -%}
-{%- for imdl in range(1, num_models+1) -%}
-  {%- if imdl > 1 -%} {{indent}} {%- endif -%}
-  {%- set cs = 1 -%}
-  {%- for iseries in range(1,num_series_per_model) -%}
+{%- if do_indent -%}
+  {%- set indent = " \\\n                      " -%}
+{%- endif -%}
+{%- for iquant in range(1,num_quantities_per_model+1) -%}
+  {%- if iquant > 1 -%} {{indent}} {%- endif -%}
+  {%- for imdl in range(1, num_models) -%}
+    {%- set cs = 1 -%}
     {{cs}},
   {%- endfor -%}
+  {%- set imdl = num_models -%}
+  {%- set cs = 1 -%}
   {{cs}}
-  {%- if imdl != num_models -%} , {%- endif -%}
+  {%- if iquant != num_quantities_per_model -%} , {%- endif -%}
 {%- endfor -%})</con_series>
 {#- #}
-        <!-- These are the series orders. -->
+        <!-- These appear in the MetViewer GUI under the column "#" (number sign).
+             They control the order of the series, although details aren't clear. -->
         <order_series>c(
 {#-
 For some reason, the MetViewer GUI cannot process the XML
@@ -372,57 +408,46 @@ Thus, we comment out the code that does this and instead
 use the code further below that puts the whole order_series
 on one line in the XML.
 -#}
-{#-
-{%- set indent = "\n                        " -%}
+{%- set indent = "" -%}
+{%- if do_indent -%}
+  {%- set indent = " \\\n                        " -%}
+{%- endif -%}
 {%- set count = namespace(value=0) -%}
-{%- for imdl in range(1, num_models+1) -%}
-  {%- if imdl > 1 -%} {{indent}} {%- endif -%}
-  {%- set ns = num_ens_mems[imdl-1] -%}
-  {%- for iseries in range(1,num_series_per_model) -%}
-    {%- set iorder = order_series[count.value] -%}
+{%- for iquant in range(1,num_quantities_per_model+1) -%}
+  {%- if iquant > 1 -%} {{indent}} {%- endif -%}
+  {%- for imdl in range(1, num_models) -%}
+    {%- set iorder = count.value + 1 -%}
     {{iorder}},
     {%- set count.value = count.value + 1 -%}
   {%- endfor -%}
+  {%- set imdl = num_models -%}
   {%- set iorder = order_series[count.value] -%}
   {{iorder}}
-  {%- if imdl != num_models -%} , \ {%- endif -%}
   {%- set count.value = count.value + 1 -%}
-{%- endfor -%})</order_series>
--#}
-{%- set count = namespace(value=0) -%}
-{%- for imdl in range(1, num_models+1) -%}
-  {%- set ns = num_ens_mems[imdl-1] -%}
-  {%- for iseries in range(1,num_series_per_model) -%}
-    {%- set iorder = order_series[count.value] -%}
-    {{iorder}},
-    {%- set count.value = count.value + 1 -%}
-  {%- endfor -%}
-  {%- set iorder = order_series[count.value] -%}
-  {{iorder}}
-  {%- if imdl != num_models -%} , {%- endif -%}
-  {%- set count.value = count.value + 1 -%}
+  {%- if iquant != num_quantities_per_model -%} , {%- endif -%}
 {%- endfor -%})</order_series>
 {#- #}
         <plot_cmd/>
-        <!-- These are the series legend texts. -->
-{#-
+        <!-- These appear in the MetViewer GUI under the column "Legend Text".
+             They specify the text that appears in the legend for each series. -->
         <legend>c(
 {%- set indent = "" -%}
-{%- for imdl in range(1, num_models+1) -%}
-  {%- if imdl > 1 -%} {{indent}} {%- endif -%}
-  {%- set model = model_names_short_uc[imdl-1] -%}
-  {%- for iseries in range(1,num_series_per_model) -%}
-    {%- set series_type = series_types[iseries-1] -%}
-    "{{model}} {{series_type}}",
+{%- if do_indent -%}
+  {%- set indent = " \\\n                  " -%}
+{%- endif -%}
+{%- for iquant in range(1,num_quantities_per_model+1) -%}
+  {%- if iquant > 1 -%} {{indent}} {%- endif -%}
+  {%- set quant = quantities_to_plot[iquant-1] -%}
+  {%- for imdl in range(1, num_models) -%}
+    {%- set model = model_names_short_uc[imdl-1] -%}
+    "{{model}} {{quant}}",
   {%- endfor -%}
-  {%- set iseries = num_series_per_model-1 -%}
-  {%- set series_type = series_types[iseries] -%}
-  "{{model}} {{series_type}}"
-  {%- if imdl != num_models -%} , {%- endif -%}
+  {%- set imdl = num_models -%}
+  {%- set model = model_names_short_uc[imdl-1] -%}
+  "{{model}} {{quant}}"
+  {%- if iquant != num_quantities_per_model -%} , {%- endif -%}
 {%- endfor -%})</legend>
--#}
 {#- #}
-        <legend>c("HREF RMSE","RRFS_GEFS RMSE","RTPS RMSE","HREF Spread","RRFS_GEFS Spread","RTPS Spread","HREF Ratio","RRFS_GEFS Ratio","RTPS Ratio")</legend>
         <create_html>TRUE</create_html>
         <y1_lim>c()</y1_lim>
         <x1_lim>c()</x1_lim>
@@ -430,4 +455,3 @@ on one line in the XML.
         <y2_lim>c()</y2_lim>
     </plot>
 </plot_spec>
-
