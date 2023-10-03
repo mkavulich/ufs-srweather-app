@@ -3,5 +3,5 @@ mohawk:
     password: 'mvuser'
     Rscript_fp: '/usr/local/R/bin/Rscript'
     R_tmpl_dir: '/opt/vxwww/tomcat/webapps/metviewer/R_tmpl'
-    R_work_dir: '/opt/vxwww/tomcat/webapps/metviewer/R_tmpl'
+    R_work_dir: '/opt/vxwww/tomcat/webapps/metviewer/R_work'
     mv_batch: '/d2/projects/METViewer/src/apps/METviewer/bin/mv_batch.sh'
