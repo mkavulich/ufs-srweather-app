@@ -104,29 +104,41 @@ def get_static_info(static_fp):
         # forecast variable are in the master list of valid levels/accumulations.
         for loa in valid_levels_by_fcst_var[fcst_var]:
             if loa not in all_valid_levels:
-                logging.error(dedent(f"""
-                    The current level or accumulation (loa) specified for the current
-                    forecast variable (fcst_var) is not in the master list of valid
+                err_msg = dedent(f"""
+                    One of the levels/accumulations (loa) in the set of valid levels/accumulations
+                    for the current forecast variable (fcst_var) is not in the master list of valid
                     levels/accumulations (all_valid_levels):
                       fcst_var = {fcst_var}
                       loa = {loa}
                       all_valid_levels = {all_valid_levels}
-                    """))
-                error_out
+                    The master list of valid levels/accumulations as well as the list of valid levels/
+                    accumulations for the current forecast variable can be found in the following static
+                    information configuration file:
+                      static_fp = {static_fp}
+                    Please modify this file and rerun.
+                    """)
+                logging.error(err_msg, stack_info=True)
+                raise Exception(err_msg)
 
         # Get list of valid thresholds for the current forecast variable.
         valid_threshs_by_fcst_var[fcst_var] = static_data['fcst_vars'][fcst_var]['valid_thresholds']
         for thresh in valid_threshs_by_fcst_var[fcst_var]:
             if thresh not in all_valid_threshs:
-                logging.error(dedent(f"""
-                    The current threshold (thresh) specified for the current forecast
-                    variable (fcst_var) is not in the master list of valid thresholds
+                err_msg = dedent(f"""
+                    One of the thresholds (thresh) in the set of valid thresholds for the current
+                    forecast variable (fcst_var) is not in the master list of valid thresholds
                     (all_valid_threshs):
                       fcst_var = {fcst_var}
                       thresh = {thresh}
                       all_valid_threshs = {all_valid_threshs}
-                    """))
-                error_out
+                    The master list of valid thresholds as well as the list of valid threhsolds for
+                    the current forecast variable can be found in the following static information
+                    configuration file:
+                      static_fp = {static_fp}
+                    Please modify this file and rerun.
+                    """)
+                logging.error(err_msg, stack_info=True)
+                raise Exception(err_msg)
 
     # Define local dictionaries containing static values that depend on the 
     # verification statistic.
@@ -305,30 +317,32 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
 
     all_hosts = sorted(list(mv_machine_config.keys()))
     if cla.mv_host not in all_hosts:
-        logging.error(dedent(f"""
+        err_msg = dedent(f"""
             The machine/host specified on the command line (cla.mv_host) does not have a
             corresponding entry in the MetViewer host configuration file (mv_machine_config_fp):
               cla.mv_host = {cla.mv_host}
               mv_machine_config_fp = {mv_machine_config_fp}
             Machines that do have an entry in the host configuration file are:
               {all_hosts}
-            Either run on one of these hosts, or add an entry in the configuration file for "{mv_host}".
-            """))
-        error_out
+            Either run on one of these hosts, or add an entry in the configuration file for "{cla.mv_host}".
+            """)
+        logging.error(err_msg, stack_info=True)
+        raise Exception(err_msg)
 
     mv_machine_config_dict = mv_machine_config[cla.mv_host]
 
     # Make sure that the database specified on the command line exists in the
     # list of databases in the database configuration file.
     if cla.mv_database_name not in mv_database_info.keys():
-        logging.error(dedent(f"""
+        err_msg = dedent(f"""
             The database specified on the command line (cla.mv_database_name) is not
             in the set of MetViewer databases specified in the database configuration
             file (cla.mv_database_config):
               cla.mv_database_name = {cla.mv_database_name}
               cla.mv_database_config = {cla.mv_database_config}
-            """))
-        error_out
+            """)
+        logging.error(err_msg, stack_info=True)
+        raise Exception(err_msg)
 
     # Extract the MetViewer database information.
     model_info = mv_database_info[cla.mv_database_name]
@@ -340,13 +354,14 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
     for i,model in enumerate(cla.model_names):
         n_ens = num_ens_mems[i]
         if n_ens <= 0:
-            logging.error(dedent(f"""
+            err_msg = dedent(f"""
                 The number of ensemble members for the current model must be greater
                 than or equal to 0:
                   model = {model}
                   n_ens = {n_ens}
-                """))
-            error_out
+                """)
+            logging.error(err_msg, stack_info=True)
+            raise Exception(err_msg)
 
     # Get the model names in the database as well as the model short names.
     model_names_in_db = [model_info[m]['name_in_db'] for m in cla.model_names]
@@ -381,14 +396,15 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
 
     valid_levels_or_accums = valid_levels_by_fcst_var[cla.fcst_var]
     if cla.level_or_accum not in valid_levels_or_accums:
-        logging.error(dedent(f"""
+        err_msg = dedent(f"""
             The specified level or accumulation is not compatible with the specified forecast variable:
               cla.fcst_var = {cla.fcst_var}
               cla.level_or_accum = {cla.level_or_accum}
             Valid options for level or accumulation for this forecast variable are:
               {valid_levels_or_accums}
-            """))
-        error_out
+            """)
+        logging.error(err_msg, stack_info=True)
+        raise Exception(err_msg)
 
     # Parse the level/accumulation specified on the command line (cla.level_or_accum) 
     # to obtain its value and units.  The returned value is a list.  If the regular
@@ -406,24 +422,39 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
         loa_value = ''
         loa_units = ''
 
+    valid_thresh_units = ['', 'h', 'm', 'mb']
+    if loa_units not in valid_thresh_units:
+        err_msg = dedent(f"""
+            Unknown units (loa_units) for level or accumulation:
+              loa_units = {loa_units}
+            Valid units are:
+              valid_thresh_units = {valid_thresh_units}
+            Related variables:
+              cla.level_or_accum = {cla.level_or_accum}
+              loa_value = {loa_value}
+              loa_value_no0pad = {loa_value_no0pad}
+            """)
+        logging.error(err_msg, stack_info=True)
+        raise Exception(err_msg)
+
     loa_value_no0pad = loa_value.lstrip('0')
     width_0pad = 0
-    if loa_units in ['h', 'hr']:
+    if loa_units == 'h':
         width_0pad = 2
     elif loa_units == 'm':
         width_0pad = 2
     elif loa_units == 'mb':
         width_0pad = 3
-    elif not (loa_units == '' and cla.level_or_accum == 'L0'):
-        logging.error(dedent(f"""
-            Unknown units (loa_units) for level or accumulation:
-              loa_units = {loa_units}
-            Allowed units are 'h', 'hr', 'm', and 'mb'.  Related variables:
+    elif (loa_units == '' and cla.level_or_accum == 'L0'):
+        logging.info(dedent(f"""
+            Since the specified level/accumulation is {cla.level_or_accum}, setting loa_units
+            to an empty string:
               cla.level_or_accum = {cla.level_or_accum}
+              loa_units = {loa_units}
+            Related variables:
               loa_value = {loa_value}
               loa_value_no0pad = {loa_value_no0pad}
             """))
-        error_out
 
     loa_value_0pad = loa_value_no0pad.zfill(width_0pad)
     logging.info(dedent(f"""
@@ -435,6 +466,7 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
         """))
 
     if (not stat_need_thresh[cla.vx_stat]) and (cla.threshold):
+        no_thresh_stats = [key for key,val in stat_need_thresh.items() if val]
         no_thresh_stats_fmt_str = ",\n".join("              {!r}: {!r}".format(k, v)
                                              for k, v in stat_long_names.items() if k in no_thresh_stats).lstrip()
         logging.info(dedent(f"""
@@ -447,15 +479,15 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
     elif (stat_need_thresh[cla.vx_stat]):
         valid_thresholds = valid_threshs_by_fcst_var[cla.fcst_var]
         if cla.threshold not in valid_thresholds:
-            logging.error(dedent(f"""
+            err_msg = dedent(f"""
                 The specified threshold is not compatible with the specified forecast variable:
                   fcst_var = {cla.fcst_var}
                   threshold = {cla.threshold}
                 Valid options for threshold for this forecast variable are:
                   {valid_thresholds}
-                """))
-            # Need proper exit here!
-            error_out
+                """)
+            logging.error(err_msg, stack_info=True)
+            raise Exception(err_msg)
 
     thresh = re.findall(r'([A-Za-z]+)(\d*\.*\d+)([A-Za-z]+)', cla.threshold)
     if thresh:
