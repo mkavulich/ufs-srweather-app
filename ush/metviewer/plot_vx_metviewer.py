@@ -398,6 +398,21 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
     # Get the model names in the database as well as the model short names.
     model_names_short_uc = [m.upper() for m in cla.model_names_short]
 
+    # Make sure no model names are duplicated because MetViewer will throw an 
+    # error in this case.  Create a set (using curly braces) to store duplicate
+    # values.  Note that a set must be used here so that duplicate values are
+    # not duplicated!
+    duplicates = {m for m in model_names_short_uc if model_names_short_uc.count(m) > 1}
+    if len(duplicates) > 0:
+        err_msg = dedent(f"""
+            A model can appear only once in the set of models to plot specified on
+            the command line.  However, the following models are duplicated:
+              duplicates = {duplicates}
+            Please remove duplicated models from the command line and rerun.
+            """)
+        logging.error(err_msg, stack_info=True)
+        raise Exception(err_msg)
+
     # Make sure that there are at least as many available colors as models to
     # plot.
     num_avail_colors = len(avail_mv_colors_codes)
@@ -445,7 +460,8 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
     valid_levels_or_accums = valid_levels_by_fcst_var[cla.fcst_var]
     if cla.level_or_accum not in valid_levels_or_accums:
         err_msg = dedent(f"""
-            The specified level or accumulation is not compatible with the specified forecast variable:
+            The specified level or accumulation is not compatible with the specified
+            forecast variable:
               cla.fcst_var = {cla.fcst_var}
               cla.level_or_accum = {cla.level_or_accum}
             Valid options for level or accumulation for this forecast variable are:
