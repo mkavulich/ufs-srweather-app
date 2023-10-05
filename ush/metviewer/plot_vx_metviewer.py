@@ -235,10 +235,10 @@ def parse_args(argv, static_info):
                         help='Names of models to include in xml and plots')
 
     parser.add_argument('--colors', nargs='+',
-                        type=int,
+                        type=str,
                         required=False, default=choices['color'],
                         choices=choices['color'],
-                        help='Color of each model used in line series, histogram, etc plots')
+                        help='Color of each model used in verification metrics plots')
 
     parser.add_argument('--vx_stat',
                         type=str.lower,
