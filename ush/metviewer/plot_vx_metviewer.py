@@ -18,14 +18,12 @@ import subprocess
 # Find the absolute paths to various directories.
 from pathlib import Path
 crnt_script_fp = Path(__file__).resolve()
-# The index of file.parents will have to be changed if this script is moved to 
-# elsewhere in the SRW directory structure.
-ush_dir = crnt_script_fp.parents[2]
+# Find the path to the directory containing miscellaneous scripts for the SRW App.
+# The index of .parents will have to be changed if this script is moved elsewhere
+# in the SRW App's directory structure.
+ush_dir = crnt_script_fp.parents[1]
 # The directory in which the SRW App is cloned.  This is one level up from ush_dir.
 home_dir = Path(os.path.join(ush_dir, '..')).resolve()
-# Get directory and name of current script.
-#crnt_script_dir = str(crnt_script_fp.parent)
-#crnt_script_fn = str(crnt_script_fp.name)
 
 # Add ush_dir to the path so that python_utils can be imported.
 sys.path.append(str(ush_dir))
@@ -220,8 +218,11 @@ def parse_args(argv, static_info):
                         required=True,
                         help='Name of MetViewer database')
 
+    # Find the path to the directory containing the clone of the SRW App.  The index of
+    # .parents will have to be changed if this script is moved elsewhere in the SRW App's
+    # directory structure.
     crnt_script_fp = Path(__file__).resolve()
-    home_dir = crnt_script_fp.parents[3]
+    home_dir = crnt_script_fp.parents[2]
     expts_dir = Path(os.path.join(home_dir, '../expts_dir')).resolve()
     parser.add_argument('--mv_output_dir',
                         type=str,
@@ -678,6 +679,8 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
     # Place xmls generated below in the same directory as the plots that 
     # MetViewer will generate from the xmls.
     output_xml_dir = Path(os.path.join(cla.mv_output_dir, 'plots')).resolve()
+    print(f"cla.mv_output_dir = {cla.mv_output_dir}")
+    print(f"output_xml_dir = {output_xml_dir}")
     if not os.path.exists(output_xml_dir):
         os.makedirs(output_xml_dir)
     output_xml_fn = '_'.join(filter(None,

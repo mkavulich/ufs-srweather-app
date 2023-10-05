@@ -19,8 +19,8 @@ from plot_vx_metviewer import plot_vx_metviewer
 import sys
 from pathlib import Path
 file = Path(__file__).resolve()
-parent, root = file.parent, file.parents[1]
-ush_dir = Path(os.path.join(root, '..')).resolve()
+ush_dir = file.parents[1]
+print(f"ush_dir = {ush_dir}")
 sys.path.append(str(ush_dir))
 
 from python_utils import (
@@ -131,8 +131,11 @@ if __name__ == "__main__":
         description='Call MetViewer to create vx plots.'
     )
 
+    # Find the path to the directory containing the clone of the SRW App.  The index of
+    # .parents will have to be changed if this script is moved elsewhere in the SRW App's
+    # directory structure.
     crnt_script_fp = Path(__file__).resolve()
-    home_dir = crnt_script_fp.parents[3]
+    home_dir = crnt_script_fp.parents[2]
     expts_dir = Path(os.path.join(home_dir, '../expts_dir')).resolve()
     parser.add_argument('--output_dir',
                         type=str,
