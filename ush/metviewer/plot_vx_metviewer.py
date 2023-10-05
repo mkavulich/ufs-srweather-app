@@ -69,7 +69,7 @@ from templater import (
 # wind        10m, 700mb        ge5mps (AUC,BRIER,RELY), ge10mps (AUC,BRIER,RELY)
 #
 
-def get_static_info(static_fp):
+def get_static_info(static_info_config_fp):
     '''
     Function to read in values that are mostly static, i.e. they're usually
     not expected to change from one call to this script to another (e.g.
@@ -77,7 +77,7 @@ def get_static_info(static_fp):
     '''
 
     # Load the yaml file containing static values.
-    static_data = load_config_file(static_fp)
+    static_data = load_config_file(static_info_config_fp)
 
     levels_to_levels_in_db = static_data['levels_to_levels_in_db']
     all_valid_levels = list(levels_to_levels_in_db.keys())
@@ -112,7 +112,7 @@ def get_static_info(static_fp):
                     The master list of valid levels/accumulations as well as the list of valid levels/
                     accumulations for the current forecast variable can be found in the following static
                     information configuration file:
-                      static_fp = {static_fp}
+                      static_info_config_fp = {static_info_config_fp}
                     Please modify this file and rerun.
                     """)
                 logging.error(err_msg, stack_info=True)
@@ -132,7 +132,7 @@ def get_static_info(static_fp):
                     The master list of valid thresholds as well as the list of valid threhsolds for
                     the current forecast variable can be found in the following static information
                     configuration file:
-                      static_fp = {static_fp}
+                      static_info_config_fp = {static_info_config_fp}
                     Please modify this file and rerun.
                     """)
                 logging.error(err_msg, stack_info=True)
@@ -147,9 +147,12 @@ def get_static_info(static_fp):
         stat_long_names[stat] = static_data['stats'][stat]['long_name']
         stat_need_thresh[stat] = static_data['stats'][stat]['need_thresh']
 
-    # Get dictionary containing MetViewer color codes.  Keys are the color
+    # Get dictionary containing the available MetViewer color codes.  This 
+    # is a subset of all available colors in MetViewer (of which there are
+    # thousands) which we allow the user to specify as a plot color for 
+    # the models to be plotted.  In this dictionary, the keys are the color
     # names (e.g. 'red'), and values are the corresponding codes in MetViewer.
-    mv_color_codes = static_data['mv_color_codes']
+    avail_mv_colors_codes = static_data['avail_mv_colors_codes']
 
     # Create dictionary containing valid choices for various parameters.
     # This is needed by the argument parsing function below.
@@ -158,9 +161,10 @@ def get_static_info(static_fp):
     choices['level'] = all_valid_levels
     choices['threshold'] = all_valid_threshs
     choices['vx_stat'] = sorted(valid_stats)
-    choices['color'] = list(mv_color_codes.keys())
+    choices['color'] = list(avail_mv_colors_codes.keys())
 
     static_info = {}
+    static_info['static_info_config_fp'] = static_info_config_fp 
     static_info['levels_to_levels_in_db'] = levels_to_levels_in_db
     static_info['threshs_to_threshs_in_db'] = threshs_to_threshs_in_db
     static_info['fcst_var_long_names'] = fcst_var_long_names
@@ -168,7 +172,7 @@ def get_static_info(static_fp):
     static_info['valid_threshs_by_fcst_var'] = valid_threshs_by_fcst_var
     static_info['stat_long_names'] = stat_long_names
     static_info['stat_need_thresh'] = stat_need_thresh
-    static_info['mv_color_codes'] = mv_color_codes 
+    static_info['avail_mv_colors_codes'] = avail_mv_colors_codes 
     static_info['choices'] = choices
 
     return static_info
@@ -229,7 +233,7 @@ def parse_args(argv, static_info):
                         required=False, default=os.path.join(expts_dir, 'mv_output'),
                         help='Directory in which to place output (e.g. plots) from MetViewer')
 
-    parser.add_argument('--model_names', nargs='+',
+    parser.add_argument('--model_names_short', nargs='+',
                         type=str.lower,
                         required=True,
                         help='Names of models to include in xml and plots')
@@ -302,6 +306,7 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
         None
     """
 
+    static_info_config_fp = static_info['static_info_config_fp']
     levels_to_levels_in_db = static_info['levels_to_levels_in_db']
     threshs_to_threshs_in_db = static_info['threshs_to_threshs_in_db']
     fcst_var_long_names = static_info['fcst_var_long_names']
@@ -309,7 +314,7 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
     valid_threshs_by_fcst_var = static_info['valid_threshs_by_fcst_var']
     stat_long_names = static_info['stat_long_names']
     stat_need_thresh = static_info['stat_need_thresh']
-    mv_color_codes = static_info['mv_color_codes']
+    avail_mv_colors_codes = static_info['avail_mv_colors_codes']
 
     # Load the machine configuration file into a dictionary and find in it the
     # machine specified on the command line.
@@ -347,13 +352,39 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
 
     # Extract the MetViewer database information.
     model_info = mv_database_info[cla.mv_database_name]
-    num_models = len(model_info)
+    model_names_avail_in_db = list(model_info.keys())
+    model_names_short_avail_in_db = [model_info[m]['short_name'] for m in model_names_avail_in_db]
+
+    # Make sure that the models specified on the command line exist in the
+    # database.
+    for i,model_name_short in enumerate(cla.model_names_short):
+        if model_name_short not in model_names_short_avail_in_db:
+            err_msg = dedent(f"""
+                A model specified on the command line (model_name_short) is not included
+                in the entry for the specified database (cla.mv_database_name) in the 
+                MetViewer database configuration file (cla.mv_database_config)
+                  cla.mv_database_config = {cla.mv_database_config}
+                  cla.mv_database_name = {cla.mv_database_name}
+                  model_name_short = {model_name_short}
+                Models that are included in the database configuration file are:
+                  {model_names_short_avail_in_db}
+                Either change the command line to specify only one of these models, or
+                add the new model to the database configuration file (the latter approach
+                will work only if the new model actually exists in the MetViewer database).
+                """)
+            logging.error(err_msg, stack_info=True)
+            raise Exception(err_msg)
+
+    # Get the names in the database of those models that are to be plotted.
+    num_models_to_plot = len(cla.model_names_short)
+    model_names_in_db = [model_names_avail_in_db[model_names_short_avail_in_db.index(m)]
+                         for m in cla.model_names_short]
 
     # Get the number of ensemble members for each model and make sure all are
     # positive.
-    num_ens_mems = [model_info[m]['num_ens_mems'] for m in cla.model_names]
-    for i,model in enumerate(cla.model_names):
-        n_ens = num_ens_mems[i]
+    num_ens_mems_by_model = [model_info[m]['num_ens_mems'] for m in model_names_in_db]
+    for i,model in enumerate(cla.model_names_short):
+        n_ens = num_ens_mems_by_model[i]
         if n_ens <= 0:
             err_msg = dedent(f"""
                 The number of ensemble members for the current model must be greater
@@ -365,12 +396,28 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
             raise Exception(err_msg)
 
     # Get the model names in the database as well as the model short names.
-    model_names_in_db = [model_info[m]['name_in_db'] for m in cla.model_names]
-    model_names_short_uc = [m.upper() for m in cla.model_names]
+    model_names_short_uc = [m.upper() for m in cla.model_names_short]
+
+    # Make sure that there are at least as many available colors as models to
+    # plot.
+    num_avail_colors = len(avail_mv_colors_codes)
+    if num_models_to_plot > num_avail_colors:
+        err_msg = dedent(f"""
+            The number of models to plot (num_models_to_plot) must be less than
+            or equal to the number of available colors:
+              num_models_to_plot = {num_models_to_plot}
+              num_avail_colors = {num_avail_colors}
+            Either reduce the number of models to plot specified on the command 
+            line or add new colors in the static information configuration file
+            (static_info_config_fp):
+              static_info_config_fp = {static_info_config_fp}
+            """)
+        logging.error(err_msg, stack_info=True)
+        raise Exception(err_msg)
 
     # Pick out the plot color associated with each model from the list of 
     # available colors.
-    model_color_codes = [mv_color_codes[m] for m in cla.colors]
+    model_color_codes = [avail_mv_colors_codes[m] for m in cla.colors]
 
     # Set the initialization times for the forecasts.
     fcst_init_time_first = datetime.strptime(cla.fcst_init_info[0], '%Y%m%d%H')
@@ -530,7 +577,7 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
     thresh_str = ''.join(filter(None, [thresh_comp_oper, thresh_value, thresh_units]))
     var_lvl_thresh_str = '_'.join(filter(None, [var_lvl_str, thresh_str]))
 
-    models_str = '_'.join(cla.model_names)
+    models_str = '_'.join(cla.model_names_short)
     job_title = '_'.join([cla.vx_stat, var_lvl_thresh_str, models_str])
 
     logging.info(dedent(f"""
@@ -549,14 +596,14 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
     thresh_in_db = threshs_to_threshs_in_db[cla.threshold]
 
     line_types = list()
-    for imod in range(0,num_models):
+    for imod in range(0,num_models_to_plot):
         if incl_ens_means: line_types.append('b')
-        line_types.extend(["l" for imem in range(0,num_ens_mems[imod])])
+        line_types.extend(["l" for imem in range(0,num_ens_mems_by_model[imod])])
 
-    line_widths = [1 for imod in range(0,num_models) for imem in range(0,num_ens_mems[imod])]
+    line_widths = [1 for imod in range(0,num_models_to_plot) for imem in range(0,num_ens_mems_by_model[imod])]
 
-    num_series = sum(num_ens_mems[0:num_models])
-    if incl_ens_means: num_series = num_series + num_models
+    num_series = sum(num_ens_mems_by_model[0:num_models_to_plot])
+    if incl_ens_means: num_series = num_series + num_models_to_plot
     order_series = [s for s in range(1,num_series+1)]
 
     # Generate name of forecast variable as it appears in the MetViewer database.
@@ -627,8 +674,8 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
                   "mv_machine_config_dict": mv_machine_config_dict,
                   "mv_database_name": cla.mv_database_name,
                   "mv_output_dir": cla.mv_output_dir,
-                  "num_models": num_models,
-                  "num_ens_mems": num_ens_mems,
+                  "num_models_to_plot": num_models_to_plot,
+                  "num_ens_mems_by_model": num_ens_mems_by_model,
                   "model_names_in_db": model_names_in_db,
                   "model_names_short_uc": model_names_short_uc,
                   "model_color_codes": model_color_codes,

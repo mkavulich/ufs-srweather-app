@@ -42,7 +42,7 @@ that.
             <field name="model">
 {%- set prob_or_null = "" -%}
 {%- set indent = "\n                " -%}
-{%- for imdl in range(1, num_models+1) -%}
+{%- for imdl in range(1, num_models_to_plot+1) -%}
   {%- set model = model_names_in_db[imdl-1] -%}
   {{- indent ~ "<val>" ~ model ~ prob_or_null ~ "</val>" -}}
 {%- endfor %}
@@ -134,7 +134,7 @@ that.
 {%- if do_indent -%}
   {%- set indent = " \\\n                                  " -%}
 {%- endif -%}
-{%- for imdl in range(1, num_models+1) -%}
+{%- for imdl in range(1, num_models_to_plot+1) -%}
   {%- if imdl > 1 -%} {{indent}} {%- endif -%}
   {%- set model = model_names_in_db[imdl-1] -%}
   {{ 'c(' -}}
@@ -142,7 +142,7 @@ that.
   {{ '"' ~ model ~ ' ' ~ fcst_var_name_in_db ~ ' ECNT_RMSE' ~ '",' -}}
   {{ '"RATIO"' -}}
   {{ ')' -}}
-  {%- if imdl != num_models -%} , {%- endif -%}
+  {%- if imdl != num_models_to_plot -%} , {%- endif -%}
 {%- endfor -%})</listdiffseries1>
 {#- #}
             <listdiffseries2>list()</listdiffseries2>
@@ -236,10 +236,10 @@ after discussion with DTC statisticians.
 {%- for iquant in range(1,num_quantities_per_model+1) -%}
   {%- if iquant > 1 -%} {{indent}} {%- endif -%}
   {%- set plot_ci = "boot" -%}
-  {%- for imdl in range(1, num_models) -%}
+  {%- for imdl in range(1, num_models_to_plot) -%}
     "{{plot_ci}}",
   {%- endfor -%}
-  {%- set imdl = num_models -%}
+  {%- set imdl = num_models_to_plot -%}
   "{{plot_ci}}"
   {%- if iquant != num_quantities_per_model -%} , {%- endif -%}
 {%- endfor -%})</plot_ci>
@@ -254,10 +254,10 @@ after discussion with DTC statisticians.
 {%- for iquant in range(1,num_quantities_per_model+1) -%}
   {%- if iquant > 1 -%} {{indent}} {%- endif -%}
   {%- set show_signif = "FALSE" -%}
-  {%- for imdl in range(1, num_models) -%}
+  {%- for imdl in range(1, num_models_to_plot) -%}
     {{show_signif}},
   {%- endfor -%}
-  {%- set imdl = num_models -%}
+  {%- set imdl = num_models_to_plot -%}
   {{show_signif}}
   {%- if iquant != num_quantities_per_model -%} , {%- endif -%}
 {%- endfor -%})</show_signif>
@@ -274,10 +274,10 @@ after discussion with DTC statisticians.
 {%- for iquant in range(1,num_quantities_per_model+1) -%}
   {%- if iquant > 1 -%} {{indent}} {%- endif -%}
   {%- set plot_disp = "TRUE" -%}
-  {%- for imdl in range(1, num_models) -%}
+  {%- for imdl in range(1, num_models_to_plot) -%}
     {{plot_disp}},
   {%- endfor -%}
-  {%- set imdl = num_models -%}
+  {%- set imdl = num_models_to_plot -%}
   {{plot_disp}}
   {%- if iquant != num_quantities_per_model -%} , {%- endif -%}
 {%- endfor -%})</plot_disp>
@@ -292,11 +292,11 @@ after discussion with DTC statisticians.
 {%- for iquant in range(1,num_quantities_per_model+1) -%}
   {%- if iquant > 1 -%} {{indent}} {%- endif -%}
   {%- set pch = 20 -%}
-  {%- for imdl in range(1, num_models) -%}
+  {%- for imdl in range(1, num_models_to_plot) -%}
     {%- set color = model_color_codes[imdl-1] -%}
     {{color}},
   {%- endfor -%}
-  {%- set imdl = num_models -%}
+  {%- set imdl = num_models_to_plot -%}
   {%- set color = model_color_codes[imdl-1] -%}
   {{color}}
   {%- if iquant != num_quantities_per_model -%} , {%- endif -%}
@@ -312,10 +312,10 @@ after discussion with DTC statisticians.
 {%- for iquant in range(1,num_quantities_per_model+1) -%}
   {%- if iquant > 1 -%} {{indent}} {%- endif -%}
   {%- set pch = 20 -%}
-  {%- for imdl in range(1, num_models) -%}
+  {%- for imdl in range(1, num_models_to_plot) -%}
     {{pch}},
   {%- endfor -%}
-  {%- set imdl = num_models -%}
+  {%- set imdl = num_models_to_plot -%}
   {{pch}}
   {%- if iquant != num_quantities_per_model -%} , {%- endif -%}
 {%- endfor -%})</pch>
@@ -331,10 +331,10 @@ after discussion with DTC statisticians.
 {%- for iquant in range(1,num_quantities_per_model+1) -%}
   {%- if iquant > 1 -%} {{indent}} {%- endif -%}
   {%- set type = "b" -%}
-  {%- for imdl in range(1, num_models) -%}
+  {%- for imdl in range(1, num_models_to_plot) -%}
     "{{type}}",
   {%- endfor -%}
-  {%- set imdl = num_models -%}
+  {%- set imdl = num_models_to_plot -%}
   "{{type}}"
   {%- if iquant != num_quantities_per_model -%} , {%- endif -%}
 {%- endfor -%})</type>
@@ -350,10 +350,10 @@ after discussion with DTC statisticians.
 {%- for iquant in range(1,num_quantities_per_model+1) -%}
   {%- if iquant > 1 -%} {{indent}} {%- endif -%}
   {%- set lty = line_types_by_quantity[iquant-1] -%}
-  {%- for imdl in range(1, num_models) -%}
+  {%- for imdl in range(1, num_models_to_plot) -%}
     {{lty}},
   {%- endfor -%}
-  {%- set imdl = num_models -%}
+  {%- set imdl = num_models_to_plot -%}
   {{lty}}
   {%- if iquant != num_quantities_per_model -%} , {%- endif -%}
 {%- endfor -%})</lty>
@@ -367,11 +367,11 @@ after discussion with DTC statisticians.
 {%- endif -%}
 {%- for iquant in range(1,num_quantities_per_model+1) -%}
   {%- if iquant > 1 -%} {{indent}} {%- endif -%}
-  {%- for imdl in range(1, num_models) -%}
+  {%- for imdl in range(1, num_models_to_plot) -%}
     {%- set lwd = 2 -%}
     {{lwd}},
   {%- endfor -%}
-  {%- set imdl = num_models -%}
+  {%- set imdl = num_models_to_plot -%}
   {%- set lwd = 2 -%}
   {{lwd}}
   {%- if iquant != num_quantities_per_model -%} , {%- endif -%}
@@ -387,11 +387,11 @@ after discussion with DTC statisticians.
 {%- endif -%}
 {%- for iquant in range(1,num_quantities_per_model+1) -%}
   {%- if iquant > 1 -%} {{indent}} {%- endif -%}
-  {%- for imdl in range(1, num_models) -%}
+  {%- for imdl in range(1, num_models_to_plot) -%}
     {%- set cs = 1 -%}
     {{cs}},
   {%- endfor -%}
-  {%- set imdl = num_models -%}
+  {%- set imdl = num_models_to_plot -%}
   {%- set cs = 1 -%}
   {{cs}}
   {%- if iquant != num_quantities_per_model -%} , {%- endif -%}
@@ -415,12 +415,12 @@ on one line in the XML.
 {%- set count = namespace(value=0) -%}
 {%- for iquant in range(1,num_quantities_per_model+1) -%}
   {%- if iquant > 1 -%} {{indent}} {%- endif -%}
-  {%- for imdl in range(1, num_models) -%}
+  {%- for imdl in range(1, num_models_to_plot) -%}
     {%- set iorder = count.value + 1 -%}
     {{iorder}},
     {%- set count.value = count.value + 1 -%}
   {%- endfor -%}
-  {%- set imdl = num_models -%}
+  {%- set imdl = num_models_to_plot -%}
   {%- set iorder = order_series[count.value] -%}
   {{iorder}}
   {%- set count.value = count.value + 1 -%}
@@ -438,11 +438,11 @@ on one line in the XML.
 {%- for iquant in range(1,num_quantities_per_model+1) -%}
   {%- if iquant > 1 -%} {{indent}} {%- endif -%}
   {%- set quant = quantities_to_plot[iquant-1] -%}
-  {%- for imdl in range(1, num_models) -%}
+  {%- for imdl in range(1, num_models_to_plot) -%}
     {%- set model = model_names_short_uc[imdl-1] -%}
     "{{model}} {{quant}}",
   {%- endfor -%}
-  {%- set imdl = num_models -%}
+  {%- set imdl = num_models_to_plot -%}
   {%- set model = model_names_short_uc[imdl-1] -%}
   "{{model}} {{quant}}"
   {%- if iquant != num_quantities_per_model -%} , {%- endif -%}

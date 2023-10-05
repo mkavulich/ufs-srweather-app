@@ -31,12 +31,12 @@
             <field name="model">
 {%- set fmt = "%02d" -%}
 {%- set indent = "\n                " -%}
-{%- for imdl in range(1, num_models+1) -%}
+{%- for imdl in range(1, num_models_to_plot+1) -%}
   {%- set model = model_names_in_db[imdl-1] -%}
   {%- if incl_ens_means -%}
     {{- indent ~ "<val>" ~ model ~ "_mean" ~ "</val>" -}}
   {%- endif -%}
-  {%- for imem in range(1, num_ens_mems[imdl-1]+1) -%}
+  {%- for imem in range(1, num_ens_mems_by_model[imdl-1]+1) -%}
     {{- indent ~ "<val>" ~ model ~ "_mem" ~ fmt%imem ~ "</val>" -}}
   {%- endfor -%}
 {%- endfor %}
@@ -217,14 +217,14 @@ for now we apply the rule only to FBIAS.
 {%- if do_indent -%}
   {%- set indent = " \\\n                   " -%}
 {%- endif -%}
-{%- for imdl in range(1, num_models+1) -%}
+{%- for imdl in range(1, num_models_to_plot+1) -%}
   {%- set plot_ci = "none" -%}
   {%- if incl_ens_means -%} "{{plot_ci}}", {%- endif -%}
-  {%- for imem in range(1, num_ens_mems[imdl-1]) -%}
+  {%- for imem in range(1, num_ens_mems_by_model[imdl-1]) -%}
     "{{plot_ci}}",
   {%- endfor -%}
   "{{plot_ci}}"
-  {%- if imdl != num_models -%} ,{{indent}} {%- endif -%}
+  {%- if imdl != num_models_to_plot -%} ,{{indent}} {%- endif -%}
 {%- endfor -%})</plot_ci>
 {#- #}
         <!-- These appear in the MetViewer GUI under the column "Show Significant".
@@ -234,14 +234,14 @@ for now we apply the rule only to FBIAS.
 {%- if do_indent -%}
   {%- set indent = " \\\n                       " -%}
 {%- endif -%}
-{%- for imdl in range(1, num_models+1) -%}
+{%- for imdl in range(1, num_models_to_plot+1) -%}
   {%- set show_signif = "FALSE" -%}
   {%- if incl_ens_means -%} {{show_signif}}, {%- endif -%}
-  {%- for imem in range(1, num_ens_mems[imdl-1]) -%}
+  {%- for imem in range(1, num_ens_mems_by_model[imdl-1]) -%}
     {{show_signif}},
   {%- endfor -%}
   {{show_signif}}
-  {%- if imdl != num_models -%} ,{{indent}} {%- endif -%}
+  {%- if imdl != num_models_to_plot -%} ,{{indent}} {%- endif -%}
 {%- endfor -%})</show_signif>
 {#- #}
         <!-- These appear in the MetViewer GUI under the column "Hide", although it
@@ -253,14 +253,14 @@ for now we apply the rule only to FBIAS.
 {%- if do_indent -%}
   {%- set indent = " \\\n                     " -%}
 {%- endif -%}
-{%- for imdl in range(1, num_models+1) -%}
+{%- for imdl in range(1, num_models_to_plot+1) -%}
   {%- set plot_disp = "TRUE" -%}
   {%- if incl_ens_means -%} {{plot_disp}}, {%- endif -%}
-  {%- for imem in range(1, num_ens_mems[imdl-1]) -%}
+  {%- for imem in range(1, num_ens_mems_by_model[imdl-1]) -%}
     {{plot_disp}},
   {%- endfor -%}
   {{plot_disp}}
-  {%- if imdl != num_models -%} ,{{indent}} {%- endif -%}
+  {%- if imdl != num_models_to_plot -%} ,{{indent}} {%- endif -%}
 {%- endfor -%})</plot_disp>
 {#- #}
         <!-- These appear in the MetViewer GUI under the column "Line Color".
@@ -270,14 +270,14 @@ for now we apply the rule only to FBIAS.
 {%- if do_indent -%}
   {%- set indent = " \\\n                  " -%}
 {%- endif -%}
-{%- for imdl in range(1, num_models+1) -%}
+{%- for imdl in range(1, num_models_to_plot+1) -%}
   {%- set color = model_color_codes[imdl-1] -%}
   {%- if incl_ens_means -%} "{{color}}", {%- endif -%}
-  {%- for imem in range(1, num_ens_mems[imdl-1]) -%}
+  {%- for imem in range(1, num_ens_mems_by_model[imdl-1]) -%}
     "{{color}}",
   {%- endfor -%}
   "{{color}}"
-  {%- if imdl != num_models -%} ,{{indent}} {%- endif -%}
+  {%- if imdl != num_models_to_plot -%} ,{{indent}} {%- endif -%}
 {%- endfor -%})</colors>
 {#- #}
         <!-- These appear in the MetViewer GUI under the column "Point Symbol".
@@ -287,14 +287,14 @@ for now we apply the rule only to FBIAS.
 {%- if do_indent -%}
   {%- set indent = " \\\n               " -%}
 {%- endif -%}
-{%- for imdl in range(1, num_models+1) -%}
+{%- for imdl in range(1, num_models_to_plot+1) -%}
   {%- set pch = 20 -%}
   {%- if incl_ens_means -%} {{pch}}, {%- endif -%}
-  {%- for imem in range(1, num_ens_mems[imdl-1]) -%}
+  {%- for imem in range(1, num_ens_mems_by_model[imdl-1]) -%}
     {{pch}},
   {%- endfor -%}
   {{pch}}
-  {%- if imdl != num_models -%} ,{{indent}} {%- endif -%}
+  {%- if imdl != num_models_to_plot -%} ,{{indent}} {%- endif -%}
 {%- endfor -%})</pch>
 {#- #}
         <!-- These appear in the MetViewer GUI under the column "Series Line Type".
@@ -305,8 +305,8 @@ for now we apply the rule only to FBIAS.
 {%- if do_indent -%}
   {%- set indent = " \\\n                " -%}
 {%- endif -%}
-{%- for imdl in range(1, num_models+1) -%}
-  {%- set ns = num_ens_mems[imdl-1] -%}
+{%- for imdl in range(1, num_models_to_plot+1) -%}
+  {%- set ns = num_ens_mems_by_model[imdl-1] -%}
   {%- if incl_ens_means -%} {%- set ns = ns+1 -%} {%- endif -%}
   {%- for imem in range(0, ns-1) -%}
     {%- set is = (imdl-1)*ns + imem -%}
@@ -317,7 +317,7 @@ for now we apply the rule only to FBIAS.
   {%- set is = (imdl-1)*ns + imem -%}
   {%- set line_type = line_types[is] -%}
   "{{line_type}}"
-  {%- if imdl != num_models -%} ,{{indent}} {%- endif -%}
+  {%- if imdl != num_models_to_plot -%} ,{{indent}} {%- endif -%}
 {%- endfor -%})</type>
 {#- #}
         <!-- These appear in the MetViewer GUI under the column "Line Type".
@@ -328,14 +328,14 @@ for now we apply the rule only to FBIAS.
 {%- if do_indent -%}
   {%- set indent = " \\\n               " -%}
 {%- endif -%}
-{%- for imdl in range(1, num_models+1) -%}
+{%- for imdl in range(1, num_models_to_plot+1) -%}
   {%- set lty = 1 -%}
   {%- if incl_ens_means -%} {{lty}}, {%- endif -%}
-  {%- for imem in range(1, num_ens_mems[imdl-1]) -%}
+  {%- for imem in range(1, num_ens_mems_by_model[imdl-1]) -%}
     {{lty}},
   {%- endfor -%}
   {{lty}}
-  {%- if imdl != num_models -%} ,{{indent}} {%- endif -%}
+  {%- if imdl != num_models_to_plot -%} ,{{indent}} {%- endif -%}
 {%- endfor -%})</lty>
 {#- #}
         <!-- These appear in the MetViewer GUI under the column "Line Width".
@@ -345,14 +345,14 @@ for now we apply the rule only to FBIAS.
 {%- if do_indent -%}
   {%- set indent = " \\\n               " -%}
 {%- endif -%}
-{%- for imdl in range(1, num_models+1) -%}
+{%- for imdl in range(1, num_models_to_plot+1) -%}
   {%- set line_width = line_widths[imdl-1] -%}
   {%- if incl_ens_means -%} {{line_width*2}}, {%- endif -%}
-  {%- for imem in range(1, num_ens_mems[imdl-1]) -%}
+  {%- for imem in range(1, num_ens_mems_by_model[imdl-1]) -%}
     {{line_width}},
   {%- endfor -%}
   {{line_width}}
-  {%- if imdl != num_models -%} ,{{indent}} {%- endif -%}
+  {%- if imdl != num_models_to_plot -%} ,{{indent}} {%- endif -%}
 {%- endfor -%})</lwd>
 {#- #}
         <!-- These appear in the MetViewer GUI under the column "Connect Across".
@@ -363,14 +363,14 @@ for now we apply the rule only to FBIAS.
 {%- if do_indent -%}
   {%- set indent = " \\\n                      " -%}
 {%- endif -%}
-{%- for imdl in range(1, num_models+1) -%}
+{%- for imdl in range(1, num_models_to_plot+1) -%}
   {%- set cs = 1 -%}
   {%- if incl_ens_means -%} {{cs}}, {%- endif -%}
-  {%- for imem in range(1, num_ens_mems[imdl-1]) -%}
+  {%- for imem in range(1, num_ens_mems_by_model[imdl-1]) -%}
     {{cs}},
   {%- endfor -%}
   {{cs}}
-  {%- if imdl != num_models -%} ,{{indent}} {%- endif -%}
+  {%- if imdl != num_models_to_plot -%} ,{{indent}} {%- endif -%}
 {%- endfor -%})</con_series>
 {#- #}
         <!-- These appear in the MetViewer GUI under the column "#" (number sign).
@@ -381,11 +381,11 @@ for now we apply the rule only to FBIAS.
   {%- set indent = " \\\n                        " -%}
 {%- endif -%}
 {%- set is = namespace(value=0) -%}
-{%- for imdl in range(1, num_models+1) -%}
-  {%- set ns = num_ens_mems[imdl-1] -%}
+{%- for imdl in range(1, num_models_to_plot+1) -%}
+  {%- set ns = num_ens_mems_by_model[imdl-1] -%}
   {%- if incl_ens_means -%} {%- set ns = ns+1 -%} {%- endif -%}
   {{- order_series[is.value:is.value+ns]|join(",") -}}
-  {%- if imdl != num_models -%} ,{{indent}} {%- endif -%}
+  {%- if imdl != num_models_to_plot -%} ,{{indent}} {%- endif -%}
   {%- set is.value = is.value + ns -%}
 {%- endfor -%})</order_series>
 {#- #}
@@ -398,15 +398,15 @@ for now we apply the rule only to FBIAS.
   {%- set indent = " \\\n                  " -%}
 {%- endif -%}
 {%- set fmt = "%02d" -%}
-{%- for imdl in range(1, num_models+1) -%}
+{%- for imdl in range(1, num_models_to_plot+1) -%}
   {%- set model = model_names_short_uc[imdl-1] -%}
   {%- if incl_ens_means -%} "{{model}}_mean", {%- endif -%}
-  {%- for imem in range(1, num_ens_mems[imdl-1]) -%}
+  {%- for imem in range(1, num_ens_mems_by_model[imdl-1]) -%}
     "{{model}}{{fmt%imem}}",
   {%- endfor -%}
-  {%- set imem = num_ens_mems[imdl-1] -%}
+  {%- set imem = num_ens_mems_by_model[imdl-1] -%}
   "{{model}}{{fmt%imem}}"
-  {%- if imdl != num_models -%} ,{{indent}} {%- endif -%}
+  {%- if imdl != num_models_to_plot -%} ,{{indent}} {%- endif -%}
 {%- endfor -%})</legend>
 {#- #}
         <create_html>TRUE</create_html>

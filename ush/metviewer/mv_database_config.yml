@@ -1,10 +1,13 @@
 mv_gefs_gdas_rtps_href_spring_2022:
-    gdas:
-        name_in_db: 'RRFS_GDAS_GF.SPP.SPPT'
+    HREF:
+        short_name: 'href'
         num_ens_mems: 10
-    gefs:
-        name_in_db: 'RRFS_GEFS_GF.SPP.SPPT'
+    RRFS_GDAS_GF.SPP.SPPT:
+        short_name: 'gdas'
         num_ens_mems: 10
-    href:
-        name_in_db: 'HREF'
+    RRFS_GEFS_GF.SPP.SPPT:
+        short_name: 'gefs'
+        num_ens_mems: 10
+    RTPS:
+        short_name: 'rtps'
         num_ens_mems: 10

@@ -24,7 +24,7 @@
   {%- set prob_or_null = "_prob" -%}
 {%- endif -%}
 {%- set indent = "\n                " -%}
-{%- for imdl in range(1, num_models+1) -%}
+{%- for imdl in range(1, num_models_to_plot+1) -%}
   {%- set model = model_names_in_db[imdl-1] -%}
   {{- indent ~ "<val>" ~ model ~ prob_or_null ~ "</val>" -}}
 {%- endfor %}
@@ -209,7 +209,7 @@
         <plot_ci>c(
 {%- set plot_ci = "none" -%}
 "{{plot_ci}}"
-{%- for imdl in range(2, num_models+1) -%}
+{%- for imdl in range(2, num_models_to_plot+1) -%}
   ,"{{plot_ci}}"
 {%- endfor -%})</plot_ci>
 {#- #}
@@ -218,7 +218,7 @@
         <show_signif>c(
 {%- set show_signif = "FALSE" -%}
 {{show_signif}}
-{%- for imdl in range(2, num_models+1) -%}
+{%- for imdl in range(2, num_models_to_plot+1) -%}
   ,{{show_signif}}
 {%- endfor -%})</show_signif>
 {#- #}
@@ -229,7 +229,7 @@
         <plot_disp>c(
 {%- set plot_disp = "TRUE" -%}
 {{plot_disp}}
-{%- for imdl in range(2, num_models+1) -%}
+{%- for imdl in range(2, num_models_to_plot+1) -%}
   ,{{plot_disp}}
 {%- endfor -%})</plot_disp>
 {#- #}
@@ -238,7 +238,7 @@
         <colors>c(
 {%- set color = model_color_codes[0] -%}
 "{{color}}"
-{%- for imdl in range(2, num_models+1) -%}
+{%- for imdl in range(2, num_models_to_plot+1) -%}
   {%- set color = model_color_codes[imdl-1] -%}
   ,"{{color}}"
 {%- endfor -%})</colors>
@@ -248,7 +248,7 @@
         <pch>c(
 {%- set pch = "20" -%}
 {{pch}}
-{%- for imdl in range(2, num_models+1) -%}
+{%- for imdl in range(2, num_models_to_plot+1) -%}
   ,{{pch}}
 {%- endfor -%})</pch>
 {#- #}
@@ -258,7 +258,7 @@
         <type>c(
 {%- set type = "b" -%}
 "{{type}}"
-{%- for imdl in range(2, num_models+1) -%}
+{%- for imdl in range(2, num_models_to_plot+1) -%}
   ,"{{type}}"
 {%- endfor -%})</type>
 {#- #}
@@ -268,7 +268,7 @@
         <lty>c(
 {%- set lty = "1" -%}
 {{lty}}
-{%- for imdl in range(2, num_models+1) -%}
+{%- for imdl in range(2, num_models_to_plot+1) -%}
   ,{{lty}}
 {%- endfor -%})</lty>
 {#- #}
@@ -282,7 +282,7 @@
   {%- set lwd = "1" -%}
 {%- endif -%}
 {{lwd}}
-{%- for imdl in range(2, num_models+1) -%}
+{%- for imdl in range(2, num_models_to_plot+1) -%}
   ,{{lwd}}
 {%- endfor -%})</lwd>
 {#- #}
@@ -292,7 +292,7 @@
         <con_series>c(
 {%- set cs = "1" -%}
 {{cs}}
-{%- for imdl in range(2, num_models+1) -%}
+{%- for imdl in range(2, num_models_to_plot+1) -%}
   ,{{cs}}
 {%- endfor -%})</con_series>
 {#- #}
@@ -301,7 +301,7 @@
         <order_series>c(
 {%- set imdl = 1 -%}
 {{imdl}}
-{%- for imdl in range(2, num_models+1) -%}
+{%- for imdl in range(2, num_models_to_plot+1) -%}
   ,{{imdl}}
 {%- endfor -%})</order_series>
 {#- #}
@@ -311,7 +311,7 @@
         <legend>c(
 {%- set model = model_names_short_uc[0] -%}
 "{{model}}"
-{%- for imdl in range(2, num_models+1) -%}
+{%- for imdl in range(2, num_models_to_plot+1) -%}
   {%- set model = model_names_short_uc[imdl-1] -%}
   ,"{{model}}"
 {%- endfor -%})</legend>
