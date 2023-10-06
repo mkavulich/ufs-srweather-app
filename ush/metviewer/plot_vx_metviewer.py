@@ -51,7 +51,7 @@ from templater import (
 # fcst_var    level_or_accum             threshold    stat types
 # --------    --------------             ---------    ----------
 # apcp        03hr, 06hr                 none         RHST, SS
-# cape        ??                         none         RHST
+# cape        L0                         none         RHST
 # dpt         2m                         none         BIAS, RHST, SS
 # hgt         500mb                      none         RHST, SS
 # refc        L0 (BIAS only)             none         BIAS, RHST, SS
@@ -431,8 +431,11 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
         raise Exception(err_msg)
 
     # Pick out the plot color associated with each model from the list of 
-    # available colors.
-    model_color_codes = [avail_mv_colors_codes[m] for m in cla.colors]
+    # available colors.  The following lists will contain the hex RGB color
+    # codes of the colors to use for each model as well as the codes for
+    # the light versions of those colors (needed for some types of stat plots).
+    model_color_codes = [avail_mv_colors_codes[m]['hex_code'] for m in cla.colors]
+    model_color_codes_light = [avail_mv_colors_codes[m]['hex_code_light'] for m in cla.colors]
 
     # Set the initialization times for the forecasts.
     fcst_init_time_first = datetime.strptime(cla.fcst_init_info[0], '%Y%m%d%H')
@@ -624,7 +627,6 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
 
     # Generate name of forecast variable as it appears in the MetViewer database.
     fcst_var_name_in_db = fcst_var_uc
-    # The following only works if the accumulations are specifed with a leading zero, e.g. 03h, 06h (24h doesn't matter).
     if fcst_var_uc == 'APCP': fcst_var_name_in_db = '_'.join([fcst_var_name_in_db, cla.level_or_accum[0:2]])
     if cla.vx_stat in ['auc', 'brier', 'rely']:
         fcst_var_name_in_db = '_'.join(filter(None,[fcst_var_name_in_db, 'ENS_FREQ', 
@@ -695,6 +697,7 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
                   "model_names_in_db": model_names_in_db,
                   "model_names_short_uc": model_names_short_uc,
                   "model_color_codes": model_color_codes,
+                  "model_color_codes_light": model_color_codes_light,
                   "fcst_var_uc": fcst_var_uc,
                   "fcst_var_name_in_db": fcst_var_name_in_db,
                   "level_in_db": level_in_db,
