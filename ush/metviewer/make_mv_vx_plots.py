@@ -35,19 +35,21 @@ def make_mv_vx_plots(args):
       args:  Dictionary of arguments.
     """
 
+    # Set up logging.
     # If the name/path of a log file has been specified in the command line arguments,
     # place the logging output in it (existing log files of the same name are overwritten).
     # Otherwise, direct the output to the screen.
-    FORMAT = "[%(levelname)s:%(name)s:  from %(filename)s, line %(lineno)s: %(funcName)s()] %(message)s"
+    log_level = str.upper(args.log_level)
+    FORMAT = "[%(levelname)s:%(name)s:  %(filename)s, line %(lineno)s: %(funcName)s()] %(message)s"
     if args.log_fp:
-      logging.basicConfig(level=logging.DEBUG, format=FORMAT, filename=args.log_fp, filemode='w')
+      logging.basicConfig(level=log_level, format=FORMAT, filename=args.log_fp, filemode='w')
     else:
-      logging.basicConfig(level=logging.INFO, format=FORMAT)
+      logging.basicConfig(level=log_level, format=FORMAT)
 
-    config_fn = args.config
-    config_dict = load_config_file(config_fn)
+    config_fp = args.config_fp
+    config_dict = load_config_file(config_fp)
     logging.info(dedent(f"""
-        Reading in configuration file {config_fn} ...
+        Reading in configuration file {config_fp} ...
         """))
 
     fcst_init_info = config_dict['fcst_init_info']
@@ -150,12 +152,16 @@ if __name__ == "__main__":
     parser.add_argument('--output_dir',
                         type=str,
                         required=False, default=os.path.join(expts_dir, 'mv_output'),
-                        help='Directory in which to place MetViewer output')
+                        help=dedent(f'''Directory in which to place output files (generated xmls,
+                                        MetViewer generated plots and other files, etc).  These
+                                        will usually be placed in subdirectories under this 
+                                        output directory.'''))
 
-    parser.add_argument('--config',
+    parser.add_argument('--config_fp',
                         type=str,
                         required=False, default='config_mv_plots.default.yml',
-                        help='Name of yaml user configuration file for MetViewer plot generation')
+                        help=dedent(f'''Name of or path (absolute or relative) to yaml user
+                                        plot configuration file for MetViewer plot generation.'''))
 
     parser.add_argument('--log_fp',
                         type=str,
@@ -163,19 +169,27 @@ if __name__ == "__main__":
                         help=dedent(f'''Name of or path (absolute or relative) to log file.  If 
                                         not specified, the output goes to screen.'''))
 
+    choices_log_level = [pair for lvl in list(logging._nameToLevel.keys())
+                              for pair in (str.lower(lvl), str.upper(lvl))]
+    parser.add_argument('--log_level',
+                        type=str,
+                        required=False, default='info',
+                        choices=choices_log_level,
+                        help=dedent(f'''Logging level to use with the logging" module.'''))
+
     parser.add_argument('--include_stats', nargs='+',
                         type=str.lower,
                         required=False, default=[],
                         choices=['auc', 'bias', 'brier', 'fbias', 'rely', 'rhist', 'ss'],
                         help=dedent(f'''Stats to include in verification plot generation.  A stat
                                         included here will still be excluded if it is not in the
-                                        yaml configuration file.'''))
+                                        yaml user plot configuration file.'''))
 
     parser.add_argument('--exclude_stats', nargs='+',
                         type=str.lower,
                         required=False, default=[],
                         choices=['auc', 'bias', 'brier', 'fbias', 'rely', 'rhist', 'ss'],
-                        help='Stats to exclude from verification plot generation')
+                        help='Stats to exclude from verification plot generation.')
 
     args = parser.parse_args()
 

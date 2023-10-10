@@ -802,7 +802,7 @@ def run_mv_batch(mv_batch, output_xml_fp):
         output_xml_fp:  Full path to the xml to pass to the batch script.
 
     Returns:
-        result:         Instance of class subprocess.CompletedProcess containing
+        result:         Instance of subprocess.CompletedProcess class containing
                         result of call to MetViewer batch script.
     """
 
