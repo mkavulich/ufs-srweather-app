@@ -5,22 +5,20 @@ import sys
 import glob
 import argparse
 import yaml
-import re
 
 import logging
+import textwrap
 from textwrap import dedent
-from datetime import datetime
-from datetime import timedelta
 
+import pprint
 import subprocess
 
 from plot_vx_metviewer import plot_vx_metviewer
+from plot_vx_metviewer import get_pprint_str
 
-import sys
 from pathlib import Path
 file = Path(__file__).resolve()
 ush_dir = file.parents[1]
-print(f"ush_dir = {ush_dir}")
 sys.path.append(str(ush_dir))
 
 from python_utils import (
@@ -37,7 +35,14 @@ def make_mv_vx_plots(args):
       args:  Dictionary of arguments.
     """
 
-    logging.basicConfig(level=logging.INFO)
+    # If the name/path of a log file has been specified in the command line arguments,
+    # place the logging output in it (existing log files of the same name are overwritten).
+    # Otherwise, direct the output to the screen.
+    FORMAT = "[%(levelname)s:%(name)s:  from %(filename)s, line %(lineno)s: %(funcName)s()] %(message)s"
+    if args.log_fp:
+      logging.basicConfig(level=logging.DEBUG, format=FORMAT, filename=args.log_fp, filemode='w')
+    else:
+      logging.basicConfig(level=logging.INFO, format=FORMAT)
 
     config_fn = args.config
     config_dict = load_config_file(config_fn)
@@ -64,41 +69,38 @@ def make_mv_vx_plots(args):
     vx_stats_dict = config_dict["vx_stats"]
     for stat, stat_dict in vx_stats_dict.items():
 
-        print(f"")
-        print(f"stat = {stat}")
-        print(f"stat_dict = {stat_dict}")
-
         if stat in args.exclude_stats:
-            #logging.info(f'Skipping plotting of statistic "{stat}"...')
-            print(f"")
-            print(f'Skipping plotting of statistic "{stat}"...')
+            logging.info(dedent(f"""\n
+                Skipping plotting of statistic "{stat}" because it is in the list of 
+                stats to exclude ...
+                  args.exclude_stats = {args.exclude_stats}
+                """))
 
         elif (not args.include_stats) or (args.include_stats and stat in args.include_stats):
-            #logging.info(f'NOT skipping plotting of statistic "{stat}"...')
-            print(f"")
-            print(f'NOT skipping plotting of statistic "{stat}"...')
-
-            print(f"")
-            print(f"  stat = {stat}")
-            print(f"  stat_dict = {stat_dict}")
-            print(f"  args.include_stats = {args.include_stats}")
-            print(f"  stat in args.include_stats = {stat in args.include_stats}")
+            logging.info(dedent(f"""
+                Plotting statistic "{stat}" for various forecast variables ...
+                """))
+            logging.debug(f"""\nstat_dict =\n{get_pprint_str(stat_dict, '  ')}\n""")
 
             for fcst_var, fcst_var_dict in stat_dict.items():
 
-                print(f"")
-                print(f"  fcst_var = {fcst_var}")
-                print(f"  fcst_var_dict = {fcst_var_dict}")
+                logging.info(dedent(f"""
+                    Plotting statistic "{stat}" for forecast variable "{fcst_var}" at various levels ...
+                    """))
+                logging.debug(f"""\nfcst_var_dict =\n{get_pprint_str(fcst_var_dict, '  ')}\n""")
 
                 for level, level_dict in fcst_var_dict.items():
-                    print(f"")
-                    print(f"    level = {level}")
-                    print(f"    level_dict = {level_dict}")
+                    logging.info(dedent(f"""
+                        Plotting statistic "{stat}" for forecast variable "{fcst_var}" at level "{level}" ...
+                        """))
+                    logging.debug(f"""\nlevel_dict =\n{get_pprint_str(level_dict, '  ')}\n""")
 
                     thresholds = level_dict['thresholds']
-#                    print(f"      thresholds = {thresholds}")
                     for thresh in thresholds:
-                        print(f"      thresh = {thresh}")
+                        logging.info(dedent(f"""
+                            Plotting statistic "{stat}" for forecast variable "{fcst_var}" at level "{level}"
+                            and threshold "{thresh}" (threshold may be empty for certain stats) ...
+                            """))
 
                         args_list = ['--mv_database_name', mv_database_name, \
                                      '--model_names', ] + model_names \
@@ -109,15 +111,23 @@ def make_mv_vx_plots(args):
                                      '--level_or_accum', level,
                                      '--threshold', thresh, 
                                      '--mv_output_dir', args.output_dir]
-                        print(f"      args_list = {args_list}")
-                        num_mv_calls += 1
-                        print(f"=====>>>>> num_mv_calls = {num_mv_calls}")
-                        print(f"      CALLING MetViewer plotting script...")
-                        plot_vx_metviewer(args_list)
-                        print(f"      DONE CALLING MetViewer plotting script...")
 
-    print(f"")
-    print(f"num_mv_calls = {num_mv_calls}")
+                        logging.debug(f"""\nArgument list passed to plotting script is:\nargs_list =\n{get_pprint_str(args_list, '  ')}\n""")
+
+                        num_mv_calls += 1
+                        logging.debug(dedent(f"""
+                            Calling MetViewer plotting script ...
+                              num_mv_calls = {num_mv_calls}
+                            """))
+                        plot_vx_metviewer(args_list)
+                        logging.debug(dedent(f"""
+                            Done calling MetViewer plotting script.
+                            """))
+
+    logging.info(dedent(f"""
+        Total number of calls to MetViewer plotting script:
+          num_mv_calls = {num_mv_calls}
+        """))
 #
 # -----------------------------------------------------------------------
 #
@@ -146,6 +156,12 @@ if __name__ == "__main__":
                         type=str,
                         required=False, default='config_mv_plots.default.yml',
                         help='Name of yaml user configuration file for MetViewer plot generation')
+
+    parser.add_argument('--log_fp',
+                        type=str,
+                        required=False, default='',
+                        help=dedent(f'''Name of or path (absolute or relative) to log file.  If 
+                                        not specified, the output goes to screen.'''))
 
     parser.add_argument('--include_stats', nargs='+',
                         type=str.lower,

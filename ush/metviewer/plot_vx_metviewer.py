@@ -69,6 +69,26 @@ from templater import (
 # wind        10m, 700mb        ge5mps (AUC,BRIER,RELY), ge10mps (AUC,BRIER,RELY)
 #
 
+def get_pprint_str(x, indent_str):
+    """Format a variable as a pretty-printed string and add indentation.
+
+    Arguments:
+      x:           A variable.
+      indent_str:  String to be added to the beginning of each line of the
+                   pretty-printed form of x.
+
+    Return:
+      x_str:       Formatted string containing contents of variable.
+    """
+
+    x_str = pprint.pformat(x, compact=True)
+    x_str = x_str.splitlines(True)
+    x_str = [indent_str + s for s in x_str]
+    x_str = ''.join(x_str)
+
+    return x_str
+
+
 def get_static_info(static_info_config_fp):
     '''
     Function to read in values that are mostly static, i.e. they're usually
@@ -285,12 +305,10 @@ def parse_args(argv, static_info):
 
     cla = parser.parse_args(argv)
 
-    cla_str = pprint.pformat(vars(cla))
-    cla_str = '\n                '.join(cla_str.splitlines())
-    logging.info(dedent(f"""
-        List of arguments passed to script:
-          cla = {cla_str}
-        """))
+    # Empty strings are included in this concatenation to force insertion
+    # of delimiter.
+    logging.debug('\n'.join(['', 'List of arguments passed to script:',
+                             'cla = ', get_pprint_str(vars(cla), '  '), '']))
 
     return cla
 
@@ -481,9 +499,7 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
     loa = re.findall(r'(\d*\.*\d+)([A-Za-z]+)', cla.level_or_accum)
 
     if loa:
-        logging.info(dedent(f"""
-            Parsing specified level or accumulation...
-            """))
+        # Parse specified level/threshold to obtain its value and units.
         loa_value, loa_units = list(loa[0])
     else:
         loa_value = ''
@@ -513,9 +529,9 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
     elif loa_units == 'mb':
         width_0pad = 3
     elif (loa_units == '' and cla.level_or_accum == 'L0'):
-        logging.info(dedent(f"""
-            Since the specified level/accumulation is {cla.level_or_accum}, setting loa_units
-            to an empty string:
+        logging.debug(dedent(f"""
+            Since the specified level/accumulation is "{cla.level_or_accum}", we set loa_units to an empty
+            string:
               cla.level_or_accum = {cla.level_or_accum}
               loa_units = {loa_units}
             Related variables:
@@ -525,7 +541,7 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
 
     loa_value_0pad = loa_value_no0pad.zfill(width_0pad)
     logging.info(dedent(f"""
-        Level or accumulation parameters are set as follows:
+        Level/accumulation parameters have been set as follows:
           loa_value = {loa_value}
           loa_value_no0pad = {loa_value_no0pad}
           loa_value_0pad = {loa_value_0pad}
@@ -536,10 +552,12 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
         no_thresh_stats = [key for key,val in stat_need_thresh.items() if val]
         no_thresh_stats_fmt_str = ",\n".join("              {!r}: {!r}".format(k, v)
                                              for k, v in stat_long_names.items() if k in no_thresh_stats).lstrip()
-        logging.info(dedent(f"""
-            A threshold is not needed when working with one of the following verification stats:
+        logging.debug(dedent(f"""
+            A threshold is not needed when working with one of the following verification
+            stats:
               {no_thresh_stats_fmt_str}
-            Thus, the threshold specified in the argument list ("{cla.threshold}") will be reset to an empty string.
+            Thus, the threshold specified in the argument list ("{cla.threshold}") will be reset to
+            an empty string.
             """))
         cla.threshold = ''
 
@@ -547,7 +565,8 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
         valid_thresholds = valid_threshs_by_fcst_var[cla.fcst_var]
         if cla.threshold not in valid_thresholds:
             err_msg = dedent(f"""
-                The specified threshold is not compatible with the specified forecast variable:
+                The specified threshold is not compatible with the specified forecast
+                variable:
                   fcst_var = {cla.fcst_var}
                   threshold = {cla.threshold}
                 Valid options for threshold for this forecast variable are:
@@ -558,9 +577,7 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
 
     thresh = re.findall(r'([A-Za-z]+)(\d*\.*\d+)([A-Za-z]+)', cla.threshold)
     if thresh:
-        logging.info(dedent(f"""
-            Parsing specified threshold to obtain comparison operator, value, and units...
-            """))
+        # Parse specified threshold to obtain comparison operator, value, and units.
         thresh_comp_oper, thresh_value, thresh_units = list(thresh[0])
 
         if thresh_comp_oper[0] == 'l': 
@@ -580,7 +597,7 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
         thresh_in_plot_title = ''
 
     logging.info(dedent(f"""
-        Threshold parameters are set as follows:
+        Threshold parameters have been set as follows:
           thresh_comp_oper = {thresh_comp_oper}
           thresh_value = {thresh_value}
           thresh_units = {thresh_units}
@@ -599,7 +616,7 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
     models_str = '_'.join(cla.model_names_short)
     job_title = '_'.join([cla.vx_stat, var_lvl_thresh_str, models_str])
 
-    logging.info(dedent(f"""
+    logging.debug(dedent(f"""
         Various auxiliary string values:
           plot_title = {plot_title}
           var_lvl_str = {var_lvl_str}
@@ -678,7 +695,7 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
     elif cla.level_or_accum in ['500mb','700mb','850mb']:
         obs_type = 'ADPUPA'
 
-    logging.info(dedent(f"""
+    logging.debug(dedent(f"""
         Subset of strings passed to jinja template:
           fcst_var_uc = {fcst_var_uc}
           fcst_var_name_in_db = {fcst_var_name_in_db}
@@ -718,12 +735,10 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
                   "line_types": line_types,
                   "line_widths": line_widths}
 
-    jinja_vars_str = pprint.pformat(jinja_vars, compact=True)
-    jinja_vars_str = '\n          '.join(jinja_vars_str.splitlines())
-    logging.info(dedent(f"""
-        Jinja variables (jinja_vars) passed to template:
-          {jinja_vars_str}
-        """))
+    # Empty strings are included in this concatenation to force insertion
+    # of delimiter.
+    logging.debug('\n'.join(['', 'Jinja variables passed to template file:',
+                             'jinja_vars = ', get_pprint_str(jinja_vars, '  '), '']))
 
     templates_dir = os.path.join(home_dir, 'parm', 'metviewer')
     template_fn = "".join([cla.vx_stat, '.xml'])
@@ -745,8 +760,6 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
     # Place xmls generated below in the same directory as the plots that 
     # MetViewer will generate from the xmls.
     output_xml_dir = Path(os.path.join(cla.mv_output_dir, 'plots')).resolve()
-    print(f"cla.mv_output_dir = {cla.mv_output_dir}")
-    print(f"output_xml_dir = {output_xml_dir}")
     if not os.path.exists(output_xml_dir):
         os.makedirs(output_xml_dir)
     output_xml_fn = '_'.join(filter(None,
@@ -772,6 +785,9 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
                  '--config_file', tmp_fn,
                  '--input_template', template_fp,
                  '--outfile', output_xml_fp]
+    logging.info(dedent(f"""
+        Generating xml from jinja2 template ...
+        """))
     set_template(args_list)
     os.remove(tmp_fn)
 
@@ -786,41 +802,55 @@ def run_mv_batch(mv_batch, output_xml_fp):
         output_xml_fp:  Full path to the xml to pass to the batch script.
 
     Returns:
-        None
+        result:         Instance of class subprocess.CompletedProcess containing
+                        result of call to MetViewer batch script.
     """
 
+    # Generate full path to log file that will contain output from calling the
+    # MetViewer batch script.
+    p = Path(output_xml_fp)
+    log_fp = ''.join([os.path.join(p.parent, p.stem), '.log'])
+
     # Run MetViewer in batch mode on the xml.
-    subprocess.run([mv_batch, output_xml_fp])
+    logging.info(dedent(f"""
+        Log file for call to MetViewer batch script is:
+          log_fp = {log_fp}
+        """))
+    with open(log_fp, "w") as outfile:
+        result = subprocess.run([mv_batch, output_xml_fp], stdout=outfile, stderr=outfile)
+        logging.debug('\n'.join(['', 'Result of call to MetViewer batch script:',
+                                 'result = ', get_pprint_str(vars(result), '  '), '']))
 
 
 def plot_vx_metviewer(argv):
 
     # Set the logging level.
-    logging.basicConfig(level=logging.INFO)
+    #logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
 
     # Get static parameters.  These include parameters (e.g. valid values) 
     # needed to parse the command line arguments.
     static_info_config_fp = 'vx_plots_static_info.yml'
     logging.info(dedent(f"""
-        Obtaining static verification info from file {static_info_config_fp}...
+        Obtaining static verification info from file {static_info_config_fp} ...
         """))
     static_info = get_static_info(static_info_config_fp)
 
     # Parse arguments.
     logging.info(dedent(f"""
-        Processing command line arguments...
+        Processing command line arguments ...
         """))
     cla = parse_args(argv, static_info)
 
     # Get MetViewer database information.
     logging.info(dedent(f"""
-        Obtaining MetViewer database info from file {cla.mv_database_config}...
+        Obtaining MetViewer database info from file {cla.mv_database_config} ...
         """))
     mv_database_info = get_database_info(cla.mv_database_config)
 
     # Generate a MetViewer xml.
     logging.info(dedent(f"""
-        Generating a MetViewer xml...
+        Generating a MetViewer xml ...
         """))
     mv_batch, output_xml_fp = generate_metviewer_xml(cla, static_info, mv_database_info)
 
