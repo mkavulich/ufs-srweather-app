@@ -42,9 +42,9 @@ def make_mv_vx_plots(args):
     log_level = str.upper(args.log_level)
     FORMAT = "[%(levelname)s:%(name)s:  %(filename)s, line %(lineno)s: %(funcName)s()] %(message)s"
     if args.log_fp:
-      logging.basicConfig(level=log_level, format=FORMAT, filename=args.log_fp, filemode='w')
+        logging.basicConfig(level=log_level, format=FORMAT, filename=args.log_fp, filemode='w')
     else:
-      logging.basicConfig(level=log_level, format=FORMAT)
+        logging.basicConfig(level=log_level, format=FORMAT)
 
     config_fp = args.config_fp
     config_dict = load_config_file(config_fp)

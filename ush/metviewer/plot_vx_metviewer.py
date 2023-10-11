@@ -303,6 +303,7 @@ def parse_args(argv, static_info):
                         choices=choices['threshold'],
                         help='Threshold for specified forecast variable')
 
+    # Parse the arguments.
     cla = parser.parse_args(argv)
 
     # Empty strings are included in this concatenation to force insertion
@@ -809,24 +810,72 @@ def run_mv_batch(mv_batch, output_xml_fp):
     # Generate full path to log file that will contain output from calling the
     # MetViewer batch script.
     p = Path(output_xml_fp)
-    log_fp = ''.join([os.path.join(p.parent, p.stem), '.log'])
+    mv_batch_log_fp = ''.join([os.path.join(p.parent, p.stem), '.log'])
 
     # Run MetViewer in batch mode on the xml.
     logging.info(dedent(f"""
         Log file for call to MetViewer batch script is:
-          log_fp = {log_fp}
+          mv_batch_log_fp = {mv_batch_log_fp}
         """))
-    with open(log_fp, "w") as outfile:
+    with open(mv_batch_log_fp, "w") as outfile:
         result = subprocess.run([mv_batch, output_xml_fp], stdout=outfile, stderr=outfile)
         logging.debug('\n'.join(['', 'Result of call to MetViewer batch script:',
                                  'result = ', get_pprint_str(vars(result), '  '), '']))
 
 
 def plot_vx_metviewer(argv):
+    #
+    # Create a logger if necessary.
+    #
+    # When a logger has not yet been created (e.g. by another script that calls
+    # this one) and one gets the 'root' logger using
+    #
+    #  logger = logging.getLogger()
+    #
+    # then this logger will have no handlers yet.  Therefore, a script can check
+    # whether the logger above results in a logger that has handlers by using
+    #
+    #  logging.getLogger().hasHandlers()
+    #
+    # Then the script can create a logger only if the root logger does not have
+    # handlers; otherwise, it will use the existing logger (which has handlers).
+    #
+    if not logging.getLogger().hasHandlers():
+        #
+        # Here, we hard-code the logger's debugging level and format.
+        #
+        # It is possible to make these (as well as whether to write the logging output
+        # to a file) user-specifiable, but it will complicate the code because it
+        # requires the arguments to be parsed before this point in the code, which they
+        # currently are not (and we want to avoid refactoring the code).  Therefore,
+        # currently the way to change the logging level is to call this function
+        # from the wrapper (make_mv_vx_plots.py), which does have arguments for
+        # specifying the logging level and destination (e.g. screen vs. a log file),
+        # in which case the "else" part of this if-statement is exectuted instead.
+        #
+        # Note that logging.basicConfig always retruns None.  It (from the "logging"
+        # module's documentation):
+        #
+        # * Does basic configuration for the logging system by creating a StreamHandler
+        #   with a default Formatter and adding it to the root logger. 
+        # * Does nothing if the root logger already has handlers configured, unless
+        #   the keyword argument "force" is set to True.
+        #
+        log_level = 'INFO'
+        FORMAT = "[%(levelname)s:%(name)s:  %(filename)s, line %(lineno)s: %(funcName)s()] %(message)s"
+        logging.basicConfig(level=log_level, format=FORMAT)
+        logging.info(dedent(f"""
+            Root logger has been set up with logging level {log_level}.
+            """))
+    else:
+        logging.info(dedent(f"""
+            Using existing logger.
+            """))
 
-    # Set the logging level.
-    #logging.basicConfig(level=logging.INFO)
-    logging.basicConfig(level=logging.DEBUG)
+    # Print out logger details.
+    logger = logging.getLogger()
+    logging.info('\n'.join(['', 'Logger details:',
+                            'logger = ', get_pprint_str(vars(logger), '  '), '']))
 
     # Get static parameters.  These include parameters (e.g. valid values) 
     # needed to parse the command line arguments.
