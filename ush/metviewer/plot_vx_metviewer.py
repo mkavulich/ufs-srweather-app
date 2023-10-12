@@ -224,15 +224,15 @@ def parse_args(argv, static_info):
 
     parser.add_argument('--mv_host',
                         type=str,
-                        required=False, default='mohawk', 
+                        required=True,
                         help='Host (name of machine) on which MetViewer is installed')
 
-    parser.add_argument('--mv_machine_config',
+    parser.add_argument('--mv_machine_config_fp',
                         type=str,
                         required=False, default='mv_machine_config.yml', 
                         help='MetViewer machine (host) configuration file')
 
-    parser.add_argument('--mv_database_config',
+    parser.add_argument('--mv_database_config_fp',
                         type=str,
                         required=False, default='mv_database_config.yml',
                         help='MetViewer database configuration file')
@@ -337,7 +337,7 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
 
     # Load the machine configuration file into a dictionary and find in it the
     # machine specified on the command line.
-    mv_machine_config_fp = Path(os.path.join(cla.mv_machine_config)).resolve()
+    mv_machine_config_fp = Path(os.path.join(cla.mv_machine_config_fp)).resolve()
     mv_machine_config = load_config_file(mv_machine_config_fp)
 
     all_hosts = sorted(list(mv_machine_config.keys()))
@@ -362,9 +362,9 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
         err_msg = dedent(f"""
             The database specified on the command line (cla.mv_database_name) is not
             in the set of MetViewer databases specified in the database configuration
-            file (cla.mv_database_config):
+            file (cla.mv_database_config_fp):
               cla.mv_database_name = {cla.mv_database_name}
-              cla.mv_database_config = {cla.mv_database_config}
+              cla.mv_database_config_fp = {cla.mv_database_config_fp}
             """)
         logging.error(err_msg, stack_info=True)
         raise Exception(err_msg)
@@ -381,8 +381,8 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
             err_msg = dedent(f"""
                 A model specified on the command line (model_name_short) is not included
                 in the entry for the specified database (cla.mv_database_name) in the 
-                MetViewer database configuration file (cla.mv_database_config)
-                  cla.mv_database_config = {cla.mv_database_config}
+                MetViewer database configuration file (cla.mv_database_config_fp)
+                  cla.mv_database_config_fp = {cla.mv_database_config_fp}
                   cla.mv_database_name = {cla.mv_database_name}
                   model_name_short = {model_name_short}
                 Models that are included in the database configuration file are:
@@ -893,9 +893,9 @@ def plot_vx_metviewer(argv):
 
     # Get MetViewer database information.
     logging.info(dedent(f"""
-        Obtaining MetViewer database info from file {cla.mv_database_config} ...
+        Obtaining MetViewer database info from file {cla.mv_database_config_fp} ...
         """))
-    mv_database_info = get_database_info(cla.mv_database_config)
+    mv_database_info = get_database_info(cla.mv_database_config_fp)
 
     # Generate a MetViewer xml.
     logging.info(dedent(f"""

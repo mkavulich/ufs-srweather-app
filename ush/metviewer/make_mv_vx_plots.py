@@ -49,18 +49,19 @@ def make_mv_vx_plots(args):
     config_fp = args.config_fp
     config_dict = load_config_file(config_fp)
     logging.info(dedent(f"""
-        Reading in configuration file {config_fp} ...
+        Reading in plot configuration file: {config_fp}
         """))
+
+    mv_host = config_dict['mv_host']
+    mv_database_name = config_dict['mv_database_name']
+    model_names = config_dict['model_names']
 
     fcst_init_info = config_dict['fcst_init_info']
     fcst_init_info = map(str, list(fcst_init_info.values()))
     # fcst_init_info is a list containing both strings and integers.  For use below,
     # convert it to a list of strings only.
     fcst_init_info = [str(elem) for elem in fcst_init_info]
-
     fcst_len_hrs = str(config_dict['fcst_len_hrs'])
-    mv_database_name = config_dict['mv_database_name']
-    model_names = config_dict['model_names']
 
     # Keep track of the number of times the script that generates a 
     # MetViewer xml and calls MetViewer is called.  This can then be
@@ -104,7 +105,8 @@ def make_mv_vx_plots(args):
                             and threshold "{thresh}" (threshold may be empty for certain stats) ...
                             """))
 
-                        args_list = ['--mv_database_name', mv_database_name, \
+                        args_list = ['--mv_host', mv_host, \
+                                     '--mv_database_name', mv_database_name, \
                                      '--model_names', ] + model_names \
                                   + ['--vx_stat', stat,
                                      '--fcst_init_info'] + fcst_init_info \
@@ -175,7 +177,7 @@ if __name__ == "__main__":
                         type=str,
                         required=False, default='info',
                         choices=choices_log_level,
-                        help=dedent(f'''Logging level to use with the logging" module.'''))
+                        help=dedent(f'''Logging level to use with the "logging" module.'''))
 
     parser.add_argument('--include_stats', nargs='+',
                         type=str.lower,

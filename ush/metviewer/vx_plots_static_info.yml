@@ -1,7 +1,12 @@
 #
-# Not sure if this mapping can change from one database to another or
-# if the values are standard in MetViewer.  If the former, then this
-# should be moved to the database configuration yaml file.
+# Dictionary containing set of allowed levels (the keys) that can be
+# specified on the command line along with the corresponding string 
+# used to identify that level in MetViewer and/or the database that 
+# it loads (the value).
+#
+# It is unclear whether this mapping can change from one database to
+# another or if the values are standard in MetViewer.  If the former,
+# then this should be moved to the database configuration yaml file.
 #
 levels_to_levels_in_db: {'03h': 'A3',
                          '06h': 'A6',
@@ -13,9 +18,14 @@ levels_to_levels_in_db: {'03h': 'A3',
                          '700mb': 'P700',
                          '850mb': 'P850'}
 #
-# Not sure if this mapping can change from one database to another or
-# if the values are standard in MetViewer.  If the former, then this
-# should be moved to the database configuration yaml file.
+# Dictionary containing set of allowed thresholds (the keys) that can
+# be specified on the command line along with the corresponding string 
+# used to identify that level in MetViewer and/or the database that 
+# it loads (the value).
+#
+# It is unclear whether this mapping can change from one database to
+# another or if the values are standard in MetViewer.  If the former,
+# then this should be moved to the database configuration yaml file.
 #
 threshs_to_threshs_in_db: {'': '',
                            'gt0.0mm': '&gt;0.0',
@@ -34,7 +44,10 @@ threshs_to_threshs_in_db: {'': '',
                            'ge303K': '&gt;=303',
                            'ge5mps': '&gt;=5',
                            'ge10mps': '&gt;=10'}
- 
+#
+# List of allowed forecast variable short names, the long name of each,
+# list of valid levels for each, and list of thresholds for each. 
+#
 fcst_vars:
     apcp:
         long_name: 'Accumulated Precipitation'
@@ -64,7 +77,11 @@ fcst_vars:
         long_name: 'Wind'
         valid_levels: ['10m', '500mb', '700mb', '850mb']
         valid_thresholds: ['ge5mps', 'ge10mps']
-
+#
+# List of allowed verification statistic/metric short names, the long name
+# of each, and whether each requires a threshold value for a given forecast
+# variable.
+#
 stats:
     auc:
         long_name: 'Area Under the Curve'
@@ -87,7 +104,11 @@ stats:
     ss:
         long_name: 'Spread-Skill Ratio'
         need_thresh: False
-
+#
+# Hex codes for colors MetViewer can use for the models.  The first code is
+# for the standard version of the color while the second is for a light 
+# counterpart of the color that is handy to have for certain plot types.
+#
 avail_mv_colors_codes:
     red:
         hex_code: '#ff0000'

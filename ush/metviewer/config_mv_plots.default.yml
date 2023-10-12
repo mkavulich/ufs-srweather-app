@@ -1,13 +1,15 @@
-fcst_init_info:
-    fcst_init_time_first: '2022050100'
-    num_fcsts: 6
-    fcst_init_intvl: 24
-
-fcst_len_hrs: 36
+mv_host: 'mohawk'
 
 mv_database_name: 'mv_gefs_gdas_rtps_href_spring_2022'
 
 model_names: ['href', 'gdas', 'gefs']
+
+fcst_init_info:
+    fcst_init_time_first: '2022050100'
+    num_fcsts: 6
+    fcst_init_intvl_hrs: 24
+
+fcst_len_hrs: 36
 
 vx_stats:
     #
