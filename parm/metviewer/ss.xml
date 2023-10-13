@@ -443,11 +443,11 @@ on one line in the XML.
   {%- if iquant > 1 -%} {{indent}} {%- endif -%}
   {%- set quant = quantities_to_plot[iquant-1] -%}
   {%- for imdl in range(1, num_models_to_plot) -%}
-    {%- set model = model_names_short_uc[imdl-1] -%}
+    {%- set model = model_names_short[imdl-1] -%}
     "{{model}} {{quant}}",
   {%- endfor -%}
   {%- set imdl = num_models_to_plot -%}
-  {%- set model = model_names_short_uc[imdl-1] -%}
+  {%- set model = model_names_short[imdl-1] -%}
   "{{model}} {{quant}}"
   {%- if iquant != num_quantities_per_model -%} , {%- endif -%}
 {%- endfor -%})</legend>

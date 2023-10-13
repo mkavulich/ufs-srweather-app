@@ -414,14 +414,11 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
             logging.error(err_msg, stack_info=True)
             raise Exception(err_msg)
 
-    # Get the model names in the database as well as the model short names.
-    model_names_short_uc = [m.upper() for m in cla.model_names_short]
-
     # Make sure no model names are duplicated because MetViewer will throw an 
     # error in this case.  Create a set (using curly braces) to store duplicate
     # values.  Note that a set must be used here so that duplicate values are
     # not duplicated!
-    duplicates = {m for m in model_names_short_uc if model_names_short_uc.count(m) > 1}
+    duplicates = {m for m in cla.model_names_short if cla.model_names_short.count(m) > 1}
     if len(duplicates) > 0:
         err_msg = dedent(f"""
             A model can appear only once in the set of models to plot specified on
@@ -506,13 +503,13 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
         loa_value = ''
         loa_units = ''
 
-    valid_thresh_units = ['', 'h', 'm', 'mb']
-    if loa_units not in valid_thresh_units:
+    valid_loa_units = ['', 'h', 'm', 'mb']
+    if loa_units not in valid_loa_units:
         err_msg = dedent(f"""
             Unknown units (loa_units) for level or accumulation:
               loa_units = {loa_units}
             Valid units are:
-              valid_thresh_units = {valid_thresh_units}
+              valid_loa_units = {valid_loa_units}
             Related variables:
               cla.level_or_accum = {cla.level_or_accum}
               loa_value = {loa_value}
@@ -589,7 +586,10 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
         if thresh_comp_oper[1] == 'e': 
             thresh_comp_oper_xml = "".join([thresh_comp_oper_xml, '='])
 
-        thresh_in_plot_title = " ".join([thresh_comp_oper_xml, thresh_value, thresh_units])
+        # For use only in the plot title, if 'mps' (meters per second) appears in
+        # the threshold units, replace with 'm/s'.
+        thresh_in_plot_title = thresh_units.replace('mps', 'm/s')
+        thresh_in_plot_title = " ".join([thresh_comp_oper_xml, thresh_value, thresh_in_plot_title])
 
     else:
         thresh_comp_oper = ''
@@ -605,9 +605,9 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
           thresh_in_plot_title = {thresh_in_plot_title}
         """))
 
-    plot_title = " ".join(filter(None,
+    plot_title = ' '.join(filter(None,
                           [stat_long_names[cla.vx_stat], 'for',
-                           loa_value, loa_units, fcst_var_long_names[cla.fcst_var],
+                           ''.join([loa_value, loa_units]), fcst_var_long_names[cla.fcst_var],
                            thresh_in_plot_title]))
     fcst_var_uc = cla.fcst_var.upper()
     var_lvl_str = ''.join(filter(None, [fcst_var_uc, loa_value, loa_units]))
@@ -713,7 +713,7 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
                   "num_models_to_plot": num_models_to_plot,
                   "num_ens_mems_by_model": num_ens_mems_by_model,
                   "model_names_in_db": model_names_in_db,
-                  "model_names_short_uc": model_names_short_uc,
+                  "model_names_short": cla.model_names_short,
                   "model_color_codes": model_color_codes,
                   "model_color_codes_light": model_color_codes_light,
                   "fcst_var_uc": fcst_var_uc,

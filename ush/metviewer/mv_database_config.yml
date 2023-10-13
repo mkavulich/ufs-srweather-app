@@ -11,3 +11,11 @@ mv_gefs_gdas_rtps_href_spring_2022:
     RTPS:
         short_name: 'rtps'
         num_ens_mems: 10
+
+mv_rrfse_icpert_stoch:
+    RRFSE_CONUS_ICperts_nostoch.rrfs_conuscompact_3km:
+        short_name: 'nostoch'
+        num_ens_mems: 10
+    RRFSE_CONUS_ICperts_stoch.rrfs_conuscompact_3km:
+        short_name: 'stoch'
+        num_ens_mems: 10

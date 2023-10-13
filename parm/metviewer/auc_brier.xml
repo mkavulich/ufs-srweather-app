@@ -250,10 +250,10 @@
         <!-- These appear in the MetViewer GUI under the column "Legend Text".
              They specify the text that appears in the legend for each series. -->
         <legend>c(
-{%- set model = model_names_short_uc[0] -%}
+{%- set model = model_names_short[0] -%}
 "{{model}}"
 {%- for imdl in range(2, num_models_to_plot+1) -%}
-  {%- set model = model_names_short_uc[imdl-1] -%}
+  {%- set model = model_names_short[imdl-1] -%}
   ,"{{model}}"
 {%- endfor -%})</legend>
         <create_html>TRUE</create_html>
