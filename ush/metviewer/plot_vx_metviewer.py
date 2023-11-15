@@ -486,7 +486,7 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
                 #make a deep copy so we don't override original command-line arguments
                 clanew = copy.deepcopy(cla)
                 clanew.level_or_accum = level_or_accum
-                print(f"calling generate_metviewer_xml with {clanew.level_or_accum=}")
+                logging.debug(f"calling generate_metviewer_xml with {clanew.level_or_accum=}")
                 _,output_xml = generate_metviewer_xml(clanew, static_info, mv_database_info)
                 output_xmls.extend(output_xml)
             return(mv_machine_config_dict['mv_batch'],output_xmls)
@@ -580,7 +580,7 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
                 #make a deep copy so we don't override original command-line arguments
                 clanew = copy.deepcopy(cla)
                 clanew.threshold = threshold 
-                print(f"calling generate_metviewer_xml with {clanew.threshold=}")
+                logging.debug(f"calling generate_metviewer_xml with {clanew.threshold=}")
                 _,output_xml = generate_metviewer_xml(clanew, static_info, mv_database_info)
                 output_xmls.extend(output_xml)
             return(mv_machine_config_dict['mv_batch'],output_xmls)
