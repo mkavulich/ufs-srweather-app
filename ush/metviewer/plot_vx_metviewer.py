@@ -325,7 +325,8 @@ def generate_metviewer_xml(cla, static_info, mv_database_info):
         argv:  Command-line arguments
 
     Returns:
-        None
+        string: Path to MetViewer batch plotting script
+        list:   List of strings indicating paths to XMLs for MetViewer batch plotting
     """
 
     static_info_config_fp = static_info['static_info_config_fp']
@@ -929,7 +930,6 @@ def plot_vx_metviewer(argv):
     mv_batch, output_xml_fp = generate_metviewer_xml(cla, static_info, mv_database_info)
 
     # Run MetViewer on the xml(s) to create verification plot(s).
-    # If output_xml_fp is a string, we only have one plot to make. If a list, we have multiple
 
     for output_xml in output_xml_fp:
         logging.info(dedent(f"""
