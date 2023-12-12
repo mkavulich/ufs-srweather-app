@@ -174,11 +174,6 @@ def generate_FV3LAM_wflow(
     export_vars(source_dict=flatten_dict(expt_config))
 
     # pylint: disable=undefined-variable
-    if USE_CRON_TO_RELAUNCH:
-        add_crontab_line(called_from_cron=False,machine=expt_config["user"]["MACHINE"],
-                         crontab_line=expt_config["workflow"]["CRONTAB_LINE"],
-                         exptdir=exptdir,debug=debug)
-
     #
     # Copy or symlink fix files
     #
@@ -672,26 +667,37 @@ def generate_FV3LAM_wflow(
     #
     cp_vrfy(os.path.join(ushdir, EXPT_CONFIG_FN), EXPTDIR)
 
+    # If option selected, add automatic launch command to crontab
+    if USE_CRON_TO_RELAUNCH:
+        cronline = add_crontab_line(called_from_cron=False,machine=expt_config["user"]["MACHINE"],
+                                    crontab_line=expt_config["workflow"]["CRONTAB_LINE"],
+                                    exptdir=exptdir,debug=debug)
     #
     # -----------------------------------------------------------------------
     #
-    # For convenience, print out the commands that need to be issued on the
-    # command line in order to launch the workflow and to check its status.
-    # Also, print out the line that should be placed in the user's cron table
-    # in order for the workflow to be continually resubmitted.
+    # Finally, print out some helpful commands for launching and monitoring
+    # the workflow based on the user's selected options.
     #
     # -----------------------------------------------------------------------
     #
+
     if WORKFLOW_MANAGER == "rocoto":
         wflow_db_fn = f"{os.path.splitext(WFLOW_XML_FN)[0]}.db"
         rocotorun_cmd = f"rocotorun -w {WFLOW_XML_FN} -d {wflow_db_fn} -v 10"
         rocotostat_cmd = f"rocotostat -w {WFLOW_XML_FN} -d {wflow_db_fn} -v 10"
 
         # pylint: disable=line-too-long
-        log_info(
-            f"""
-            To launch the workflow, change location to the experiment directory
-            (EXPTDIR) and issue the rocotrun command, as follows:
+        if USE_CRON_TO_RELAUNCH:
+            log_info(
+                f"""
+            The following line has can be added to the user's crontab, which will automatically
+            launch the workflow every {CRON_RELAUNCH_INTVL_MNTS} minutes. Use 'crontab -e' to
+            edit the cron table:
+
+              {cronline}
+
+            To advance the workflow manually, change location to the experiment directory
+            (EXPTDIR) and issue the rocotorun command, as follows:
 
               > cd {EXPTDIR}
               > {rocotorun_cmd}
@@ -701,23 +707,35 @@ def generate_FV3LAM_wflow(
 
               > {rocotostat_cmd}
 
-            Note that:
+            Note that the rocotostat command only displays the status of the workflow
+            since the last execution of the rocotorun command. See the Users Guide
+            for more information.
+                """)
+        else:
+            log_info(
+                f"""
+            To launch the workflow, change location to the experiment directory
+            (EXPTDIR) and issue the rocotorun command, as follows:
 
-            1) The rocotorun command must be issued after the completion of each
-               task in the workflow in order for the workflow to submit the next
-               task(s) to the queue.
+              > cd {EXPTDIR}
+              > {rocotorun_cmd}
 
-            2) In order for the output of the rocotostat command to be up-to-date,
-               the rocotorun command must be issued immediately before issuing the
-               rocotostat command.
+            To check on the status of the workflow, issue the rocotostat command
+            (also from the experiment directory):
+
+              > {rocotostat_cmd}
+
+            Note that the rocotostat command only displays the status of the workflow
+            since the last execution of the rocotorun command. See the Users Guide
+            for more information.
+
 
             For automatic resubmission of the workflow (say every {CRON_RELAUNCH_INTVL_MNTS} minutes), the
             following line can be added to the user's crontab (use 'crontab -e' to
             edit the cron table):
 
             */{CRON_RELAUNCH_INTVL_MNTS} * * * * cd {EXPTDIR} && ./launch_FV3LAM_wflow.sh called_from_cron="TRUE"
-            """
-        )
+                """)
         # pylint: enable=line-too-long
 
     # If we got to this point everything was successful: move the log

@@ -70,7 +70,8 @@ def get_crontab_contents(called_from_cron, machine, debug):
 
 
 def add_crontab_line(called_from_cron, machine, crontab_line, exptdir, debug):
-    """Add crontab line to cron table"""
+    """Add crontab line to cron table, and return as string. If nothing is
+    added to crontab, the string that would have been added is still returned."""
 
     #
     # Make a backup copy of the user's crontab file and save it in a file.
@@ -115,6 +116,7 @@ def add_crontab_line(called_from_cron, machine, crontab_line, exptdir, debug):
             added:
               crontab_line = '{crontab_line}'"""
         )
+
     else:
         log_info(
             f"""
@@ -134,6 +136,7 @@ def add_crontab_line(called_from_cron, machine, crontab_line, exptdir, debug):
             f"""printf "%s%b%s\n" '{crontab_contents}' '{newline_char}' '{crontab_line}' | {crontab_cmd}"""
         )
 
+    return crontab_line
 
 def delete_crontab_line(called_from_cron, machine, crontab_line, debug):
     """Delete crontab line after job is complete i.e. either SUCCESS/FAILURE
