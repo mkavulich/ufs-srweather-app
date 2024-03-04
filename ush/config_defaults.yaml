@@ -866,7 +866,7 @@ workflow:
   #
   #-----------------------------------------------------------------------
   #
-  FIELD_DICT_FN: "fd_nems.yaml"
+  FIELD_DICT_FN: "fd_ufs.yaml"
   FIELD_DICT_IN_UWM_FP: '{{ [user.UFS_WTHR_MDL_DIR, "tests", "parm", FIELD_DICT_FN]|path_join }}'
   FIELD_DICT_FP: '{{ [workflow.EXPTDIR, FIELD_DICT_FN]|path_join }}'
   #
