@@ -259,11 +259,6 @@ def generate_FV3LAM_wflow(
     )
     cp_vrfy(FIELD_TABLE_TMPL_FP, FIELD_TABLE_FP)
 
-    #
-    # Copy the CCPP physics suite definition file from its location in the
-    # clone of the FV3 code repository to the experiment directory (EXPT-
-    # DIR).
-    #
     log_info(
         """
         Copying the CCPP physics suite definition XML file from its location in
@@ -271,11 +266,7 @@ def generate_FV3LAM_wflow(
         verbose=debug,
     )
     cp_vrfy(CCPP_PHYS_SUITE_IN_CCPP_FP, CCPP_PHYS_SUITE_FP)
-    #
-    # Copy the field dictionary file from its location in the
-    # clone of the FV3 code repository to the experiment directory (EXPT-
-    # DIR).
-    #
+
     log_info(
         """
         Copying the field dictionary file from its location in the
