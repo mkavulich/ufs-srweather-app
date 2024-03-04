@@ -2291,7 +2291,7 @@ global:
   #
   # Set default ad-hoc stochastic physics options.
   # For detailed documentation of these parameters, see:
-  # https://stochastic-physics.readthedocs.io/en/ufs_public_release/namelist_options.html
+  # https://stochastic-physics.readthedocs.io/en/latest/namelist_options.html
   #
   #-----------------------------------------------------------------------
   #
