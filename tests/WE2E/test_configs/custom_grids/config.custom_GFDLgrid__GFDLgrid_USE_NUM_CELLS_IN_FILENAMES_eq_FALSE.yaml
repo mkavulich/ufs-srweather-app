@@ -29,9 +29,11 @@ task_make_grid:
   GFDLgrid_USE_NUM_CELLS_IN_FILENAMES: false
 task_get_extrn_ics:
   EXTRN_MDL_NAME_ICS: FV3GFS
+  FV3GFS_FILE_FMT_ICS: nemsio
   USE_USER_STAGED_EXTRN_FILES: true
 task_get_extrn_lbcs:
   EXTRN_MDL_NAME_LBCS: FV3GFS
+  FV3GFS_FILE_FMT_LBCS: nemsio
   LBC_SPEC_INTVL_HRS: 3
   USE_USER_STAGED_EXTRN_FILES: true
 task_run_fcst:
