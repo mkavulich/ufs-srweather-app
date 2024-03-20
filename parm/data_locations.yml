@@ -375,3 +375,37 @@ NOHRSC_obs:
         - "sfav2_CONUS_*h_{yyyy}{mm}{dd}{hh}_grid184.grb2"
     archive_internal_dir:
       - ./wgrbbul/nohrsc_snowfall/
+
+AERONET:
+  hpss:
+    protocol: htar
+    archive_format: tar
+    archive_path:
+      - /NCEPPROD/hpssprod/runhistory/rh{yyyy}/{yyyy}{mm}/{yyyy}{mm}{dd}
+      - /NCEPPROD/hpssprod/runhistory/rh{yyyy}/{yyyy}{mm}/{yyyy}{mm}{dd}
+    archive_file_names:
+      - "dcom_prod_{yyyy}{mm}{dd}.tar"
+      - "dcom_{yyyy}{mm}{dd}.tar"
+    file_names:
+      obs:
+        - "{yyyy}{mm}{dd}.lev15"
+    archive_internal_dir:
+      - ./airnow/
+
+AIRNOW:
+  hpss:
+    protocol: htar
+    archive_format: tar
+    archive_path:
+      - /NCEPPROD/hpssprod/runhistory/rh{yyyy}/{yyyy}{mm}/{yyyy}{mm}{dd}
+      - /NCEPPROD/hpssprod/runhistory/rh{yyyy}/{yyyy}{mm}/{yyyy}{mm}{dd}
+    archive_file_names:
+      - "dcom_prod_{yyyy}{mm}{dd}.tar"
+      - "dcom_{yyyy}{mm}{dd}.tar"
+    file_names:
+      obs:
+        - "HourlyAQObs_{yyyy}{mm}{dd}*.dat"
+        - "Monitoring_Site_Locations_V2.dat"
+    archive_internal_dir:
+      - ./airnow/
+

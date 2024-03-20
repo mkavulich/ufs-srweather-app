@@ -24,11 +24,10 @@ set -x
 #
 # This script performs several important tasks for preparing data for
 # verification tasks. Depending on the value of the environment variable
-# OBTYPE=(CCPA|MRMS|NDAS|NOHRSC), the script will prepare that particular data
+# OBTYPE=(CCPA|MRMS|NDAS|NOHRSC|AERONET|AIRNOW), the script will prepare that particular data
 # set.
 #
-# If data is not available on disk (in the location specified by
-# CCPA_OBS_DIR, MRMS_OBS_DIR, NDAS_OBS_DIR, or NOHRSC_OBS_DIR respectively),
+# If data is not available on disk (in the location specified by [OBTYPE]_OBS_DIR),
 # the script attempts to retrieve the data from HPSS using the retrieve_data.py
 # script. Depending on the data set, there are a few strange quirks and/or
 # bugs in the way data is organized; see in-line comments for details.
@@ -42,6 +41,8 @@ set -x
 #
 # {CCPA_OBS_DIR}/{YYYYMMDD}/ccpa.t{HH}z.01h.hrap.conus.gb2
 #
+# This naming scheme can be changed by the config variable OBS_CCPA_APCP_FN_TEMPLATE
+# 
 # If data is retrieved from HPSS, it will automatically staged by this
 # this script.
 #
@@ -66,8 +67,11 @@ set -x
 # {MRMS_OBS_DIR}/{YYYYMMDD}/[PREFIX]{YYYYMMDD}-{HH}0000.grib2,
 # 
 # Where [PREFIX] is MergedReflectivityQCComposite_00.50_ for reflectivity
-# data and EchoTop_18_00.50_ for echo top data. If data is not available
-# at the top of the hour, you should rename the file closest in time to
+# data and EchoTop_18_00.50_ for echo top data. This naming scheme can be 
+# changed by the config variables OBS_MRMS_REFC_FN_TEMPLATE and
+# OBS_MRMS_RETOP_FN_TEMPLATE, respectively.
+
+# If data is not available at the top of the hour, you should rename the file closest in time to
 # your hour(s) of interest to the above naming format. A script
 # "ush/mrms_pull_topofhour.py" is provided for this purpose. 
 #
@@ -77,12 +81,14 @@ set -x
 #
 # NDAS (NAM Data Assimilation System) conventional observations
 # ----------
-# If data is available on disk, it must be in the following 
+# If data is available on disk, it should be in the following 
 # directory structure and file name conventions expected by verification
 # tasks:
 #
 # {NDAS_OBS_DIR}/{YYYYMMDD}/prepbufr.ndas.{YYYYMMDDHH}
 # 
+# This naming scheme can be changed by the config variable OBS_NDAS_ADPSFCorADPUPA_FN_TEMPLATE
+#
 # Note that data retrieved from HPSS and other sources may be in a
 # different format: nam.t{hh}z.prepbufr.tm{prevhour}.nr, where hh is 
 # either 00, 06, 12, or 18, and prevhour is the number of hours prior to
@@ -93,9 +99,9 @@ set -x
 # this script.
 #
 #
-# NOHRSC  snow accumulation observations
+# NOHRSC snow accumulation observations
 # ----------
-# If data is available on disk, it must be in the following 
+# If data is available on disk, it should be in the following 
 # directory structure and file name conventions expected by verification
 # tasks:
 #
@@ -103,11 +109,42 @@ set -x
 # 
 # where AA is the 2-digit accumulation duration in hours: 06 or 24
 #
+# This naming scheme can be changed by the config variable OBS_NOHRSC_ASNOW_FN_TEMPLATE
+# 
 # METplus is configured to verify snowfall using 06- and 24-h accumulated
 # snowfall from 6- and 12-hourly NOHRSC files, respectively.
 #
 # If data is retrieved from HPSS, it will automatically staged by this
 # this script.
+#
+#
+# AERONET optical depth observations
+# ----------
+# If data is available on disk, it must be in the following 
+# directory structure and file name conventions expected by verification tasks:
+#
+# {AERONET_OBS_DIR}/{YYYYMMDD}/{YYYYMMDD}.lev15
+#
+# If data is retrieved from HPSS, it will automatically staged by this
+# this script.
+#
+#
+# AIRNOW air quality observations
+# ----------
+# If data is available on disk, it must be in the following 
+# directory structure and file name conventions expected by verification tasks:
+#
+# {AIRNOW_OBS_DIR}/{YYYYMMDD}/HourlyAQObs_{YYYYMMDDHH}.dat
+#
+# In addition to the raw observation files, For each day there is an additional
+# required file that stores the locations of all observation stations:
+#
+# {AIRNOW_OBS_DIR}/{YYYYMMDD}/Monitoring_Site_Locations_V2.dat
+#
+# If data is retrieved from HPSS, it will automatically staged by this
+# this script.
+#
+#
 
 #-----------------------------------------------------------------------
 # Create and enter top-level obs directory (so temporary data from HPSS won't collide with other tasks)
@@ -529,9 +566,91 @@ while [[ ${current_fcst} -le ${fcst_length} ]]; do
       mv $nohrsc_proc/${vyyyymmdd}/sfav2_CONUS_6h_${vyyyymmdd}${vhh}_grid184.grb2 ${nohrsc06h_file}
     fi
 
+  # Retrieve AERONET observations
+  elif [[ ${OBTYPE} == "AERONET" ]]; then
+
+    # Reorganized AERONET location (no need for raw data dir)
+    aeronet_proc=${OBS_DIR}
+
+    # Check if file exists on disk; if not, pull it.
+    aeronet_file="$aeronet_proc/${vyyyymmdd}/${vyyyymmdd}.lev15"
+    if [[ -f "${aeronet_file}" ]]; then
+      echo "${OBTYPE} file exists on disk:"
+      echo "${aeronet_file}"
+    else
+      echo "${OBTYPE} file does not exist on disk:"
+      echo "${aeronet_file}"
+      echo "Will attempt to retrieve from remote locations"
+
+
+      # Pull AERONET data from HPSS
+      cmd="
+      python3 -u ${USHdir}/retrieve_data.py \
+        --debug \
+        --file_set obs \
+        --config ${PARMdir}/data_locations.yml \
+        --cycle_date ${vyyyymmdd}${vhh} \
+        --data_stores hpss \
+        --data_type AERONET \
+        --output_path $aeronet_proc/${vyyyymmdd} \
+        --summary_file ${logfile}"
+
+      echo "CALLING: ${cmd}"
+
+      $cmd || print_err_msg_exit "\
+      Could not retrieve AERONET data from HPSS
+
+      The following command exited with a non-zero exit status:
+      ${cmd}
+"
+
+    fi
+
+  # Retrieve AIRNOW observations
+  elif [[ ${OBTYPE} == "AIRNOW" ]]; then
+
+    # Reorganized AIRNOW location (no need for raw data dir)
+    airnow_proc=${OBS_DIR}
+
+    # Check if file exists on disk; if not, pull it.
+    airnow_file="$airnow_proc/${vyyyymmdd}/HourlyAQObs_{vyyyymmdd}${vhh}.dat"
+    if [[ -f "${airnow_file}" ]]; then
+      echo "${OBTYPE} file exists on disk:"
+      echo "${airnow_file}"
+    else
+      echo "${OBTYPE} file does not exist on disk:"
+      echo "${airnow_file}"
+      echo "Will attempt to retrieve from remote locations"
+
+
+      # Pull AIRNOW data from HPSS
+      cmd="
+      python3 -u ${USHdir}/retrieve_data.py \
+        --debug \
+        --file_set obs \
+        --config ${PARMdir}/data_locations.yml \
+        --cycle_date ${vyyyymmdd}${vhh} \
+        --data_stores hpss \
+        --data_type AIRNOW \
+        --output_path $airnow_proc/${vyyyymmdd} \
+        --summary_file ${logfile}"
+
+      echo "CALLING: ${cmd}"
+
+      $cmd || print_err_msg_exit "\
+      Could not retrieve AIRNOW data from HPSS
+
+      The following command exited with a non-zero exit status:
+      ${cmd}
+"
+
+
+
+    fi
+
   else
     print_err_msg_exit "\
-    Invalid OBTYPE specified for script; valid options are CCPA, MRMS, NDAS, and NOHRSC
+    Invalid OBTYPE specified for script; valid options are CCPA, MRMS, NDAS, NOHRSC, AERONET, AIRNOW
   "
   fi  # Increment to next forecast hour      
   # Increment to next forecast hour      

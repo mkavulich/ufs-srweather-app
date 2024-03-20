@@ -238,6 +238,52 @@ this observation type (obtype) and field (field) combination:
       esac
       ;;
 
+    "AERONET")
+
+      _grid_or_point_="point"
+      case "${field}" in
+
+        "AOD")
+          fieldname_in_obs_input="${field}"
+          fieldname_in_fcst_input="AOTK"
+          fieldname_in_MET_output="${field}"
+          fieldname_in_MET_filedir_names="${field}"
+          ;;
+
+        *)
+          print_err_msg_exit "\
+A method for setting verification parameters has not been specified for
+this observation type (obtype) and field (field) combination:
+  obtype = \"${obtype}\"
+  field = \"${field}\""
+          ;;
+
+      esac
+      ;;
+
+    "AIRNOW")
+
+      _grid_or_point_="point"
+      case "${field}" in
+
+        "PM25")
+          fieldname_in_obs_input="${field}"
+          fieldname_in_fcst_input="MASSDEN"
+          fieldname_in_MET_output="${field}"
+          fieldname_in_MET_filedir_names="${field}"
+          ;;
+
+        *)
+          print_err_msg_exit "\
+A method for setting verification parameters has not been specified for
+this observation type (obtype) and field (field) combination:
+  obtype = \"${obtype}\"
+  field = \"${field}\""
+          ;;
+
+      esac
+      ;;
+
     *)
       print_err_msg_exit "\
 A method for setting verification parameters has not been specified for
