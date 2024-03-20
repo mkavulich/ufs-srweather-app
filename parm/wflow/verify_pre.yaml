@@ -21,6 +21,33 @@ default_task_verify_pre: &default_task_verify_pre
   queue: '&QUEUE_DEFAULT;'
   walltime: 00:30:00
 
+task_get_obs_aeronet:
+  <<: *default_task_verify_pre
+  command: '&LOAD_MODULES_RUN_TASK_FP; "get_obs" "&JOBSdir;/JREGIONAL_GET_VERIF_OBS"'
+  envars:
+    <<: *default_vars
+    OBS_DIR: '&AERONET_OBS_DIR;'
+    OBTYPE: 'AERONET'
+    FHR: '{% for h in range(0, workflow.FCST_LEN_HRS+1) %}{{ " %02d" % h  }}{% endfor %}'
+  native: '{% if platform.get("SCHED_NATIVE_CMD_HPSS") %}{{ platform.SCHED_NATIVE_CMD_HPSS }}{% else %}{{ platform.SCHED_NATIVE_CMD}}{% endif %}'
+  partition: '{% if platform.get("PARTITION_HPSS") %}&PARTITION_HPSS;{% else %}None{% endif %}'
+  queue: "&QUEUE_HPSS;"
+  walltime: 00:45:00
+
+task_get_obs_airnow:
+  <<: *default_task_verify_pre
+  command: '&LOAD_MODULES_RUN_TASK_FP; "get_obs" "&JOBSdir;/JREGIONAL_GET_VERIF_OBS"'
+  envars:
+    <<: *default_vars
+    OBS_DIR: '&AIRNOW_OBS_DIR;'
+    OBTYPE: 'AIRNOW'
+    FHR: '{% for h in range(0, workflow.FCST_LEN_HRS+1) %}{{ " %02d" % h  }}{% endfor %}'
+  native: '{% if platform.get("SCHED_NATIVE_CMD_HPSS") %}{{ platform.SCHED_NATIVE_CMD_HPSS }}{% else %}{{ platform.SCHED_NATIVE_CMD}}{% endif %}'
+  partition: '{% if platform.get("PARTITION_HPSS") %}&PARTITION_HPSS;{% else %}None{% endif %}'
+  queue: "&QUEUE_HPSS;"
+  walltime: 00:45:00
+
+
 task_get_obs_ccpa:
   <<: *default_task_verify_pre
   command: '&LOAD_MODULES_RUN_TASK_FP; "get_obs" "&JOBSdir;/JREGIONAL_GET_VERIF_OBS"'

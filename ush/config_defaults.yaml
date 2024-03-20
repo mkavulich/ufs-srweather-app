@@ -279,42 +279,26 @@ platform:
   #
   # Set METplus parameters.  Definitions:
   #
-  # CCPA_OBS_DIR:
-  # User-specified location of the directory where CCPA hourly
-  # precipitation files used by METplus are located (or, if
-  # retrieved by the workflow, where they will be placed). See comments
-  # in file scripts/exregional_get_verif_obs.sh for more details about
-  # files and directory structure, as well as important caveats about
-  # errors in the metadata and file names.
-  # NOTE: Do not set this to the same path as other *_OBS_DIR variables;
-  # otherwise unexpected results and data loss may occur.
+  # *OBS_DIR:
+  # User-specified location of the directory where observation files of a
+  # specific type for use with METplus verification are located (or, if
+  # retrieved by the workflow, where they will be placed). See
+  # comments in file scripts/exregional_get_verif_obs.sh for more details
+  # about files and directory structure, as well as important caveats about
+  # some observation types, including known errors in staged observations.
   #
-  # NOHRSC_OBS_DIR:
-  # User-specified location of top-level directory where NOHRSC 6- and
-  # 24-hour snowfall accumulation files used by METplus are located (or,
-  # if retrieved by the workflow, where they will be placed). See comments
-  # in file scripts/exregional_get_verif_obs.sh for more details about
-  # files and directory structure
-  # NOTE: Do not set this to the same path as other *_OBS_DIR variables;
-  # otherwise unexpected results and data loss may occur.
+  # NOTE: It is recommended that you set directories for different obs
+  # types to different locations; otherwise unexpected results including
+  # data loss may occur.
   #
-  # MRMS_OBS_DIR:
-  # User-specified location of the directory where MRMS composite
-  # reflectivity and echo top files used by METplus are located (or, if
-  # retrieved by the workflow, where they will be placed). See comments
-  # in the scripts/exregional_get_verif_obs.sh for more details about
-  # files and directory structure.
-  # NOTE: Do not set this to the same path as other *_OBS_DIR variables;
-  # otherwise unexpected results and data loss may occur.
-  #
-  # NDAS_OBS_DIR:
-  # User-specified location of top-level directory where NDAS prepbufr 
-  # files used by METplus are located (or, if retrieved by the workflow,
-  # where they will be placed). See comments in file
-  # scripts/exregional_get_verif_obs.sh for more details about files
-  # and directory structure.
-  # NOTE: Do not set this to the same path as other *_OBS_DIR variables;
-  # otherwise unexpected results and data loss may occur.
+  # The variables for currently supported observation directories are:
+  #   CCPA_OBS_DIR: CCPA hourly precipitation
+  #   NOHRSC_OBS_DIR:  NOHRSC 6- and 24-hour snowfall accumulation
+  #   MRMS_OBS_DIR: MRMS composite reflectivity and echo top
+  #   NDAS_OBS_DIR: NDAS prepbufr
+  #   AERONET_OBS_DIR: AERONET aerosol optical depth
+  #   AIRNOW_OBS_DIR: AIRNOW air quality
+  #   
   #
   #-----------------------------------------------------------------------
   #
@@ -322,6 +306,8 @@ platform:
   NOHRSC_OBS_DIR: "{{ workflow.EXPTDIR }}/obs_data/nohrsc/proc"
   MRMS_OBS_DIR: "{{ workflow.EXPTDIR }}/obs_data/mrms/proc"
   NDAS_OBS_DIR: "{{ workflow.EXPTDIR }}/obs_data/ndas/proc"
+  AERONET_OBS_DIR: "{{ workflow.EXPTDIR }}/obs_data/aeronet/proc"
+  AIRNOW_OBS_DIR: "{{ workflow.EXPTDIR }}/obs_data/airnow/proc"
   #
   #-----------------------------------------------------------------------
   #
