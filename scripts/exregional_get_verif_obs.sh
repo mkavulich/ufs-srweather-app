@@ -608,6 +608,9 @@ while [[ ${current_fcst} -le ${fcst_length} ]]; do
       echo "Will attempt to retrieve from remote locations"
 
 
+      if [[ ! -d "$aeronet_proc/${vyyyymmdd}" ]]; then
+        mkdir -p $aeronet_proc/${vyyyymmdd}
+      fi
       # Pull AERONET data from HPSS
       cmd="
       python3 -u ${USHdir}/retrieve_data.py \
@@ -647,6 +650,9 @@ while [[ ${current_fcst} -le ${fcst_length} ]]; do
       echo "${airnow_file}"
       echo "Will attempt to retrieve from remote locations"
 
+      if [[ ! -d "$airnow_proc/${vyyyymmdd}" ]]; then
+        mkdir -p $airnow_proc/${vyyyymmdd}
+      fi
 
       # Pull AIRNOW data from HPSS
       cmd="

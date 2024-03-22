@@ -4,6 +4,8 @@
 rocoto:
   entities:
     ACCOUNT: '{{ user.ACCOUNT }}'
+    AERONET_OBS_DIR: '{{ platform.AERONET_OBS_DIR }}'
+    AIRNOW_OBS_DIR: '{{ platform.AIRNOW_OBS_DIR }}'
     CCPA_OBS_DIR: '{{ platform.CCPA_OBS_DIR }}'
     COLDSTART: '{{ workflow.COLDSTART }}'
     COMINgfs: '{{ platform.get("COMINgfs") }}'
