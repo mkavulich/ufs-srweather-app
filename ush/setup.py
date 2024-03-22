@@ -564,7 +564,7 @@ def setup(USHdir, user_config_fn="config.yaml", debug: bool = False):
     vx_metatasks_all = {}
 
     vx_fields_all["CCPA"] = ["APCP"]
-    vx_metatasks_all["CCPA"] = ["metatask_PcpCombine_obs",
+    vx_metatasks_all["CCPA"] = ["task_get_obs_ccpa","metatask_PcpCombine_obs",
                                 "metatask_PcpCombine_fcst_APCP_all_accums_all_mems",
                                 "metatask_GridStat_CCPA_all_accums_all_mems",
                                 "metatask_GenEnsProd_EnsembleStat_CCPA",
@@ -578,12 +578,12 @@ def setup(USHdir, user_config_fn="config.yaml", debug: bool = False):
                                 "metatask_GridStat_NOHRSC_ensmeanprob_all_accums"]
 
     vx_fields_all["MRMS"] = ["REFC", "RETOP"]
-    vx_metatasks_all["MRMS"] = ["metatask_GridStat_MRMS_all_mems",
+    vx_metatasks_all["MRMS"] = ["task_get_obs_mrms","metatask_GridStat_MRMS_all_mems",
                                 "metatask_GenEnsProd_EnsembleStat_MRMS",
                                 "metatask_GridStat_MRMS_ensprob"]
 
     vx_fields_all["NDAS"] = ["ADPSFC", "ADPUPA"]
-    vx_metatasks_all["NDAS"] = ["task_run_MET_Pb2nc_obs",
+    vx_metatasks_all["NDAS"] = ["task_get_obs_ndas","task_run_MET_Pb2nc_obs",
                                 "metatask_PointStat_NDAS_all_mems",
                                 "metatask_GenEnsProd_EnsembleStat_NDAS",
                                 "metatask_PointStat_NDAS_ensmeanprob"]
