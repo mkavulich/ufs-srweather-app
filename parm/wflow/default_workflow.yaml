@@ -4,6 +4,8 @@
 rocoto:
   entities:
     ACCOUNT: '{{ user.ACCOUNT }}'
+    AERONET_OBS_DIR: '{{ platform.AERONET_OBS_DIR }}'
+    AIRNOW_OBS_DIR: '{{ platform.AIRNOW_OBS_DIR }}'
     CCPA_OBS_DIR: '{{ platform.CCPA_OBS_DIR }}'
     COMIN_DIR: '{% if user.RUN_ENVIR == "nco" %}{{"{}/{}.@Y@m@d/@H".format(nco.COMIN_BASEDIR,nco.RUN_default)}}{% else %}{{"{}/@Y@m@d@H".format(workflow.EXPTDIR)}}{% endif %}'
     COMINgfs: '{{ platform.get("COMINgfs") }}'
