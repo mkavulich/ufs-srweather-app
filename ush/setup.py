@@ -17,8 +17,6 @@ from python_utils import (
     mkdir_vrfy,
     rm_vrfy,
     check_var_valid_value,
-    lowercase,
-    uppercase,
     dict_find,
     list_to_str,
     check_for_preexist_dir_file,
@@ -116,10 +114,10 @@ def load_config_for_setup(ushdir, default_config, user_config):
             )
 
     # Load the machine config file
-    machine = uppercase(cfg_u.get("user").get("MACHINE"))
-    cfg_u["user"]["MACHINE"] = uppercase(machine)
+    machine = cfg_u.get("user").get("MACHINE").upper()
+    cfg_u["user"]["MACHINE"] = machine
 
-    machine_file = os.path.join(ushdir, "machine", f"{lowercase(machine)}.yaml")
+    machine_file = os.path.join(ushdir, "machine", f"{machine.lower()}.yaml")
 
     if not os.path.exists(machine_file):
         raise FileNotFoundError(
@@ -1164,7 +1162,7 @@ def setup(USHdir, user_config_fn="config.yaml", debug: bool = False):
         post_output_domain_name = predef_grid_name
 
     if not isinstance(post_output_domain_name, int):
-        post_output_domain_name = lowercase(post_output_domain_name)
+        post_output_domain_name = post_output_domain_name.lower()
 
     # Write updated value of POST_OUTPUT_DOMAIN_NAME back to dictionary
     post_config["POST_OUTPUT_DOMAIN_NAME"] = post_output_domain_name 

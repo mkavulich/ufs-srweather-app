@@ -15,7 +15,6 @@ from python_utils import (
     flatten_dict,
     import_vars,
     load_shell_config,
-    lowercase,
     print_info_msg,
     print_input_args,
     str_to_type,
@@ -82,8 +81,8 @@ def create_model_configure_file(
         "atmos_nthreads": OMP_NUM_THREADS_RUN_FCST,
         "restart_interval": RESTART_INTERVAL,
         "itasks": ITASKS,
-        "write_dopost": f".{lowercase(str(WRITE_DOPOST))}.",
-        "quilting": f".{lowercase(str(QUILTING))}.",
+        "write_dopost": f".{str(WRITE_DOPOST).lower()}.",
+        "quilting": f".{str(QUILTING).lower()}.",
         "output_grid": WRTCMP_output_grid,
     }
     #

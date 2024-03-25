@@ -3,30 +3,6 @@
 import re
 
 
-def uppercase(s):
-    """Function to convert a given string to uppercase
-
-    Args:
-        s: the string
-    Return:
-        Uppercased str
-    """
-
-    return s.upper()
-
-
-def lowercase(s):
-    """Function to convert a given string to lowercase
-
-    Args:
-        s: the string
-    Return:
-        Lowercase str
-    """
-
-    return s.lower()
-
-
 def find_pattern_in_str(pattern, source):
     """Find regex pattern in a string
 

@@ -24,12 +24,6 @@ import python_utils as util
 class Testing(unittest.TestCase):
     """ Define the tests"""
 
-    def test_case_handlers(self):
-        """ Test that the case handling string manipulators work as
-        expected. """
-        self.assertEqual(util.uppercase("upper"), "UPPER")
-        self.assertEqual(util.lowercase("LOWER"), "lower")
-
     def test_pattern_finding(self):
         """ Test that find_pattern_in_file can work with a string or a
         file path"""
