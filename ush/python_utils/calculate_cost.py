@@ -3,15 +3,16 @@
 import os
 import argparse
 
-from python_utils import (
-    set_env_var,
-    load_config_file,
-    flatten_dict,
-)
+from .set_grid_params import (
+    set_predef_grid_params,
+    set_gridparams_ESGgrid,
+    set_gridparams_GFDLgrid
+    )
 
-from set_predef_grid_params import set_predef_grid_params
-from set_gridparams_ESGgrid import set_gridparams_ESGgrid
-from set_gridparams_GFDLgrid import set_gridparams_GFDLgrid
+from .config_parser import (
+    flatten_dict,
+    load_config_file
+)
 
 
 def calculate_cost(config_fn):

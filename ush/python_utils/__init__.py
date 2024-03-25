@@ -35,7 +35,6 @@ from .config_parser import (
     load_ini_config,
     cfg_to_ini_str,
     get_ini_value,
-    load_config_file,
     load_shell_config,
     cfg_to_shell_str,
     load_xml_config,
@@ -50,3 +49,4 @@ from .config_parser import (
     cfg_to_yaml_str,
     extend_yaml,
 )
+from .set_grid_params import set_predef_grid_params, set_gridparams_ESGgrid, set_gridparams_GFDLgrid

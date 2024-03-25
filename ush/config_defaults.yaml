@@ -915,9 +915,9 @@ workflow:
   #
   # Setting PREDEF_GRID_NAME provides a convenient method of specifying a
   # commonly used set of grid-dependent parameters.  The predefined grid 
-  # parameters are specified in the script 
+  # parameters are specified in the YAML file 
   #
-  #   $HOMEdir/ush/set_predef_grid_params.py
+  #   $HOMEdir/ush/predef_grid_params.yaml
   #
   # * If PREDEF_GRID_NAME is set to a valid predefined grid name, the grid 
   #   generation method GRID_GEN_METHOD, the (native) grid parameters, and 

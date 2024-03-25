@@ -34,12 +34,12 @@ from python_utils import (
     extend_yaml,
     has_tag_with_value,
     load_xml_file,
+    set_predef_grid_params,
+    set_gridparams_ESGgrid,
+    set_gridparams_GFDLgrid
 )
 
 from set_cycle_dates import set_cycle_dates
-from set_predef_grid_params import set_predef_grid_params
-from set_gridparams_ESGgrid import set_gridparams_ESGgrid
-from set_gridparams_GFDLgrid import set_gridparams_GFDLgrid
 from link_fix import link_fix
 
 def load_config_for_setup(ushdir, default_config, user_config):

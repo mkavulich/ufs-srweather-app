@@ -3,14 +3,102 @@
 import os
 import logging
 
-from python_utils import (
-    import_vars,
-    set_env_var,
-    print_input_args,
-    print_err_msg_exit,
-    load_config_file,
+from textwrap import dedent
+
+from .config_parser import (
     flatten_dict,
+    load_config_file
 )
+
+from .print_msg import print_err_msg_exit
+
+def set_predef_grid_params(USHdir, grid_name, quilting):
+    """Sets grid parameters for the specified predefined grid
+
+    Args:
+        USHdir:      path to the SRW ush directory
+        grid_name    str specifying the predefined grid name.
+        quilting:    bool whether quilting should be used for output
+    Returns:
+        Dictionary of grid parameters
+    """
+
+    params_dict = load_config_file(os.path.join(USHdir, "predef_grid_params.yaml"))
+    try:
+        params_dict = params_dict[grid_name]
+    except KeyError:
+        errmsg = dedent(
+            f"""
+            PREDEF_GRID_NAME = {grid_name} not found in predef_grid_params.yaml
+            Check your config file settings."""
+        )
+        raise Exception(errmsg) from None
+
+    # We don't need the quilting section if user wants it turned off
+    if not quilting:
+        params_dict.pop("QUILTING")
+    else:
+        params_dict = flatten_dict(params_dict)
+
+    return params_dict
+
+
+def set_gridparams_ESGgrid(
+    lon_ctr, lat_ctr, nx, ny, halo_width, delx, dely, pazi, constants
+):
+    """Sets the parameters for a grid that is to be generated using the "ESGgrid"
+    grid generation method (i.e. GRID_GEN_METHOD set to "ESGgrid").
+
+    Args:
+        lon_ctr
+        lat_ctr
+        nx
+        ny
+        halo_width
+        delx
+        dely
+        pazi
+        constants: dictionary of SRW constants
+    Returns:
+        Tuple of inputs, and 4 outputs (see return statement)
+    """
+
+    # get constants
+    RADIUS_EARTH = constants["RADIUS_EARTH"]
+    DEGS_PER_RADIAN = constants["DEGS_PER_RADIAN"]
+    #
+    # -----------------------------------------------------------------------
+    #
+    # For a ESGgrid-type grid, the orography filtering is performed by passing
+    # the parameters for an "equivalent" global uniform cubed-sphere grid; i.e.,
+    # the parameters that a global uniform cubed-sphere grid needs in order to 
+    # have a nominal grid cell size equal to that of the (average) cell size on
+    # the regional grid. These globally-equivalent parameters include a resolution
+    # (in units of number of cells in each of the two horizontal directions)
+    # and a stretch factor.  The equivalent resolution is calculated in the
+    # script that generates the grid, and the stretch factor needs to be set
+    # to 1 because we are considering an equivalent globally UNIFORM grid.
+    # However, it turns out that with a non-symmetric regional grid (one in
+    # which nx is not equal to ny), setting stretch_factor to 1 fails because
+    # the orography filtering program is designed for a global cubed-sphere
+    # sphere grid and thus assumes that nx and ny for a given tile are equal
+    # when stretch_factor is exactly equal to 1.
+    # ^^-- Why is this?  Seems like symmetry btwn x and y should still hold when the stretch factor is not equal to 1.
+    # It turns out that the program will work if we set stretch_factor to a
+    # value that is not exactly 1.  This is what we do below.
+    return {
+        "LON_CTR": lon_ctr,
+        "LAT_CTR": lat_ctr,
+        "NX": nx,
+        "NY": ny,
+        "PAZI": pazi,
+        "NHW": halo_width,
+        "STRETCH_FAC": 0.999,
+        "DEL_ANGLE_X_SG": (delx / (2.0 * RADIUS_EARTH)) * DEGS_PER_RADIAN,
+        "DEL_ANGLE_Y_SG": (dely / (2.0 * RADIUS_EARTH)) * DEGS_PER_RADIAN,
+        "NEG_NX_OF_DOM_WITH_WIDE_HALO": int(-(nx + 2 * halo_width)),
+        "NEG_NY_OF_DOM_WITH_WIDE_HALO": int(-(ny + 2 * halo_width)),
+    }
 
 
 def prime_factors(n):
@@ -60,8 +148,6 @@ def set_gridparams_GFDLgrid(
     Returns:
         Tuple of inputs and outputs (see return statement)
     """
-
-    print_input_args(locals())
 
     #
     # -----------------------------------------------------------------------
@@ -333,7 +419,6 @@ def set_gridparams_GFDLgrid(
           halo_width_on_t6sg = {halo_width_on_t6sg}
           halo_width_on_t7g  = {halo_width_on_t7g}"""
     )
-
     halo_width_on_t6sg = istart_of_t7_on_t6sg - istart_of_t7_with_halo_on_t6sg
     halo_width_on_t6g = halo_width_on_t6sg // 2
     halo_width_on_t7g = int(halo_width_on_t6g * refine_ratio_t6g_to_t7g)
@@ -402,7 +487,6 @@ def set_gridparams_GFDLgrid(
           iend_of_t7_on_t6sg   = {iend_of_t7_on_t6sg}
           jstart_of_t7_on_t6sg = {jstart_of_t7_on_t6sg}
           jend_of_t7_on_t6sg   = {jend_of_t7_on_t6sg}
-
         The refinement ratio (ratio of the number of cells in tile 7 that abut
         a single cell in tile 6) is:
           refine_ratio_t6g_to_t7g = {refine_ratio_t6g_to_t7g}
@@ -445,7 +529,6 @@ def set_gridparams_GFDLgrid(
         (istart_of_t7_with_halo_on_t6sg = {istart_of_t7_with_halo_on_t6sg},
         iend_of_t7_with_halo_on_t6sg = {iend_of_t7_with_halo_on_t6sg})"""
     )
-
     logging.debug(
         f"""
         ny_of_t7_with_halo_on_t7g = {ny_of_t7_with_halo_on_t7g}
