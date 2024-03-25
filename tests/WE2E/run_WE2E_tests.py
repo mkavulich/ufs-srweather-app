@@ -14,12 +14,12 @@ from generate_FV3LAM_wflow import generate_FV3LAM_wflow
 from python_utils import (
     cfg_to_yaml_str,
     load_config_file,
-    print_test_info
+    monitor_jobs,
+    print_test_info,
+    write_monitor_file
 )
 
 from check_python_version import check_python_version
-
-from monitor_jobs import monitor_jobs, write_monitor_file
 
 def run_we2e_tests(homedir, args) -> None:
     """Function to run the WE2E tests selected by the user
@@ -263,10 +263,10 @@ def run_we2e_tests(homedir, args) -> None:
                                             debug=args.debug)
             except KeyboardInterrupt:
                 logging.info("\n\nUser interrupted monitor script; to resume monitoring jobs run:\n")
-                logging.info(f"./monitor_jobs.py -y={monitor_file} -p={args.procs}\n")
+                logging.info(f"{ushdir}/monitor_jobs.py -y={monitor_file} -p={args.procs}\n")
         else:
             logging.info("To automatically run and monitor experiments, use:\n")
-            logging.info(f"./monitor_jobs.py -y={monitor_file}\n")
+            logging.info(f"{ushdir}/monitor_jobs.py -y={monitor_file}\n")
     else:
         logging.info("All experiments have been generated; using cron to submit workflows")
         logging.info("To view running experiments in cron try `crontab -l`")

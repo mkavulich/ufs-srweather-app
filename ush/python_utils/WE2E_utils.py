@@ -9,6 +9,7 @@ import logging
 import subprocess
 import sqlite3
 import glob
+import time
 from textwrap import dedent
 from datetime import datetime
 from contextlib import closing
@@ -26,8 +27,8 @@ def print_WE2E_summary(expts_dict: dict, debug: bool = False):
     """Function that creates a summary for the specified experiment
 
     Args:
-        expts_dict (dict): A dictionary containing the information needed to run
-                           one or more experiments. See example file WE2E_tests.yaml
+        expts_dict (dict): A dictionary containing the information needed to run one or more
+                           experiments. See example file tests/WE2E/WE2E_tests.yaml
         debug      (bool): [optional] Enable extra output for debugging
 
     Returns:
@@ -413,15 +414,16 @@ def update_expt_status_parallel(expts_dict: dict, procs: int, refresh: bool = Fa
 
 
 
-def print_test_info(txtfile: str = "WE2E_test_info.txt") -> None:
+def print_test_info(txtfile: str = "WE2E_test_info.txt", test_configs: str = "test_configs/") -> None:
     """Prints a pipe ( | ) delimited text file containing summaries of each test defined by a
     config file in test_configs/*
 
     Args:
         txtfile (str): File name for test details file
+        test_configs (str): Directory containing subdirectories with WE2E test config files
     """
 
-    testfiles = glob.glob('test_configs/**/config*.yaml', recursive=True)
+    testfiles = glob.glob(f'{test_configs}/**/config*.yaml', recursive=True)
     testdict = dict()
     links = dict()
     for testfile in testfiles:
@@ -579,3 +581,126 @@ def compare_rocotostat(expt_dict,name):
         expt_dict["status"] = "COMPLETE"
 
     return expt_dict
+
+
+def monitor_jobs(expts_dict: dict, monitor_file: str = '', procs: int = 1,
+                 mode: str = 'continuous', debug: bool = False) -> str:
+    """Function to monitor and run jobs for the specified experiment using Rocoto
+
+    Args:
+        expts_dict  (dict): A dictionary containing the information needed to run
+                            one or more experiments. See example file monitor_jobs.yaml
+        monitor_file (str): [optional]
+        mode         (str): [optional] Mode of job monitoring
+                            continuous (default): monitor jobs continuously until complete
+                            advance: increment jobs once, then quit
+        debug       (bool): [optional] Enable extra output for debugging
+
+    Returns:
+        str: The name of the file used for job monitoring (when script is finished, this
+             contains results/summary)
+    """
+    monitor_start = datetime.now()
+    # Write monitor_file, which will contain information on each monitored experiment
+    monitor_start_string = monitor_start.strftime("%Y%m%d%H%M%S")
+    if not monitor_file:
+        monitor_file = f'WE2E_tests_{monitor_start_string}.yaml'
+    logging.info(f"Writing information for all experiments to {monitor_file}")
+
+    write_monitor_file(monitor_file,expts_dict)
+    # Perform initial setup for each experiment
+    logging.info("Checking tests available for monitoring...")
+
+    # Check that there are no duplicate directories; this avoids weird failures if someone
+    # cats multiple yaml files that have one or more duplicate run directories
+    logging.debug("Checking for duplicate working directories")
+    dirlist = []
+    for expt in expts_dict:
+         if expts_dict[expt]['expt_dir'] in dirlist:
+             raise ValueError(f"Found duplicate experiment directory \n    {expts_dict[expt]['expt_dir']}\nin experiments yaml file {monitor_file}; experiments can not share a working directory!")
+         else:
+             dirlist.append(expts_dict[expt]['expt_dir'])
+
+    if procs > 1:
+        print(f'Starting experiments in parallel with {procs} processes')
+        expts_dict = update_expt_status_parallel(expts_dict, procs, True, debug)
+    else:
+        for expt in expts_dict:
+            logging.info(f"Starting experiment {expt} running")
+            expts_dict[expt] = update_expt_status(expts_dict[expt], expt, True, debug)
+
+    write_monitor_file(monitor_file,expts_dict)
+
+    if mode != 'continuous':
+        logging.debug("All experiments have been updated")
+        return monitor_file
+    else:
+        logging.debug("Continuous mode: will monitor jobs until all are complete")
+
+    logging.info(f'Setup complete; monitoring {len(expts_dict)} experiments')
+    logging.info('Use ctrl-c to pause job submission/monitoring')
+
+    #Make a copy of experiment dictionary; will use this copy to monitor active experiments
+    running_expts = expts_dict.copy()
+
+    i = 0
+    while running_expts:
+        i += 1
+        if procs > 1:
+            expts_dict = update_expt_status_parallel(expts_dict, procs)
+        else:
+            for expt in running_expts.copy():
+                expts_dict[expt] = update_expt_status(expts_dict[expt], expt)
+
+        for expt in running_expts.copy():
+            running_expts[expt] = expts_dict[expt]
+            if running_expts[expt]["status"] in ['DEAD','ERROR','COMPLETE']:
+                # If start_time is in dictionary, compute total walltime
+                walltimestr = ''
+                if running_expts[expt].get("start_time",{}) and not running_expts[expt].get("walltime",{}):
+                    end = datetime.now()
+                    start = datetime.strptime(running_expts[expt]["start_time"],'%Y%m%d%H%M%S')
+                    walltime = end - start
+                    walltimestr = f'Took {str(walltime)}; '
+                    running_expts[expt]["walltime"] = str(walltime)
+
+                logging.info(f'Experiment {expt} is {running_expts[expt]["status"]}')
+
+                # If failures, check how many experiments were successful
+                if debug:
+                    if running_expts[expt]["status"] != "COMPLETE":
+                        i=j=0
+                        for task in running_expts[expt]:
+                            # Skip non-task entries
+                            if task in ["expt_dir","status","start_time","walltime"]:
+                                continue
+                            j+=1
+                            if running_expts[expt][task]["status"] == "SUCCEEDED":
+                                i+=1
+                        logging.debug(f'{i} of {j} tasks were successful')
+                logging.info(f'{walltimestr}will no longer monitor.')
+                running_expts.pop(expt)
+                continue
+            logging.debug(f'Experiment {expt} status is {expts_dict[expt]["status"]}')
+
+        write_monitor_file(monitor_file,expts_dict)
+        endtime = datetime.now()
+        total_walltime = endtime - monitor_start
+
+        logging.debug(f"Finished loop {i}")
+        logging.debug(f"Walltime so far is {str(total_walltime)}")
+        #Slow things down just a tad between loops so experiments behave better
+        time.sleep(5)
+
+    logging.info(f'All {len(expts_dict)} experiments finished')
+    logging.info('Calculating core-hour usage and printing final summary')
+
+    # Calculate core hours and update yaml
+    expts_dict = calculate_core_hours(expts_dict)
+    write_monitor_file(monitor_file,expts_dict)
+
+    #Call function to print summary
+    print_WE2E_summary(expts_dict, debug)
+
+    return monitor_file
+

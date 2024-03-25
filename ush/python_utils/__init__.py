@@ -54,6 +54,7 @@ from .WE2E_utils import(
     calculate_core_hours,
     compare_rocotostat,
     create_expts_dict,
+    monitor_jobs,
     print_test_info,
     print_WE2E_summary,
     update_expt_status,
