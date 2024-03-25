@@ -1,4 +1,5 @@
 from .misc import find_pattern_in_str, find_pattern_in_file, dict_find
+from .calculate_cost import calculate_cost
 from .check_for_preexist_dir_file import check_for_preexist_dir_file
 from .check_var_valid_value import check_var_valid_value
 from .create_symlink_to_file import create_symlink_to_file

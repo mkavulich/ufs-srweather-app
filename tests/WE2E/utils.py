@@ -16,8 +16,8 @@ from multiprocessing import Pool
 
 sys.path.append("../../ush")
 
-from calculate_cost import calculate_cost
 from python_utils import (
+    calculate_cost,
     cfg_to_yaml_str,
     flatten_dict,
     load_config_file,
