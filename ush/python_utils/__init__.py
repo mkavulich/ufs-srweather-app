@@ -50,3 +50,13 @@ from .config_parser import (
     extend_yaml,
 )
 from .set_grid_params import set_predef_grid_params, set_gridparams_ESGgrid, set_gridparams_GFDLgrid
+from .WE2E_utils import(
+    calculate_core_hours,
+    compare_rocotostat,
+    create_expts_dict,
+    print_test_info,
+    print_WE2E_summary,
+    update_expt_status,
+    update_expt_status_parallel,
+    write_monitor_file
+)

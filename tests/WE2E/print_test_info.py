@@ -3,9 +3,9 @@
 import argparse
 import sys
 
-from utils import print_test_info
-
 sys.path.append("../../ush")
+
+from python_utils import print_test_info
 
 if __name__ == "__main__":
 

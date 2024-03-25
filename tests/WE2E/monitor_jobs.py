@@ -9,12 +9,16 @@ from datetime import datetime
 
 sys.path.append("../../ush")
 
-from python_utils import load_config_file
+from python_utils import (
+    calculate_core_hours,
+    load_config_file,
+    print_WE2E_summary,
+    update_expt_status,
+    update_expt_status_parallel,
+    write_monitor_file
+)
 
 from check_python_version import check_python_version
-
-from utils import calculate_core_hours, write_monitor_file, update_expt_status,\
-                  update_expt_status_parallel, print_WE2E_summary
 
 def monitor_jobs(expts_dict: dict, monitor_file: str = '', procs: int = 1,
                  mode: str = 'continuous', debug: bool = False) -> str:

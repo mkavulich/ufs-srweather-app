@@ -6,11 +6,15 @@ import logging
 
 sys.path.append("../../ush")
 
-from python_utils import load_config_file
+from python_utils import (
+    calculate_core_hours,
+    create_expts_dict,
+    load_config_file,
+    print_WE2E_summary,
+    write_monitor_file
+    )
 
 from check_python_version import check_python_version
-
-from utils import calculate_core_hours, create_expts_dict, print_WE2E_summary, write_monitor_file
 
 def setup_logging(debug: bool = False) -> None:
     """

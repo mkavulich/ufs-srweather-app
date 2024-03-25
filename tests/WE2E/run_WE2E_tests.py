@@ -14,12 +14,12 @@ from generate_FV3LAM_wflow import generate_FV3LAM_wflow
 from python_utils import (
     cfg_to_yaml_str,
     load_config_file,
+    print_test_info
 )
 
 from check_python_version import check_python_version
 
 from monitor_jobs import monitor_jobs, write_monitor_file
-from utils import print_test_info
 
 def run_we2e_tests(homedir, args) -> None:
     """Function to run the WE2E tests selected by the user

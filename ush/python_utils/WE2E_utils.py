@@ -14,8 +14,6 @@ from datetime import datetime
 from contextlib import closing
 from multiprocessing import Pool
 
-sys.path.append("../../ush")
-
 from python_utils import (
     calculate_cost,
     cfg_to_yaml_str,
@@ -24,9 +22,6 @@ from python_utils import (
     load_shell_config
 )
 
-REPORT_WIDTH = 100
-EXPT_COLUMN_WIDTH = 65
-TASK_COLUMN_WIDTH = 40
 def print_WE2E_summary(expts_dict: dict, debug: bool = False):
     """Function that creates a summary for the specified experiment
 
@@ -38,6 +33,12 @@ def print_WE2E_summary(expts_dict: dict, debug: bool = False):
     Returns:
         None
     """
+
+
+    # Set some convenient variables
+    REPORT_WIDTH = 100
+    EXPT_COLUMN_WIDTH = 65
+    TASK_COLUMN_WIDTH = 40
 
     # Create summary table as list of strings
     summary = []
