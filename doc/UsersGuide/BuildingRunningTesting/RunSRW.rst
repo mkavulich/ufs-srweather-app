@@ -714,7 +714,7 @@ Run the following command from the ``ufs-srweather-app/ush`` directory to genera
 
    ./generate_FV3LAM_wflow.py
 
-The last line of output from this script, starting with ``*/1 * * * *`` or ``*/3 * * * *``, can be saved and used later to automatically run portions of the workflow if users have the Rocoto workflow manager installed on their system. 
+The last line of output from this script, starting with ``*/1 * * * *`` or ``*/3 * * * *``, can be saved and used later to automatically run portions of the workflow if users have the Rocoto workflow manager installed on their system. Alternatively, users can run and monitor jobs using the python script ``./monitor_jobs.py``. See :numref:`Section %s <Run>` for more information on options for running and monitoring the progress of experiments.
 
 This workflow generation script creates an experiment directory and populates it with all the data needed to run through the workflow. The flowchart in :numref:`Figure %s <WorkflowGeneration>` describes the experiment generation process. The ``generate_FV3LAM_wflow.py`` script: 
 
@@ -907,7 +907,7 @@ Run the Workflow Using Rocoto
 
 The information in this section assumes that Rocoto is available on the desired platform. All official HPC platforms for the UFS SRW App make use of the Rocoto workflow management software for running experiments. However, if Rocoto is not available, it is still possible to run the workflow using stand-alone scripts according to the process outlined in :numref:`Section %s <RunUsingStandaloneScripts>`. 
 
-There are three ways to run the workflow with Rocoto: (1) automation via crontab (2) by calling the ``launch_FV3LAM_wflow.sh`` script, and (3) by manually issuing the ``rocotorun`` command.
+There are four ways to run the workflow with Rocoto: (1) using the ``monitor_jobs.py`` script (2) automation via crontab (3) by calling the ``launch_FV3LAM_wflow.sh`` script, and (4) by manually issuing the ``rocotorun`` command.
 
 .. note::
    Users may find it helpful to review :numref:`Section %s: Rocoto Introductory Information <RocotoInfo>` to gain a better understanding of Rocoto commands and workflow management before continuing, but this is not required to run the experiment. 
@@ -927,10 +927,97 @@ If the login shell is csh/tcsh, it can instead be set using:
 
 .. _Automate:
 
-Automated Option
+Automated Options
 ^^^^^^^^^^^^^^^^^^^
 
-The simplest way to run the Rocoto workflow is to automate the process using a job scheduler such as :term:`Cron`. For automatic resubmission of the workflow at regular intervals (e.g., every 3 minutes), the user can add the following commands to their ``config.yaml`` file *before* generating the experiment (as outlined in :numref:`Section %s <GeneralConfig>`):
+The simplest way to run the Rocoto workflow is to automate the process, either using the provided ``monitor_jobs.py`` script or by using a job scheduler such as :term:`Cron`. ``monitor_jobs.py`` has the advantage of running experiments faster due to quicker submission of the next job in the workflow, while Cron can be used to run the workflow in the background while you work on other tasks.
+
+monitor_jobs.py
+"""""""""""""""
+``monitor_jobs.py`` works by reading the Rocoto database to track the progress of workflow tasks, and tracking the progress of those tasks in a human-readable YAML file. 
+
+.. code-block:: console
+      
+  > ./monitor_jobs.py 
+  Checking tests available for monitoring...
+  Starting experiment MET_verification_20240404025559 running
+  Setup complete; monitoring 1 experiments
+  Use ctrl-c to pause job submission/monitoring
+
+The script will run until all experiments are finished running. If the user wants to pause job submissions and monitoring, they can use ctrl-c to quit the script and resume it later.
+
+Once the experiment is complete, a summary will be printed to screen:
+
+.. code-block:: console
+
+  Experiment MET_verification_20240404025559 is COMPLETE
+  Took 27:42.445665; will no longer monitor.
+  All 1 experiments finished
+  Calculating core-hour usage and printing final summary
+  ----------------------------------------------------------------------------------------------------
+  Experiment name                                                  | Status    | Core hours used 
+  ----------------------------------------------------------------------------------------------------
+  MET_verification_20240404025559                                    COMPLETE              10.97
+  ----------------------------------------------------------------------------------------------------
+  Total                                                              COMPLETE              10.97
+
+  Detailed summary written to /home/workdir/srw_cleanup/expt_dirs/WE2E_summary_20240404122346.txt
+
+
+If any failures occur, that information will be printed on screen immediately, but the script will not quit until all running tasks have completed.
+
+.. code-block:: console
+
+  04/04/24 12:30:03 UTC :: FV3LAM_wflow.xml :: Cycle 202306011200, Task get_extrn_lbcs, jobid=57975194, in state DEAD (CANCELLED), ran for 13.0 seconds, exit status=15, try=2 (of 2)
+  Experiment long_fcst_20240404122740 is DEAD
+  Took 0:06:32.417168; will no longer monitor.
+  All 1 experiments finished
+  Calculating core-hour usage and printing final summary
+  ----------------------------------------------------------------------------------------------------
+  Experiment name                                                  | Status    | Core hours used 
+  ----------------------------------------------------------------------------------------------------
+  long_fcst_20240404122740                                           DEAD                   1.49
+  ----------------------------------------------------------------------------------------------------
+  Total                                                              DEAD                   1.49
+
+  Detailed summary written to /home/workdir/srw_cleanup/expt_dirs/WE2E_summary_20240404123417.txt
+
+
+If users want more information printed to the screen, they can use the `-d` option:
+
+.. code-block:: console
+
+  > ./monitor_jobs.py -d
+  Logging set up successfully
+  Loading configure file experiment_status.yaml
+  Checking tests available for monitoring...
+  Checking for duplicate working directories
+  Starting experiment MET_verification_20240404025559 running
+  Updating database for experiment MET_verification_20240404025559
+
+
+  Reading database for experiment MET_verification_20240404025559, updating experiment dictionary
+  Continuous mode: will monitor jobs until all are complete
+  Setup complete; monitoring 1 experiments
+  Use ctrl-c to pause job submission/monitoring
+  Reading database for experiment MET_verification_20240404025559, updating experiment dictionary
+  Experiment MET_verification_20240404025559 status is RUNNING
+  Walltime so far is 0:00:07.403523
+  Reading database for experiment MET_verification_20240404025559, updating experiment dictionary
+  Experiment MET_verification_20240404025559 status is RUNNING
+  Walltime so far is 0:00:15.870604
+  Reading database for experiment MET_verification_20240404025559, updating experiment dictionary
+  Experiment MET_verification_20240404025559 status is RUNNING
+  Walltime so far is 0:00:25.120094
+  ...
+  ...
+
+Users can also use the script to monitor multiple experiments simultaneously. To generate a new experiment and monitor using the same file, run ``./generate_FV3LAM_wflow.py`` with the ``--append`` option.
+
+Running workflows from Cron table
+"""""""""""""""""""""""""""""""""
+
+For automatic resubmission of the workflow at regular intervals (e.g., every 3 minutes), the user can add the following commands to their ``config.yaml`` file *before* generating the experiment (as outlined in :numref:`Section %s <GeneralConfig>`):
 
 .. code-block:: console
 
