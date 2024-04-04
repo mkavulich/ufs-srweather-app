@@ -720,13 +720,15 @@ def monitor_jobs(expts_dict: dict, monitor_file: str = '', procs: int = 1,
     return monitor_file
 
 
-def setup_monitoring(expt_config: dict, monitor_file: str = "experiment_status.yaml", debug: bool = False) -> None:
+def setup_monitoring(expt_config: dict, monitor_file: str = "experiment_status.yaml", 
+                     append: bool = False, debug: bool = False) -> None:
     """Function that sets up the file for automatic experiment monitoring
 
     Args:
         expt_config  (dict): Experiment configuration dictionary
         monitor_file (str) : YAML file where job monitoring information will be written and updated
-        debug   (bool): Enable extra output for debugging
+        append       (bool): If monitor_file already exists, append to it rather than overwriting
+        debug        (bool): Enable extra output for debugging
     Returns:
         None
     """
@@ -737,7 +739,7 @@ def setup_monitoring(expt_config: dict, monitor_file: str = "experiment_status.y
         idtime = now.strftime("%Y%m%d%H%M%S")
         expt_config['workflow'].update({"WORKFLOW_ID": f"{expt_config['workflow']['EXPT_SUBDIR']}_{idtime}"})
         wid = expt_config["workflow"]["WORKFLOW_ID"]
-        logging.info(f'No workflow ID provided; setting to {wid}')
+        logging.debug(f'No workflow ID provided; setting to {wid}')
 
     logging.debug(f'Creating entry for experiment {expt_config["workflow"]["EXPT_SUBDIR"]} in {monitor_file}')
     monitor_yaml = dict()
@@ -746,5 +748,5 @@ def setup_monitoring(expt_config: dict, monitor_file: str = "experiment_status.y
     monitor_yaml[wid].update({"status": "CREATED"})
     monitor_yaml[wid].update({"start_time": idtime})
 
-    write_monitor_file(monitor_file,monitor_yaml,True)
+    write_monitor_file(monitor_file,monitor_yaml,append)
 

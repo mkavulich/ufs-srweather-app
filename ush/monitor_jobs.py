@@ -3,6 +3,7 @@
 import sys
 import argparse
 import logging
+import os
 from textwrap import dedent
 
 from python_utils import (
@@ -49,13 +50,13 @@ if __name__ == "__main__":
     logfile='log.monitor_jobs'
 
     #Parse arguments
-    parser = argparse.ArgumentParser(description="Script for monitoring and running jobs in a "\
-                                                 "specified experiment, as specified in a yaml "\
+    parser = argparse.ArgumentParser(description="Script for monitoring and running jobs in an "\
+                                                 "SRW experiment, as specified in a yaml "\
                                                  "configuration file\n")
 
     parser.add_argument('-y', '--yaml_file', type=str,
                         help='YAML-format file specifying the information of jobs to be run; '\
-                             'for an example file, see monitor_jobs.yaml', required=True)
+                             'for an example file, see monitor_jobs.yaml', default='experiment_status.yaml')
     parser.add_argument('-p', '--procs', type=int,
                         help='Run resource-heavy tasks (such as calls to rocotorun) in parallel, '\
                              'with provided number of parallel tasks', default=1)
@@ -71,6 +72,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     setup_logging(logfile,args.debug)
+
+    if not os.path.isfile(args.yaml_file):
+        raise FileNotFoundError("YAML file {yaml_file} containing experiment info not found")
 
     logging.debug(f"Loading configure file {args.yaml_file}")
     expts_dict = load_config_file(args.yaml_file)
