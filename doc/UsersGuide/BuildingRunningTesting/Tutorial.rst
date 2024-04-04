@@ -299,7 +299,7 @@ After configuring the forecast, users can generate the second forecast by runnin
 
    ./generate_FV3LAM_wflow.py
 
-To see experiment progress, users should navigate to their experiment directory. As in the first forecast, the following commands allow users to launch new workflow tasks and check on experiment progress. 
+To see experiment progress, users can make use of the ``monitor_jobs.py`` script in the ``ush/`` directory. For a more "hands-on" method of running the experiment, users should navigate to their experiment directory. As in the first forecast, the following commands allow users to launch new workflow tasks and check on experiment progress.
 
 .. code-block:: console
 

@@ -181,12 +181,14 @@ The ``ufs-srweather-app`` :term:`umbrella repository` is an NCO-compliant reposi
    │     └── run_WE2E_tests.py 
    ├── ush
    │     ├── bash_utils
+   │     ├── python_utils
    │     ├── machine
    │     ├── wrappers
    │     ├── config.community.yaml
    │     ├── config_defaults.yaml
    │     ├── generate_FV3LAM_wflow.py
    │     ├── launch_FV3LAM_wflow.sh
+   │     ├── monitor_jobs.py
    │     ├── setup.py
    │     └── valid_param_vals.yaml
    └── versions
