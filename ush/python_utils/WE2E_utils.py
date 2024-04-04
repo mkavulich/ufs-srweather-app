@@ -620,7 +620,7 @@ def monitor_jobs(expts_dict: dict, monitor_file: str = '', procs: int = 1,
     monitor_start_string = monitor_start.strftime("%Y%m%d%H%M%S")
     if not monitor_file:
         monitor_file = f'WE2E_tests_{monitor_start_string}.yaml'
-    logging.info(f"Writing information for all experiments to {monitor_file}")
+        logging.info(f"Writing information for all experiments to {monitor_file}")
 
     write_monitor_file(monitor_file,expts_dict)
     # Perform initial setup for each experiment
@@ -702,7 +702,6 @@ def monitor_jobs(expts_dict: dict, monitor_file: str = '', procs: int = 1,
         endtime = datetime.now()
         total_walltime = endtime - monitor_start
 
-        logging.debug(f"Finished loop {i}")
         logging.debug(f"Walltime so far is {str(total_walltime)}")
         #Slow things down just a tad between loops so experiments behave better
         time.sleep(5)
