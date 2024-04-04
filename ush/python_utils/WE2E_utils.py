@@ -189,9 +189,24 @@ def calculate_core_hours(expts_dict: dict) -> dict:
     return expts_dict
 
 
-def write_monitor_file(monitor_file: str, expts_dict: dict):
+def write_monitor_file(monitor_file: str, expts_dict: dict, append: bool = False) -> None:
+    """
+    This function writes the contents of the given experiment dictionary to the given file
+
+    Args:
+        monitor_file (str): The file name to write to
+        expts_dict  (dict): A dictionary describing the status of one or more experiments
+        append      (bool): If true, the dictionary will be appended to the file rather than overwritten
+
+    Returns:
+        None
+    """
+    if append:
+        writemode = "a"
+    else:
+        writemode = "w"
     try:
-        with open(monitor_file,"w", encoding="utf-8") as f:
+        with open(monitor_file,writemode,encoding="utf-8") as f:
             f.write("### WARNING ###\n")
             f.write("### THIS FILE IS AUTO_GENERATED AND REGULARLY OVER-WRITTEN BY WORKFLOW SCRIPTS\n")
             f.write("### EDITS MAY RESULT IN MISBEHAVIOR OF EXPERIMENTS RUNNING\n")
@@ -703,4 +718,33 @@ def monitor_jobs(expts_dict: dict, monitor_file: str = '', procs: int = 1,
     print_WE2E_summary(expts_dict, debug)
 
     return monitor_file
+
+
+def setup_monitoring(expt_config: dict, monitor_file: str = "experiment_status.yaml", debug: bool = False) -> None:
+    """Function that sets up the file for automatic experiment monitoring
+
+    Args:
+        expt_config  (dict): Experiment configuration dictionary
+        monitor_file (str) : YAML file where job monitoring information will be written and updated
+        debug   (bool): Enable extra output for debugging
+    Returns:
+        None
+    """
+
+    wid = expt_config["workflow"]["WORKFLOW_ID"]
+    if not wid:
+        now = datetime.now()
+        idtime = now.strftime("%Y%m%d%H%M%S")
+        expt_config['workflow'].update({"WORKFLOW_ID": f"{expt_config['workflow']['EXPT_SUBDIR']}_{idtime}"})
+        wid = expt_config["workflow"]["WORKFLOW_ID"]
+        logging.info(f'No workflow ID provided; setting to {wid}')
+
+    logging.debug(f'Creating entry for experiment {expt_config["workflow"]["EXPT_SUBDIR"]} in {monitor_file}')
+    monitor_yaml = dict()
+    monitor_yaml[wid] = dict()
+    monitor_yaml[wid].update({"expt_dir": expt_config["workflow"]["EXPTDIR"]})
+    monitor_yaml[wid].update({"status": "CREATED"})
+    monitor_yaml[wid].update({"start_time": idtime})
+
+    write_monitor_file(monitor_file,monitor_yaml,True)
 

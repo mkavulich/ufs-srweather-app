@@ -16,7 +16,6 @@ from python_utils import (
     load_config_file,
     monitor_jobs,
     print_test_info,
-    write_monitor_file
 )
 
 from check_python_version import check_python_version
@@ -153,12 +152,13 @@ def run_we2e_tests(homedir, args) -> None:
     # Set up dictionary for job monitoring yaml
     if args.launch != "cron":
         monitor_yaml = dict()
+        starttime = datetime.now()
+        starttime_string = starttime.strftime("%Y%m%d%H%M%S")
+        monitor_file = f'WE2E_tests_{starttime_string}.yaml'
 
     for test in tests_to_run:
         #Starting with test yaml template, fill in user-specified and machine- and
         # test-specific options, then write resulting complete config.yaml
-        starttime = datetime.now()
-        starttime_string = starttime.strftime("%Y%m%d%H%M%S")
         test_name = os.path.basename(test).split('.')[1]
         logging.debug(f"For test {test_name}, constructing config.yaml")
         test_cfg = load_config_file(test)
@@ -229,8 +229,13 @@ def run_we2e_tests(homedir, args) -> None:
         if args.quiet:
             console_handler = logging.getLogger().handlers[1]
             console_handler.setLevel(logging.WARNING)
-        expt_dir = generate_FV3LAM_wflow(ushdir,logfile=f"{ushdir}/log.generate_FV3LAM_wflow",
-                                         debug=args.debug)
+
+        if args.launch == "cron":
+            expt_dir = generate_FV3LAM_wflow(ushdir,logfile=f"{ushdir}/log.generate_FV3LAM_wflow",
+                                             debug=args.debug)
+        else:
+            expt_dir = generate_FV3LAM_wflow(ushdir,logfile=f"{ushdir}/log.generate_FV3LAM_wflow",
+                                             monitor=True,mfile=monitor_file,debug=args.debug)
         if args.quiet:
             if args.debug:
                 console_handler.setLevel(logging.DEBUG)
@@ -240,26 +245,15 @@ def run_we2e_tests(homedir, args) -> None:
         # If this job is not using crontab, we need to add an entry to monitor.yaml
         if 'USE_CRON_TO_RELAUNCH' not in test_cfg['workflow']:
             test_cfg['workflow'].update({"USE_CRON_TO_RELAUNCH": False})
-        if not test_cfg['workflow']['USE_CRON_TO_RELAUNCH']:
-            logging.debug(f'Creating entry for job {test_name} in job monitoring dict')
-            workflow_id = f'{test_name}_{starttime_string}'
-            monitor_yaml[workflow_id] = dict()
-            monitor_yaml[workflow_id].update({"expt_dir": expt_dir})
-            monitor_yaml[workflow_id].update({"status": "CREATED"})
-            monitor_yaml[workflow_id].update({"start_time": starttime_string})
-            # Make WORKFLOW_ID actually mean something
-            test_cfg['workflow'].update({"WORKFLOW_ID": workflow_id})
 
     if args.launch != "cron":
-        monitor_file = f'WE2E_tests_{starttime_string}.yaml'
-        write_monitor_file(monitor_file,monitor_yaml)
         logging.info("All experiments have been generated;")
         logging.info(f"Experiment file {monitor_file} created")
         if args.launch == "python":
-            write_monitor_file(monitor_file,monitor_yaml)
             logging.debug("calling function that monitors jobs, prints summary")
             try:
-                monitor_file = monitor_jobs(monitor_yaml, monitor_file=monitor_file, procs=args.procs,
+                expts_dict = load_config_file(monitor_file)
+                monitor_file = monitor_jobs(expts_dict, monitor_file=monitor_file, procs=args.procs,
                                             debug=args.debug)
             except KeyboardInterrupt:
                 logging.info("\n\nUser interrupted monitor script; to resume monitoring jobs run:\n")

@@ -57,6 +57,7 @@ from .WE2E_utils import(
     monitor_jobs,
     print_test_info,
     print_WE2E_summary,
+    setup_monitoring,
     update_expt_status,
     update_expt_status_parallel,
     write_monitor_file

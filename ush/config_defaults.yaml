@@ -457,11 +457,12 @@ workflow:
   #
   #-----------------------------------------------------------------------
   #
-  # Unique ID for workflow run that will be set in setup.py
+  # Unique ID for workflow run. If not provided (use caution specifying it manually)
+  # will be set automatically in generate_FV3LAM_wflow.py
   #
   #-----------------------------------------------------------------------
   #
-  WORKFLOW_ID: !nowtimestamp ''
+  WORKFLOW_ID: ""
   #
   #-----------------------------------------------------------------------
   #

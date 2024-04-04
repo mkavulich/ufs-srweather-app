@@ -29,6 +29,7 @@ from python_utils import (
     find_pattern_in_str,
     flatten_dict,
     dict_find,
+    setup_monitoring
 )
 
 from setup import setup
@@ -40,6 +41,8 @@ from check_python_version import check_python_version
 def generate_FV3LAM_wflow(
         ushdir,
         logfile: str = "log.generate_FV3LAM_wflow",
+        monitor: bool = False,
+        mfile: str = "experiment_status.yaml",
         debug: bool = False) -> str:
     """Function to setup a forecast experiment and create a workflow
     (according to the parameters specified in the config file)
@@ -47,6 +50,8 @@ def generate_FV3LAM_wflow(
     Args:
         ushdir  (str) : The full path of the ush/ directory where this script is located
         logfile (str) : The name of the file where logging is written
+        monitor (bool): Enable job monitoring via python script monitor_jobs.py
+        mfile   (str) : YAML file where job monitoring information will be written and updated
         debug   (bool): Enable extra output for debugging
     Returns:
         EXPTDIR (str) : The full path of the directory where this experiment has been generated
@@ -115,10 +120,11 @@ def generate_FV3LAM_wflow(
         cmd = " ".join(["uw template render",
             "-i", template_xml_fp,
             "-o", wflow_xml_fp,
-            "-v",
             "--values-file", rocoto_yaml_fp,
             ]
         )
+        if debug:
+            cmd += " -v"
 
         indent = "  "
         output = ""
@@ -158,6 +164,11 @@ def generate_FV3LAM_wflow(
     create_symlink_to_file(
         wflow_launch_script_fp, os.path.join(exptdir, wflow_launch_script_fn), False
     )
+    # "monitor" option disables launch from cron; remove from dictionary
+    if monitor and expt_config["workflow"]["USE_CRON_TO_RELAUNCH"]:
+        logger.warning("User specified 'monitor' option; overwriting USE_CRON_TO_RELAUNCH to False")
+        expt_config['workflow'].update({"USE_CRON_TO_RELAUNCH": False})
+
     #
     # -----------------------------------------------------------------------
     #
@@ -462,42 +473,47 @@ def generate_FV3LAM_wflow(
     #
     # -----------------------------------------------------------------------
     #
-    if WORKFLOW_MANAGER == "rocoto":
-        wflow_db_fn = f"{os.path.splitext(WFLOW_XML_FN)[0]}.db"
-        rocotorun_cmd = f"rocotorun -w {WFLOW_XML_FN} -d {wflow_db_fn} -v 10"
-        rocotostat_cmd = f"rocotostat -w {WFLOW_XML_FN} -d {wflow_db_fn} -v 10"
+    if monitor:
+        setup_monitoring(expt_config,mfile,debug)
+        logging.info("To automatically run and monitor experiments, use:\n")
+        logging.info(f"{ushdir}/monitor_jobs.py -y={mfile}\n")
+    else:
+        if WORKFLOW_MANAGER == "rocoto":
+            wflow_db_fn = f"{os.path.splitext(WFLOW_XML_FN)[0]}.db"
+            rocotorun_cmd = f"rocotorun -w {WFLOW_XML_FN} -d {wflow_db_fn} -v 10"
+            rocotostat_cmd = f"rocotostat -w {WFLOW_XML_FN} -d {wflow_db_fn} -v 10"
 
-        # pylint: disable=line-too-long
-        log_info(
-            f"""
-            To launch the workflow, change location to the experiment directory
-            (EXPTDIR) and issue the rocotrun command, as follows:
+            # pylint: disable=line-too-long
+            log_info(
+                f"""
+                to launch the workflow, change location to the experiment directory
+                (exptdir) and issue the rocotrun command, as follows:
 
-              > cd {EXPTDIR}
-              > {rocotorun_cmd}
+                  > cd {exptdir}
+                  > {rocotorun_cmd}
 
-            To check on the status of the workflow, issue the rocotostat command
-            (also from the experiment directory):
+                to check on the status of the workflow, issue the rocotostat command
+                (also from the experiment directory):
 
-              > {rocotostat_cmd}
+                  > {rocotostat_cmd}
 
-            Note that:
+                note that:
 
-            1) The rocotorun command must be issued after the completion of each
-               task in the workflow in order for the workflow to submit the next
-               task(s) to the queue.
+                1) the rocotorun command must be issued after the completion of each
+                   task in the workflow in order for the workflow to submit the next
+                   task(s) to the queue.
 
-            2) In order for the output of the rocotostat command to be up-to-date,
-               the rocotorun command must be issued immediately before issuing the
-               rocotostat command.
+                2) in order for the output of the rocotostat command to be up-to-date,
+                   the rocotorun command must be issued immediately before issuing the
+                   rocotostat command.
 
-            For automatic resubmission of the workflow (say every {CRON_RELAUNCH_INTVL_MNTS} minutes), the
-            following line can be added to the user's crontab (use 'crontab -e' to
-            edit the cron table):
+                for automatic resubmission of the workflow (say every {cron_relaunch_intvl_mnts} minutes), the
+                following line can be added to the user's crontab (use 'crontab -e' to
+                edit the cron table):
 
-            */{CRON_RELAUNCH_INTVL_MNTS} * * * * cd {EXPTDIR} && ./launch_FV3LAM_wflow.sh called_from_cron="TRUE"
+                */{cron_relaunch_intvl_mnts} * * * * cd {exptdir} && ./launch_fv3lam_wflow.sh called_from_cron="true"
             """
-        )
+            )
         # pylint: enable=line-too-long
 
     # If we got to this point everything was successful: move the log
@@ -763,6 +779,10 @@ if __name__ == "__main__":
                      description="Script for setting up a forecast and creating a workflow"\
                      "according to the parameters specified in the config file\n")
 
+    parser.add_argument('-m', '--monitor', action='store_true',
+                        help='Monitor experiment using python script; this will override the "USE_CRON_TO_RELAUNCH" option in config.yaml')
+    parser.add_argument('-mf', '--monitor_file', type=str, default='experiment_status.yaml',
+                          help='File name to use for tracking status of experiment')
     parser.add_argument('-d', '--debug', action='store_true',
                         help='Script will be run in debug mode with more verbose output')
     pargs = parser.parse_args()
@@ -773,7 +793,7 @@ if __name__ == "__main__":
     # Call the generate_FV3LAM_wflow function defined above to generate the
     # experiment/workflow.
     try:
-        expt_dir = generate_FV3LAM_wflow(USHdir, wflow_logfile, pargs.debug)
+        expt_dir = generate_FV3LAM_wflow(USHdir, wflow_logfile, pargs.monitor, pargs.monitor_file, pargs.debug)
     except: # pylint: disable=bare-except
         logging.exception(
             dedent(
