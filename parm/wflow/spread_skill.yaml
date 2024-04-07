@@ -1,0 +1,80 @@
+
+default_task_test: &default_task
+  account: '&ACCOUNT;'
+  attrs:
+    cycledefs: forecast
+    maxtries: '2'
+  envars: &default_vars
+    GLOBAL_VAR_DEFNS_FP: '&GLOBAL_VAR_DEFNS_FP;'
+    HOMEdir: '&HOMEdir;'
+    FCST_DIR: !cycstr '&FCST_DIR;'
+    REFORMAT_INPUT_BASE: '&FCST_DIR;/metprd/EnsembleStat'
+    REFORMAT_YAML_CONFIG_NAME: '&HOMEdir;/util/config_files/reformat_ecnt.yaml' 
+    REFORMAT_OUTPUT_BASE: '&FCST_DIR;/../plot'
+    OUTPUT_ECNT_FILENAME: "ensemble_stat_ecnt.data"
+    AGGREGATE_INPUT_BASE: '&FCST_DIR;/../plot'
+    AGGREGATE_OUTPUT_BASE: '&FCST_DIR;/../plot'
+    AGGREGATE_YAML_CONFIG_NAME: '&HOMEdir;/util/config_files/aggregate_ecnt.yaml' 
+    STAT_INPUT_PLOT: '&FCST_DIR;/../plot'
+    STAT_OUTPUT_PLOT: '&FCST_DIR;/../plot'
+    PLOTTING_YAML_CONFIG_NAME: '&HOMEdir;/util/config_files/plot_spread_skill.yaml'
+    VX_FCST_MODEL_NAME: '{{verification.VX_FCST_MODEL_NAME}} '
+    FCST_VAR: '{{verification.FCST_VAR}}'
+    INDY_VALS: '{{verification.INDY_VALS}}'
+    PLOTTING_WORKFLOW: '{{verification.PLOTTING_WORKFLOW}}'
+    PDY: !cycstr "@Y@m@d"
+    cyc: !cycstr "@H"
+    subcyc: !cycstr "@M"
+    LOGDIR: !cycstr "&LOGDIR;"
+    SLASH_ENSMEM_SUBDIR: '&SLASH_ENSMEM_SUBDIR;'
+    ENSMEM_INDX: '#mem#'
+  native: '{{ platform.SCHED_NATIVE_CMD }}'
+  nnodes: 1
+  nodes: '{{ nnodes }}:ppn={{ ppn }}'
+  partition: '{% if platform.get("PARTITION_DEFAULT") %}&PARTITION_DEFAULT;{% else %}None{% endif %}'
+  ppn: 24
+  queue: '&QUEUE_DEFAULT;'
+  walltime: 00:05:00
+
+metatask_run_plotting:
+  var:
+    VAR: '{% for var in verification.VX_FIELDS %}{% if var in ["ADPSFC", "ADPUPA"] %}{{ "%s " % var }}{% endif %}{% endfor %}'
+  task_run_reformat:
+    <<: *default_task
+    command: 'PYTHONPATH=/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/MET-11.1.0:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy/metplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy/metcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio/METdbLoad/ush /scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/ufs-srweather-app/conda/envs/srw_app/bin/python ${HOMEdir}/util/reformat_ecnt_linetype.py'
+    join: !cycstr '&LOGDIR;/reformat_@Y@m@d@H&LOGEXT;'
+    dependency:
+      and_run_fcst: 
+        taskvalid:
+          attrs:
+            task: run_MET_EnsembleStat_vx_#VAR#
+        taskdep:
+          attrs:
+            task: run_MET_EnsembleStat_vx_#VAR#
+
+  task_run_aggregation:
+    <<: *default_task
+    command: 'PYTHONPATH=/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/MET-11.1.0:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy/metplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy/metcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio/METdbLoad/ush /scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/ufs-srweather-app/conda/envs/srw_app/bin/python ${HOMEdir}/util/aggregate_ecnt.py'
+    join: !cycstr '&LOGDIR;/aggregation_@Y@m@d@H&LOGEXT;'
+    dependency:
+      and_run_fcst: 
+        taskvalid:
+          attrs:
+            task: run_reformat
+        taskdep:
+          attrs:
+            task: run_reformat
+
+  task_run_plot:
+    <<: *default_task
+    command: 'PYTHONPATH=/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/MET-11.1.0:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy/metplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy/metcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio/METdbLoad/ush /scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/ufs-srweather-app/conda/envs/srw_app/bin/python ${HOMEdir}/util/plot_spread_skill.py'
+    join: !cycstr '&LOGDIR;/plot_@Y@m@d@H&LOGEXT;'
+    dependency:
+      and_run_fcst: 
+        taskvalid:
+          attrs:
+            task: run_aggregation
+        taskdep:
+          attrs:
+            task: run_aggregation
+
