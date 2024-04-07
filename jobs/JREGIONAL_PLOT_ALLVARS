@@ -8,7 +8,7 @@
 #-----------------------------------------------------------------------
 #
 . $USHdir/source_util_funcs.sh
-source_config_for_task "task_plot_allvars|task_run_fcst" ${GLOBAL_VAR_DEFNS_FP}
+source_config_for_task "task_run_reformat | task_run_aggregation | task_run_plot |task_plot_allvars|task_run_fcst" ${GLOBAL_VAR_DEFNS_FP}
 . $USHdir/job_preamble.sh
 #
 #-----------------------------------------------------------------------
