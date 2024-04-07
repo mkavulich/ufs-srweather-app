@@ -1,0 +1,7 @@
+dates:
+  - 2022050500
+  - 2022050600
+prefix: /scratch2/BMC/fv3lam/HIWT/expt_dirs/RRFS_GDAS_GF.SPP.SPPT_20220501-06/
+suffix: /metprd/ensemble_stat_cmn
+config_folder: /scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/usecase/config_files
+scripts_folder: /scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplus/parm/use_cases/model_applications/short_range/UserScript_fcstRRFS_fcstOnly_Reformat_Aggregate_Plot
