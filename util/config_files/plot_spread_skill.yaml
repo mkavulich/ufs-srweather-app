@@ -127,7 +127,7 @@ plot_disp:
 - 'True'
 
 
-plot_filename: !ENV '${STAT_OUTPUT_PLOT}/ecnt_aggregated.png'
+plot_filename: ${STAT_OUTPUT_PLOT}/${PLOT_OUTPUT_FILENAME}
 plot_height: 8.5
 plot_res: 72
 plot_stat: median
@@ -190,7 +190,7 @@ show_signif:
 - 'False'
 
 
-stat_input: !ENV '${STAT_INPUT_PLOT}/ecnt_aggregated.data'
+stat_input: ${STAT_INPUT_PLOT}/ecnt_aggregated.data
 
 sync_yaxes: 'False'
 title: Spread skill plot with ratio line from MET ensemble-stat data (aggregation statistics)
