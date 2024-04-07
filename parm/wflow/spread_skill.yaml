@@ -59,7 +59,7 @@ metatask_run_plotting:
 
   task_run_recombine:
     <<: *default_task
-    command: 'rm -rf ${EXPT_DIR}/plot/${OUTPUT_ECNT_FILENAME}; awk 'NR == 1 || FNR > 1' ${EXPT_DIR}/plot/${OUTPUT_ECNT_FILENAME}.* > ${EXPT_DIR}/plot/${OUTPUT_ECNT_FILENAME}'
+    command: 'rm -rf ${EXPT_DIR}/plot/${OUTPUT_ECNT_FILENAME}; awk "NR == 1 || FNR > 1" ${EXPT_DIR}/plot/${OUTPUT_ECNT_FILENAME}.* > ${EXPT_DIR}/plot/${OUTPUT_ECNT_FILENAME}'
     join: '&LOGDIR;/recombine_&LOGEXT;'
     dependency:
       and_run_fcst: 
