@@ -7,7 +7,7 @@ derived_series_1: []
 derived_series_2: []
 event_equal: False
 fcst_var_val_1:
-  ${FCST_VAR}:
+  ${VX_FCST_VAR}:
   - ECNT_RMSE
   - ECNT_SPREAD_PLUS_OERR
 fcst_var_val_2: {}

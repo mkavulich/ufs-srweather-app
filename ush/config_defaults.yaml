@@ -2388,9 +2388,9 @@ global:
 # verification (vx) parameters
 #-----------------------------
 verification:
-  PLOTTING_WORKFLOW: false
+  VX_PLOTTING: false
 
-  FCST_VAR: TMP
+  VX_FCST_VAR: TMP
   INDY_VALS:
   - '00000'
   - '10000'

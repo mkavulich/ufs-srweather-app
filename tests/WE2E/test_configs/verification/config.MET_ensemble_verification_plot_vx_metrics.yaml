@@ -7,14 +7,11 @@ metadata:
     ensemble-specific tasks run successfully.
 user:
   RUN_ENVIR: community
-platform:
-  EXTRN_MDL_DATA_STORES: hpss
 workflow:
   CCPP_PHYS_SUITE: FV3_GFS_v16
   PREDEF_GRID_NAME: RRFS_CONUS_25km
   DATE_FIRST_CYCL: '2021051212'
-  DATE_LAST_CYCL: '2021051300'
-  INCR_CYCL_FREQ: 12
+  DATE_LAST_CYCL: '2021051212'
   FCST_LEN_HRS: 6
   PREEXISTING_DIR_METHOD: rename
 rocoto:
@@ -35,4 +32,5 @@ global:
   NUM_ENS_MEMBERS: 2
 verification:
   VX_FCST_MODEL_NAME: FV3_GFS_v16_CONUS_25km
-  FCST_VAR: TMP
+  VX_PLOTTING: true
+  VX_FCST_VAR: TMP

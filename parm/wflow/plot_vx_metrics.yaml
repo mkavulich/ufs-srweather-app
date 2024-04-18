@@ -9,20 +9,21 @@ default_task_test: &default_task
     EXPT_DIR: '{{workflow.EXPTDIR}}'
     HOMEdir: '&HOMEdir;'
     FCST_DIR: !cycstr '&FCST_DIR;'
-    REFORMAT_YAML_CONFIG_NAME: '&HOMEdir;/util/config_files/reformat_ecnt.yaml' 
-    REFORMAT_OUTPUT_BASE: '{{workflow.EXPTDIR}}/plot'
+    REFORMAT_YAML_CONFIG_NAME: '&HOMEdir;/parm/vx_plotting/config_files/reformat_ecnt.yaml' 
+    REFORMAT_OUTPUT_BASE: '{{workflow.EXPTDIR}}/plot_vx_metrics'
     OUTPUT_ECNT_FILENAME: "ensemble_stat_ecnt.data"
-    AGGREGATE_INPUT_BASE: '{{workflow.EXPTDIR}}/plot'
-    AGGREGATE_OUTPUT_BASE: '{{workflow.EXPTDIR}}/plot'
-    AGGREGATE_YAML_CONFIG_NAME: '&HOMEdir;/util/config_files/aggregate_ecnt.yaml' 
-    STAT_INPUT_PLOT: '{{workflow.EXPTDIR}}/plot'
-    STAT_OUTPUT_PLOT: '{{workflow.EXPTDIR}}/plot'
-    PLOT_OUTPUT_FILENAME: 'ecnt_aggregated_{{verification.FCST_VAR}}.png'
-    PLOTTING_YAML_CONFIG_NAME: '&HOMEdir;/util/config_files/plot_spread_skill.yaml'
+    AGGREGATE_INPUT_BASE: '{{workflow.EXPTDIR}}/plot_vx_metrics'
+    AGGREGATE_OUTPUT_BASE: '{{workflow.EXPTDIR}}/plot_vx_metrics'
+    AGGREGATE_YAML_CONFIG_NAME: '&HOMEdir;/parm/vx_plotting/config_files/aggregate_ecnt.yaml' 
+    STAT_INPUT_PLOT: '{{workflow.EXPTDIR}}/plot_vx_metrics'
+    STAT_OUTPUT_PLOT: '{{workflow.EXPTDIR}}/plot_vx_metrics'
+    PLOT_OUTPUT_FILENAME: 'ecnt_aggregated_{{verification.VX_FCST_VAR}}.png'
+    PLOTTING_YAML_CONFIG_NAME: '&HOMEdir;/parm/vx_plotting/config_files/plot_spread_skill.yaml'
     VX_FCST_MODEL_NAME: '{{verification.VX_FCST_MODEL_NAME}} '
-    FCST_VAR: '{{verification.FCST_VAR}}'
+    VX_FCST_VAR: '{{verification.VX_FCST_VAR}}'
     INDY_VALS: '{{verification.INDY_VALS}}'
-    PLOTTING_WORKFLOW: '{{verification.PLOTTING_WORKFLOW}}'
+    VX_PLOTTING: '{{verification.VX_PLOTTING}}'
+    DATE_LAST_CYCL: '{{workflow.DATE_LAST_CYCL}}'
     PDY: !cycstr "@Y@m@d"
     cyc: !cycstr "@H"
     subcyc: !cycstr "@M"
@@ -44,26 +45,25 @@ metatask_run_prep_plot:
     <<: *default_task
     envars:
       <<: *default_vars
-      REFORMAT_INPUT_BASE: !cycstr '/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/expt_dirs/get_data_test/MET_ensemble_verification_spread_skill/2021051212/metprdEnsembleStat'
       OUTPUT_ECNT_FILENAME: !cycstr 'ensemble_stat_ecnt.data.@Y@m@d@H'
-      #REFORMAT_INPUT_BASE: !cycstr '&FCST_DIR;/metprd/EnsembleStat'
-    command: 'PYTHONPATH=/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/MET-11.1.0:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy/metplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy/metcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio/METdbLoad/ush /scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/ufs-srweather-app/conda/envs/srw_app/bin/python ${HOMEdir}/util/reformat_ecnt_linetype.py'
+      REFORMAT_INPUT_BASE: !cycstr '&FCST_DIR;/metprd/EnsembleStat'
+    command: 'PYTHONPATH=/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/MET-11.1.0:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy/metplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy/metcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio/METdbLoad/ush /scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/ufs-srweather-app/conda/envs/srw_app/bin/python ${HOMEdir}/parm/vx_plotting/reformat_ecnt_linetype.py'
     join: !cycstr '&LOGDIR;/reformat_@Y@m@d@H&LOGEXT;'
     dependency:
-      and_run_fcst: 
+      and:
         taskvalid:
           attrs:
-            task: run_MET_EnsembleStat_vx_#VAR#
+            task: run_MET_GridStat_vx_ensprob_APCP06h
         taskdep:
           attrs:
-            task: run_MET_EnsembleStat_vx_#VAR#
+            task: run_MET_GridStat_vx_ensprob_APCP06h
 
   task_run_recombine:
     <<: *default_task
-    command: 'rm -rf ${EXPT_DIR}/plot/${OUTPUT_ECNT_FILENAME}; awk "NR == 1 || FNR > 1" ${EXPT_DIR}/plot/${OUTPUT_ECNT_FILENAME}.* > ${EXPT_DIR}/plot/${OUTPUT_ECNT_FILENAME}'
+    command: rm -rf ${EXPT_DIR}/plot_vx_metrics/${OUTPUT_ECNT_FILENAME}; awk "NR == 1 || FNR > 1" ${EXPT_DIR}/plot_vx_metrics/${OUTPUT_ECNT_FILENAME}.* > ${EXPT_DIR}/plot_vx_metrics/${OUTPUT_ECNT_FILENAME}
     join: '&LOGDIR;/recombine_&LOGEXT;'
     dependency:
-      and_run_fcst: 
+      and: 
         taskvalid:
           attrs:
             task: run_reformat
@@ -73,10 +73,10 @@ metatask_run_prep_plot:
 
   task_run_aggregation:
     <<: *default_task
-    command: 'PYTHONPATH=/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/MET-11.1.0:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy/metplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy/metcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio/METdbLoad/ush /scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/ufs-srweather-app/conda/envs/srw_app/bin/python ${HOMEdir}/util/aggregate_ecnt.py'
+    command: 'PYTHONPATH=/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/MET-11.1.0:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy/metplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy/metcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio/METdbLoad/ush /scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/ufs-srweather-app/conda/envs/srw_app/bin/python ${HOMEdir}/parm/vx_plotting/aggregate_ecnt.py'
     join: '&LOGDIR;/aggregation_&LOGEXT;'
     dependency:
-      and_run_fcst: 
+      and: 
         taskvalid:
           attrs:
             task: run_recombine
@@ -86,10 +86,10 @@ metatask_run_prep_plot:
 
   task_run_plot:
     <<: *default_task
-    command: 'PYTHONPATH=/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/MET-11.1.0:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy/metplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy/metcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio/METdbLoad/ush /scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/ufs-srweather-app/conda/envs/srw_app/bin/python ${HOMEdir}/util/plot_spread_skill.py'
+    command: 'PYTHONPATH=/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/MET-11.1.0:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy/metplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy/metcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio/METdbLoad/ush /scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/ufs-srweather-app/conda/envs/srw_app/bin/python ${HOMEdir}/parm/vx_plotting/plot_spread_skill.py'
     join: '&LOGDIR;/plot_&LOGEXT;'
     dependency:
-      and_run_fcst: 
+      and: 
         taskvalid:
           attrs:
             task: run_aggregation
