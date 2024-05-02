@@ -38,53 +38,88 @@ default_task_test: &default_task
   queue: '&QUEUE_DEFAULT;'
   walltime: 00:05:00
 
+task_run_reformat:
+  <<: *default_task
+  envars:
+    <<: *default_vars
+    OUTPUT_ECNT_FILENAME: !cycstr 'ensemble_stat_ecnt.data.@Y@m@d@H'
+    REFORMAT_INPUT_BASE: !cycstr '&FCST_DIR;/metprd/EnsembleStat'
+  command: 'PYTHONPATH=/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/MET-11.1.0:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy/metplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy/metcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio/METdbLoad/ush /scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/ufs-srweather-app/conda/envs/srw_app/bin/python ${HOMEdir}/parm/vx_plotting/reformat_ecnt_linetype.py'
+  join: !cycstr '&LOGDIR;/reformat_@Y@m@d@H&LOGEXT;'
+  dependency:
+    and:
+      or_APCP01h:
+        not:
+          taskvalid:
+            attrs:
+              task: run_MET_GridStat_vx_ensprob_APCP01h
+        taskdep:
+          attrs:
+            task: run_MET_GridStat_vx_ensprob_APCP01h
+      or_APCP03h:
+        not:
+          taskvalid:
+            attrs:
+              task: run_MET_GridStat_vx_ensprob_APCP03h
+        taskdep:
+          attrs:
+            task: run_MET_GridStat_vx_ensprob_APCP03h
+      or_APCP06h:
+        not:
+          taskvalid:
+            attrs:
+              task: run_MET_GridStat_vx_ensprob_APCP06h
+        taskdep:
+          attrs:
+            task: run_MET_GridStat_vx_ensprob_APCP06h
+      or_APCP24h:
+        not:
+          taskvalid:
+            attrs:
+              task: run_MET_GridStat_vx_ensprob_APCP24h
+        taskdep:
+          attrs:
+            task: run_MET_GridStat_vx_ensprob_APCP24h
+      or_ADPSFC:
+        not:
+          taskvalid:
+            attrs:
+              task: run_MET_GridStat_vx_ensprob_ADPSFC
+        taskdep:
+          attrs:
+            task: run_MET_GridStat_vx_ensprob_ADPSFC
+      or_ADPUPA:
+        not:
+          taskvalid:
+            attrs:
+              task: run_MET_GridStat_vx_ensprob_ADPUPA
+        taskdep:
+          attrs:
+            task: run_MET_GridStat_vx_ensprob_ADPUPA
+
+task_run_recombine:
+  <<: *default_task
+  command: rm -rf ${EXPT_DIR}/plot_vx_metrics/${OUTPUT_ECNT_FILENAME}; awk "NR == 1 || FNR > 1" ${EXPT_DIR}/plot_vx_metrics/${OUTPUT_ECNT_FILENAME}.* > ${EXPT_DIR}/plot_vx_metrics/${OUTPUT_ECNT_FILENAME}
+  join: '&LOGDIR;/recombine&LOGEXT;'
+  dependency:
+    taskdep:
+      attrs:
+        task: run_reformat
+
 metatask_run_prep_plot:
   var:
-    VAR: '{% for var in verification.VX_FIELDS %}{% if var in ["ADPSFC", "ADPUPA"] %}{{ "%s " % var }}{% endif %}{% endfor %}'
-  task_run_reformat:
-    <<: *default_task
-    envars:
-      <<: *default_vars
-      OUTPUT_ECNT_FILENAME: !cycstr 'ensemble_stat_ecnt.data.@Y@m@d@H'
-      REFORMAT_INPUT_BASE: !cycstr '&FCST_DIR;/metprd/EnsembleStat'
-    command: 'PYTHONPATH=/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/MET-11.1.0:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy/metplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy/metcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio/METdbLoad/ush /scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/ufs-srweather-app/conda/envs/srw_app/bin/python ${HOMEdir}/parm/vx_plotting/reformat_ecnt_linetype.py'
-    join: !cycstr '&LOGDIR;/reformat_@Y@m@d@H&LOGEXT;'
-    dependency:
-      and:
-        taskvalid:
-          attrs:
-            task: run_MET_GridStat_vx_ensprob_APCP06h
-        taskdep:
-          attrs:
-            task: run_MET_GridStat_vx_ensprob_APCP06h
+    VAR: '{{verification.VX_FCST_VAR}}'
 
-  task_run_recombine:
-    <<: *default_task
-    command: rm -rf ${EXPT_DIR}/plot_vx_metrics/${OUTPUT_ECNT_FILENAME}; awk "NR == 1 || FNR > 1" ${EXPT_DIR}/plot_vx_metrics/${OUTPUT_ECNT_FILENAME}.* > ${EXPT_DIR}/plot_vx_metrics/${OUTPUT_ECNT_FILENAME}
-    join: '&LOGDIR;/recombine_&LOGEXT;'
-    dependency:
-      and: 
-        taskvalid:
-          attrs:
-            task: run_reformat
-        taskdep:
-          attrs:
-            task: run_reformat
-
-  task_run_aggregation:
+  task_run_aggregation_#VAR#:
     <<: *default_task
     command: 'PYTHONPATH=/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/MET-11.1.0:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy/metplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy/metcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio/METdbLoad/ush /scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/ufs-srweather-app/conda/envs/srw_app/bin/python ${HOMEdir}/parm/vx_plotting/aggregate_ecnt.py'
-    join: '&LOGDIR;/aggregation_&LOGEXT;'
+    join: '&LOGDIR;/aggregation&LOGEXT;'
     dependency:
-      and: 
-        taskvalid:
-          attrs:
-            task: run_recombine
-        taskdep:
-          attrs:
-            task: run_recombine
+      taskdep:
+        attrs:
+          task: run_recombine
 
-  task_run_plot:
+  task_run_plot_#VAR#:
     <<: *default_task
     command: 'PYTHONPATH=/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/MET-11.1.0:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy/metplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy/metcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio/METdbLoad/ush /scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/ufs-srweather-app/conda/envs/srw_app/bin/python ${HOMEdir}/parm/vx_plotting/plot_spread_skill.py'
     join: '&LOGDIR;/plot_&LOGEXT;'
@@ -92,8 +127,8 @@ metatask_run_prep_plot:
       and: 
         taskvalid:
           attrs:
-            task: run_aggregation
+            task: run_aggregation_#VAR
         taskdep:
           attrs:
-            task: run_aggregation
+            task: run_aggregation_#VAR
 
