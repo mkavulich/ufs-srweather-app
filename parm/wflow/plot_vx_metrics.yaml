@@ -6,6 +6,7 @@ default_task_test: &default_task
     maxtries: '2'
   envars: &default_vars
     GLOBAL_VAR_DEFNS_FP: '&GLOBAL_VAR_DEFNS_FP;'
+    USHdir: '&USHdir;'
     EXPT_DIR: '{{workflow.EXPTDIR}}'
     HOMEdir: '&HOMEdir;'
     FCST_DIR: !cycstr '&FCST_DIR;'
@@ -44,7 +45,7 @@ task_run_reformat:
     <<: *default_vars
     OUTPUT_ECNT_FILENAME: !cycstr 'ensemble_stat_ecnt.data.@Y@m@d@H'
     REFORMAT_INPUT_BASE: !cycstr '&FCST_DIR;/metprd/EnsembleStat'
-  command: 'PYTHONPATH=/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/MET-11.1.0:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METplotpy/metplotpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METcalcpy/metcalcpy:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio:/scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/METdataio/METdbLoad/ush /scratch2/BMC/fv3lam/Vanderlei.Vargas/Agile/ufs-srweather-app/conda/envs/srw_app/bin/python ${HOMEdir}/parm/vx_plotting/reformat_ecnt_linetype.py'
+  command: '&LOAD_MODULES_RUN_TASK_FP; "vx_metrics" "&HOMEdir;/parm/vx_plotting/reformat_ecnt_linetype.py"'
   join: !cycstr '&LOGDIR;/reformat_@Y@m@d@H&LOGEXT;'
   dependency:
     and:
