@@ -575,6 +575,12 @@ def setup(USHdir, user_config_fn="config.yaml", debug: bool = False):
                                 "metatask_GenEnsProd_EnsembleStat_NDAS",
                                 "metatask_PointStat_NDAS_ensmeanprob"]
 
+    vx_fields_all["AERONET"] = ["AOD"]
+    vx_metatasks_all["AERONET"] = ["task_get_obs_aeronet"]
+
+    vx_fields_all["AIRNOW"] = ["PM25"]
+    vx_metatasks_all["AIRNOW"] = ["task_get_obs_airnow"]
+
     # Get the vx fields specified in the experiment configuration.
     vx_fields_config = expt_config["verification"]["VX_FIELDS"]
 
