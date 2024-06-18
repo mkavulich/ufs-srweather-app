@@ -390,7 +390,7 @@ AERONET:
       obs:
         - "{yyyy}{mm}{dd}.lev15"
     archive_internal_dir:
-      - ./airnow/
+      - ./validation_data/aq/aeronet/
 
 AIRNOW:
   hpss:
