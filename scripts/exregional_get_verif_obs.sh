@@ -150,6 +150,8 @@ set -x
 #
 # {AERONET_OBS_DIR}/{YYYYMMDD}/{YYYYMMDD}.lev15
 #
+# This naming scheme can be changed by the config variable OBS_AERONET_FN_TEMPLATE
+#
 # If data is retrieved from HPSS, it will automatically staged by this
 # this script.
 #
@@ -160,6 +162,8 @@ set -x
 # directory structure and file name conventions expected by verification tasks:
 #
 # {AIRNOW_OBS_DIR}/{YYYYMMDD}/HourlyAQObs_{YYYYMMDDHH}.dat
+#
+# This naming scheme can be changed by the config variable OBS_AIRNOW_FN_TEMPLATE
 #
 # In addition to the raw observation files, For each day there is an additional
 # required file that stores the locations of all observation stations:

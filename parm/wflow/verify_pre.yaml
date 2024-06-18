@@ -129,6 +129,39 @@ task_run_MET_Pb2nc_obs:
           attrs:
             task: get_obs_ndas
 
+metatask_ASCII2nc_obs:
+  var:
+    METAVAR: '{% for var in verification.VX_FIELDS %}{% if var in ["AOD", "PM25"] %}{{ "%s " % var }}{% endif %}{% endfor %}'
+    METAOBTYPE: '{% for var in verification.VX_FIELDS %}{% if var =="AOD" %}AERONET {% elif var =="PM25" %}AIRNOW {% endif %}{% endfor %}'
+    METAOBS_DIR: '{% for var in verification.VX_FIELDS %}{% if var =="AOD" %}&AERONET_OBS_DIR; {% elif var =="PM25" %}&AIRNOW_OBS_DIR; {% endif %}{% endfor %}'
+    TASKDEP: '{% for var in verification.VX_FIELDS %}{% if var =="AOD" %}get_obs_aeronet {% elif var =="PM25" %}get_obs_airnow {% endif %}{% endfor %}'
+  task_run_MET_ASCIInc_obs_#METAVAR#:
+    <<: *default_task_verify_pre
+    attrs:
+      cycledefs: forecast
+      maxtries: '2'
+    command: '&LOAD_MODULES_RUN_TASK_FP; "run_vx" "&JOBSdir;/JREGIONAL_RUN_MET_ASCII2NC_OBS"'
+    envars:
+      <<: *default_vars
+      VAR: '#METAVAR#'
+      ACCUM_HH: '01'
+      FCST_OR_OBS: OBS
+      OBTYPE: '#METAOBTYPE#'
+      OBS_DIR: '#METAOBS_DIR#'
+      METPLUSTOOLNAME: 'ASCII2NC'
+    dependency:
+      and:
+        datadep:
+          text: '#METAOBS_DIR#'
+        or:
+          not:
+            taskvalid:
+              attrs:
+                task: '#TASKDEP#'
+          taskdep:
+            attrs:
+              task: '#TASKDEP#'
+
 metatask_PcpCombine_obs:
   var:
     ACCUM_HH: '{% for ah in verification.VX_APCP_ACCUMS_HRS %}{% if workflow.FCST_LEN_HRS >= ah %}{{ "%02d " % ah }}{% endif %}{% endfor %}'

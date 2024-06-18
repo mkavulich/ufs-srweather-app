@@ -101,6 +101,10 @@ function set_vx_fhr_list() {
 #-----------------------------------------------------------------------
 #
   case "${field}" in
+    "AOD")
+      fhr_min="00"
+      fhr_int="24"
+      ;;
     "APCP")
       fhr_min="${accum_hh}"
       fhr_int="${accum_hh}"
@@ -113,6 +117,10 @@ function set_vx_fhr_list() {
         fhr_min="${accum_hh}"
         fhr_int="${accum_hh}"
       fi
+      ;;
+    "PM25")
+      fhr_min="00"
+      fhr_int="01"
       ;;
     "REFC")
       fhr_min="00"
