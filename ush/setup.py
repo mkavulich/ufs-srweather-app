@@ -590,10 +590,10 @@ def setup(USHdir, user_config_fn="config.yaml", debug: bool = False):
                                 "metatask_PointStat_NDAS_ensmeanprob"]
 
     vx_fields_all["AERONET"] = ["AOD"]
-    vx_metatasks_all["AERONET"] = ["task_get_obs_aeronet","task_run_MET_ASCII2nc_obs"]
+    vx_metatasks_all["AERONET"] = ["task_get_obs_aeronet","metatask_ASCII2nc_obs"]
 
     vx_fields_all["AIRNOW"] = ["PM25"]
-    vx_metatasks_all["AIRNOW"] = ["task_get_obs_airnow","task_run_MET_ASCII2nc_obs"]
+    vx_metatasks_all["AIRNOW"] = ["task_get_obs_airnow","metatask_ASCII2nc_obs"]
 
     # Get the vx fields specified in the experiment configuration.
     vx_fields_config = expt_config["verification"]["VX_FIELDS"]
