@@ -274,7 +274,6 @@ if [ "${BUILD_UFS_UTILS}" = "on" ]; then
     os=$(uname) &&  SED=sed
     test $os == Darwin && ( os=MacOSX && SED=gsed )
     echo "SED is ${SED}"
-
     CHGRES_CUBE=${SRW_DIR}/sorc/UFS_UTILS/sorc/chgres_cube.fd
     ${SED} -i 's/"RAP","HRRR"/"RAP","HRRR","RRFS"/g' ${CHGRES_CUBE}/program_setup.F90
 fi
