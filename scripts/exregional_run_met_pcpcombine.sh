@@ -173,7 +173,8 @@ OBS_INPUT_DIR=""
 OBS_INPUT_FN_TEMPLATE=""
 FCST_INPUT_DIR=""
 FCST_INPUT_FN_TEMPLATE=""
-
+PCP_COMBINE_METHOD="ADD"
+PCP_COMBINE_COMMAND=""
 if [ "${FCST_OR_OBS}" = "FCST" ]; then
 
   FCST_INPUT_DIR="${vx_fcst_input_basedir}"
@@ -183,7 +184,17 @@ if [ "${FCST_OR_OBS}" = "FCST" ]; then
   OUTPUT_DIR="${OUTPUT_BASE}/metprd/${MetplusToolName}_fcst"
   OUTPUT_FN_TEMPLATE=$( eval echo ${FCST_FN_TEMPLATE_PCPCOMBINE_OUTPUT} )
   STAGING_DIR="${OUTPUT_BASE}/stage/${FIELDNAME_IN_MET_FILEDIR_NAMES}"
+  if [ "${OBTYPE}" = "AIRNOW" ]; then
+    PCP_COMBINE_METHOD="USER_DEFINED"
 
+    if [ "${VAR}" = "PM25" ]; then
+    # Need to combine two fields (different PM types) and convert units from forecast files to create PM25 equivalent to obs
+      PCP_COMBINE_COMMAND="-add {FCST_PCP_COMBINE_INPUT_DIR}/{FCST_PCP_COMBINE_INPUT_TEMPLATE} 'name=\"MASSDEN\"; level=\"Z8\"; GRIB2_aerosol_type=62010; convert(x)=x*1e9;' {FCST_PCP_COMBINE_INPUT_DIR}/{FCST_PCP_COMBINE_INPUT_TEMPLATE} 'name=\"MASSDEN\"; level=\"Z8\"; GRIB2_aerosol_type=62001; GRIB2_aerosol_interval_type=0; convert(x)=x*1e9;'"
+    elif [ "${VAR}" = "PM10" ]; then
+    # for PM10, command is just a passthrough
+      PCP_COMBINE_COMMAND="-add {FCST_PCP_COMBINE_INPUT_DIR}/{FCST_PCP_COMBINE_INPUT_TEMPLATE} -field 'name=\"MASSDEN\"; level=\"Z8\"; GRIB2_aerosol_type=62001; GRIB2_aerosol_interval_type=2; convert(x)=x*1e9;'"
+    fi
+  fi
 elif [ "${FCST_OR_OBS}" = "OBS" ]; then
 
   OBS_INPUT_DIR="${OBS_DIR}"
@@ -216,16 +227,16 @@ elif [ "${FCST_OR_OBS}" = "OBS" ]; then
   num_missing_files_max="${NUM_MISSING_OBS_FILES_MAX}"
 fi
 
-set_vx_fhr_list \
-  cdate="${CDATE}" \
-  fcst_len_hrs="${FCST_LEN_HRS}" \
-  field="$VAR" \
-  accum_hh="${ACCUM_HH}" \
-  base_dir="${base_dir}" \
-  fn_template="${fn_template}" \
-  check_accum_contrib_files="TRUE" \
-  num_missing_files_max="${num_missing_files_max}" \
-  outvarname_fhr_list="FHR_LIST"
+set -x
+FHR_LIST=$( python3 $USHdir/set_vx_fhr_list.py \
+  --cdate="${CDATE}" \
+  --fcst_len="${FCST_LEN_HRS}" \
+  --field="$VAR" \
+  --accum_hh="${ACCUM_HH}" \
+  --base_dir="${base_dir}" \
+  --filename_template="${fn_template}" \
+  --num_missing_files_max="${num_missing_files_max}") || \
+print_err_msg_exit "Call to set_vx_fhr_list.py failed with return code: $?"
 #
 #-----------------------------------------------------------------------
 #
@@ -361,8 +372,13 @@ settings="\
   'input_field_group': '${VAR:-}'
   'input_level_fcst': '${FCST_LEVEL:-}'
   'input_thresh_fcst': '${FCST_THRESH:-}'
+#
+# Configuration information
+#
+  'pcp_combine_method': '${PCP_COMBINE_METHOD}'
+# NOTE: this command must remain un-quoted for proper rendering of nested quotes in command
+  'pcp_combine_command': ${PCP_COMBINE_COMMAND}
 "
-
 # Render the template to create a METplus configuration file
 tmpfile=$( $READLINK -f "$(mktemp ./met_plus_settings.XXXXXX.yaml)")
 printf "%s" "$settings" > "$tmpfile"
@@ -392,6 +408,15 @@ fi
 #
 #-----------------------------------------------------------------------
 #
+#TEMPORARILY POINTING TO BETA RELEASE
+MET_ROOT=/contrib/met/12.0.0-beta3
+MET_INSTALL_DIR=${MET_ROOT}
+MET_BIN_EXEC=${MET_INSTALL_DIR}/bin
+MET_BASE=${MET_INSTALL_DIR}/share/met
+METPLUS_ROOT=/contrib/METplus/METplus-6.0.0-beta3/
+METPLUS_PATH=${METPLUS_ROOT}
+MET_ROOT=/contrib/met/12.0.0-beta3
+#TEMPORARILY POINTING TO BETA RELEASE
 print_info_msg "$VERBOSE" "
 Calling METplus to run MET's ${metplus_tool_name} tool for field(s): ${FIELDNAME_IN_MET_FILEDIR_NAMES}"
 ${METPLUS_PATH}/ush/run_metplus.py \

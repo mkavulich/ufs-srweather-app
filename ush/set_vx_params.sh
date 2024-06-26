@@ -272,6 +272,12 @@ this observation type (obtype) and field (field) combination:
           fieldname_in_MET_output="${field}"
           fieldname_in_MET_filedir_names="${field}"
           ;;
+        "PM10")
+          fieldname_in_obs_input="${field}"
+          fieldname_in_fcst_input="MASSDEN"
+          fieldname_in_MET_output="${field}"
+          fieldname_in_MET_filedir_names="${field}"
+          ;;
 
         *)
           print_err_msg_exit "\

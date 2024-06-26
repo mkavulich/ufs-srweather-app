@@ -593,7 +593,7 @@ def setup(USHdir, user_config_fn="config.yaml", debug: bool = False):
     vx_metatasks_all["AERONET"] = ["task_get_obs_aeronet","metatask_ASCII2nc_obs"]
 
     vx_fields_all["AIRNOW"] = ["PM25"]
-    vx_metatasks_all["AIRNOW"] = ["task_get_obs_airnow","metatask_ASCII2nc_obs"]
+    vx_metatasks_all["AIRNOW"] = ["task_get_obs_airnow","metatask_ASCII2nc_obs","metatask_PcpCombine_fcst_PM_all_mems"]
 
     # Get the vx fields specified in the experiment configuration.
     vx_fields_config = expt_config["verification"]["VX_FIELDS"]

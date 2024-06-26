@@ -359,11 +359,11 @@ platform:
   # mimics the stream in a more controlled way and tests the ability 
   # to access LBCS.
   # 
-  # TEST_CCPA_OBS_DIR, TEST_MRMS_OBS_DIR, TEST_NDAS_OBS_DIR: 
-  # These parameters are used by the testing script to test the mechanism 
+  # TEST_*_OBS_DIR:
+  # These parameters are used by the WE2E testing script to test the mechanism
   # that allows user to point to data streams on disk for observation data 
-  # for verification tasks. They test the ability for users to set 
-  # CCPA_OBS_DIR, MRMS_OBS_DIR, and NDAS_OBS_DIR respectively.
+  # for verification tasks. They test the ability for users to manually set 
+  # these observation directories.
   # 
   # TEST_VX_FCST_INPUT_BASEDIR: 
   # The path to user-staged forecast files for WE2E testing of verificaton 
@@ -379,6 +379,9 @@ platform:
   TEST_CCPA_OBS_DIR: ""
   TEST_MRMS_OBS_DIR: ""
   TEST_NDAS_OBS_DIR: ""
+  TEST_NOHRSC_OBS_DIR: ""
+  TEST_AERONET_OBS_DIR: ""
+  TEST_AIRNOW_OBS_DIR: ""
   TEST_VX_FCST_INPUT_BASEDIR: ""
   #
   #-----------------------------------------------------------------------
@@ -730,7 +733,7 @@ workflow:
   # the workflow launch script (WFLOW_LAUNCH_SCRIPT_FN).
   #
   # GLOBAL_VAR_DEFNS_FP: 
-  # Path to the global varibale definition file 
+  # Path to the global variable definition file
   # (GLOBAL_VAR_DEFNS_FN) in the experiment directory. 
   #
   # ROCOTO_YAML_FP: 
@@ -2455,12 +2458,13 @@ verification:
   # well as in the contents of those files.
   #
   # VX_FIELDS:
-  # The fields or groups of fields on which to run verification. Because
-  # accumulated snow (ASNOW) is often not of interest in non-winter cases
-  # and because observation files for ASNOW are not available on NOAA
-  # HPSS for retrospective cases before March 2020, by default ASNOW is
-  # not included VX_FIELDS, but it may be added to this list in order to
-  # include the verification tasks for ASNOW in the workflow. 
+  # The fields or groups of fields on which to run verification. By default,
+  # only a subset of fields are verified (conventional surface/upper-air,
+  # accumulated precipitation, and radar obs) because others (accumulated
+  # snow, air quality) are more niche and have limited availability. For
+  # example, observation files for ASNOW are not available on NOAA HPSS for
+  # retrospective cases before March 2020. See valid_param_vals.yaml for a
+  # complete list of valid verificaiton fields.
   #
   # VX_APCP_ACCUMS_HRS:
   # The 2-digit accumulation periods (in units of hours) to consider for

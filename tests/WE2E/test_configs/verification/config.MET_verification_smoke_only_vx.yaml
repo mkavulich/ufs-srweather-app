@@ -19,8 +19,9 @@ rocoto:
 verification:
   VX_FCST_MODEL_NAME: RRFS_smoke_test
 #  VX_FIELDS: [ "APCP", "REFC", "RETOP", "ADPSFC", "ADPUPA", "AOD", "PM25" ]
-  VX_FIELDS: [ "AOD", "PM25" ]
+  VX_FIELDS: [ "AOD", "PM25", "PM10" ]
   VX_FCST_INPUT_BASEDIR: /scratch2/BMC/fv3lam/kavulich/smoke_verif/smoke_vx/fcst
+  FCST_SUBDIR_TEMPLATE: '{init?fmt=%Y%m%d%H?shift=-${time_lag}}{% if global.DO_ENSEMBLE %}/${ensmem_name}{% endif %}'
   FCST_FN_TEMPLATE: 'rrfs.t{init?fmt=%H?shift=-${time_lag}}z.prslev.f{lead?fmt=%HHH?shift=${time_lag}}.conus_3km.grib2'
 platform:
   CCPA_OBS_DIR: '{{ workflow.EXPTDIR }}/CCPA_obs'

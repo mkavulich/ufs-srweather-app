@@ -645,7 +645,7 @@ while [[ ${current_fcst} -le ${fcst_length} ]]; do
     airnow_proc=${OBS_DIR}
 
     # Check if file exists on disk; if not, pull it.
-    airnow_file="$airnow_proc/${vyyyymmdd}/HourlyAQObs_{vyyyymmdd}${vhh}.dat"
+    airnow_file="$airnow_proc/${vyyyymmdd}/HourlyAQObs_${vyyyymmdd}${vhh}.dat"
     if [[ -f "${airnow_file}" ]]; then
       echo "${OBTYPE} file exists on disk:"
       echo "${airnow_file}"

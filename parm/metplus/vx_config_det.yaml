@@ -211,4 +211,6 @@ AERONET:
         L0: []
 AIRNOW:
     MASSDEN%%PM25:
-        R807|A1: []
+        Z8|A1: []
+    MASSDEN%%PM10:
+        Z8|A1: []
