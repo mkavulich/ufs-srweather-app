@@ -59,7 +59,36 @@ def eval_METplus_timestr_tmpl(init_time, fhr, METplus_timestr_tmpl):
     return formatted_time
 
 
-def set_vx_fhr_list(cdate, fcst_len, field, accum_hh, base_dir, filename_template, num_missing_files_max, verbose):
+def set_vx_fhr_list(cdate, fcst_len, field, accum_hh, base_dir, filename_template, num_missing_files_max, verbose=False,check_accum_contrib_files=False):
+    """Generates a list of forecast hours such that for each hour there exist a corresponding file
+    according to the filename pattern (filename_template) and other variables provided.
+
+    Args:
+        cdate      (str): Date string in YYYYMMDD[mmss] format, where minutes and seconds are
+                          optional.
+        fcst_len   (int): Length of forecast in hours
+        field      (str): Field name; see the first if block for valid values
+        accum_hh   (int): Accumulation period for the specified field. For instantaneous fields,
+                          set to 1.
+        base_dir   (str): Directory to find the paths to files specified by filename_template
+        filename_template     (str): The METplus filename template for finding the files
+        num_missing_files_max (int): If more files than this value are not found, raise exception
+        verbose              (bool): By default this script only outputs the list of forecast hours
+                                     (for easier parsing from bash contexts). Set the verbose flag
+                                     to True for additional debugging output.
+        check_accum_contrib_files (bool): If true, check all files contributing to accumulation
+                                          period, not just forecast hours.
+    Returns:
+        fhr_list_str (str) : A comma-separated list of forecast hours where files were found
+    """
+    # Set the interval (fhr_int) and minimum (fhr_min) hours for observation files for a given
+    # observation type and accumulation period/interval. For most observations and forecast fields
+    # this is 1 and 0, respectively (indicating instantaneous obs available every hour). For
+    # accumulation fields, you need a forecast length at least as long as the accumulation period,
+    # so fhr_min=accum_hh. For files that are not hourly, but instead contain data for multiple
+    # hours, they will need to have fhr_int specified accordingly.
+    # Every valid verification field (valid_vals_VX_FIELDS in valid_param_vals.yaml) should have
+    # an entry in this if block 
     if field == "AOD":
         fhr_min = 0
         fhr_int = 24
@@ -91,11 +120,19 @@ def set_vx_fhr_list(cdate, fcst_len, field, accum_hh, base_dir, filename_templat
     num_missing_files = 0
 
     for fhr_orig in fhr_array:
-        fhr = fhr_orig - accum_hh + 1
-        num_back_hrs = accum_hh
-
+        if check_accum_contrib_files:
+            fhr = fhr_orig - accum_hh + 1
+            num_back_hrs = accum_hh
+        else:
+            fhr = fhr_orig
+            num_back_hrs = 1
         skip_this_fhr = False
+
         for _ in range(num_back_hrs):
+            # Use the provided template to set the name of/relative path to the file 
+            # Note that the while-loop below is over all METplus time string templates
+            # of the form {...} in the template fn_template; it continues until all
+            # such templates have been evaluated to actual time strings.
             fn = filename_template
             regex_search_tmpl = r"(.*)(\{.*\})(.*)"
             crnt_tmpl = re.search(regex_search_tmpl, filename_template).group(2)
@@ -148,10 +185,12 @@ if __name__ == "__main__":
     parser.add_argument("-a", "--accum_hh", help="Accumulation length in hours for the specified field. For example, for 6-hour accumulated precipitation, field=APCP, accum_hh=6", type=int, default=1)
     parser.add_argument("-bd", "--base_dir", help="Base directory for forecast/observation file", type=str, default='')
     parser.add_argument("-ft", "--filename_template", help="Template for file names to search; see ??? for details on template settings", type=str, required=True)
-    parser.add_argument("-n", "--num_missing_files_max", help="Number of missing files to tolerate; if more files than this number can not be found, raise an exception", type=int, default=5)
+    parser.add_argument("-n", "--num_missing_files_max", type=int, default=5,
+                        help="Number of missing files to tolerate; if more files than this number can not be found, raise an exception")
+    parser.add_argument("--check_accum_contrib_files", action="store_true",
+                        help="Flag that determines whether we check the initial time of the accumulation period or not") 
 
     args = parser.parse_args()
 
-#    vx_fhr_list = set_vx_fhr_list(args.cdate, args.fcst_len, args.field, args.accum_hh, args.base_dir, args.filename_template, args.base_dir))
     vx_fhr_list = set_vx_fhr_list(**vars(args))
     print(vx_fhr_list)

@@ -52,14 +52,6 @@ done
 #
 #-----------------------------------------------------------------------
 #
-# Source files defining auxiliary functions for verification.
-#
-#-----------------------------------------------------------------------
-#
-. $USHdir/set_vx_fhr_list.sh
-#
-#-----------------------------------------------------------------------
-#
 # Save current shell options (in a global array).  Then set new options
 # for this script/function.
 #
@@ -103,6 +95,7 @@ user-staged.
 #
 #-----------------------------------------------------------------------
 #
+set -x
 i="0"
 if [ $(boolify "${DO_ENSEMBLE}") = "TRUE" ]; then
   i=$( bc -l <<< "${ENSMEM_INDX}-1" )
@@ -126,16 +119,16 @@ time_lag=$( bc -l <<< "${ENS_TIME_LAG_HRS[$i]}*${SECS_PER_HOUR}" )
 ensmem_indx=$(printf "%0${VX_NDIGITS_ENSMEM_NAMES}d" $(( 10#${ENSMEM_INDX})))
 ensmem_name="mem${ensmem_indx}"
 FCST_INPUT_FN_TEMPLATE=$( eval echo ${FCST_SUBDIR_TEMPLATE:+${FCST_SUBDIR_TEMPLATE}/}${FCST_FN_TEMPLATE} )
-set_vx_fhr_list \
-  cdate="${CDATE}" \
-  fcst_len_hrs="${FCST_LEN_HRS}" \
-  field="$VAR" \
-  accum_hh="${ACCUM_HH}" \
-  base_dir="${VX_FCST_INPUT_BASEDIR}" \
-  fn_template="${FCST_INPUT_FN_TEMPLATE}" \
-  check_accum_contrib_files="FALSE" \
-  num_missing_files_max="${NUM_MISSING_FCST_FILES_MAX}" \
-  outvarname_fhr_list="FHR_LIST"
+
+FHR_LIST=$( python3 $USHdir/set_vx_fhr_list.py \
+  --cdate="${CDATE}" \
+  --fcst_len="${FCST_LEN_HRS}" \
+  --field="$VAR" \
+  --accum_hh="${ACCUM_HH}" \
+  --base_dir="${VX_FCST_INPUT_BASEDIR}" \
+  --filename_template="${FCST_INPUT_FN_TEMPLATE}" \
+  --num_missing_files_max="${NUM_MISSING_FCST_FILES_MAX}" --verbose) || \
+print_err_msg_exit "Call to set_vx_fhr_list.py failed with return code: $?"
 #
 #-----------------------------------------------------------------------
 #

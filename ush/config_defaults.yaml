@@ -2533,7 +2533,7 @@ verification:
   # maximum allowed fraction of obs files that can be missing (i.e. the
   # number missing divided by the number that are expected to exist).
   #
-  NUM_MISSING_OBS_FILES_MAX: 2
+  NUM_MISSING_OBS_FILES_MAX: 0
   #
   # For verification tasks that need forecast data, this specifies the
   # maximum number of post-processed forecast files that may be missing. 

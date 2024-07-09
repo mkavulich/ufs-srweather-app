@@ -22,7 +22,6 @@ done
 #
 . $USHdir/get_metplus_tool_name.sh
 . $USHdir/set_vx_params.sh
-. $USHdir/set_vx_fhr_list.sh
 #
 #-----------------------------------------------------------------------
 #
@@ -164,16 +163,15 @@ STAGING_DIR="${OUTPUT_BASE}/stage/${FIELDNAME_IN_MET_FILEDIR_NAMES}_ensmean"
 #
 #-----------------------------------------------------------------------
 #
-set_vx_fhr_list \
-  cdate="${CDATE}" \
-  fcst_len_hrs="${FCST_LEN_HRS}" \
-  field="$VAR" \
-  accum_hh="${ACCUM_HH}" \
-  base_dir="${OBS_INPUT_DIR}" \
-  fn_template="${OBS_INPUT_FN_TEMPLATE}" \
-  check_accum_contrib_files="FALSE" \
-  num_missing_files_max="${NUM_MISSING_OBS_FILES_MAX}" \
-  outvarname_fhr_list="FHR_LIST"
+FHR_LIST=$( python3 $USHdir/set_vx_fhr_list.py \
+  --cdate="${CDATE}" \
+  --fcst_len="${FCST_LEN_HRS}" \
+  --field="$VAR" \
+  --accum_hh="${ACCUM_HH}" \
+  --base_dir="${OBS_INPUT_DIR}" \
+  --filename_template="${OBS_INPUT_FN_TEMPLATE}" \
+  --num_missing_files_max="${NUM_MISSING_OBS_FILES_MAX}") || \
+print_err_msg_exit "Call to set_vx_fhr_list.py failed with return code: $?"
 #
 #-----------------------------------------------------------------------
 #
