@@ -187,23 +187,11 @@ fi
 #
 metplus_config_tmpl_fn="${MetplusToolName}_obs"
 #
-# Note that we append the cycle date to the name of the configuration
-# file because we are considering only observations when using ASCII2NC, so
-# the output files from METplus are not placed under cycle directories.
-# Thus, another method is necessary to associate the configuration file
-# with the cycle for which it is used.
+# Set the name of the final conf file that will be used for this task. We
+# append the OBTYPE and cycle date to ensure that different tasks in the same
+# workflow won't overwrite each others' conf files.
 #
-# Note also that if considering an ensemble forecast, we include the
-# ensemble member name to the config file name.  This is necessary in
-# NCO mode (i.e. when RUN_ENVIR = "nco") because in that mode, the
-# directory tree under which the configuration file is placed does not
-# contain member information, so the file names must include it.  It is
-# not necessary in community mode (i.e. when RUN_ENVIR = "community")
-# because in that case, the directory structure does contain the member
-# information, but we still include that info in the file name so that
-# the behavior in the two modes is as similar as possible.
-#
-metplus_config_fn="${metplus_config_tmpl_fn}_${CDATE}"
+metplus_config_fn="${metplus_config_tmpl_fn}_${OBTYPE}_${CDATE}"
 metplus_log_fn="${metplus_config_fn}"
 #
 # Add prefixes and suffixes (extensions) to the base file names.
