@@ -200,6 +200,7 @@ elif [ "${grid_or_point}" = "point" ]; then
     OBS_INPUT_DIR="${vx_output_basedir}/metprd/Ascii2nc_obs"
     OBS_INPUT_FN_TEMPLATE="${OBS_AERONET_FN_TEMPLATE_ASCII2NC_OUTPUT}"
   elif [ "${OBTYPE}" = "AIRNOW" ]; then
+    FIELDNAME_IN_MET_FILEDIR_NAMES="AIRNOW_HOURLY_AQOBS"
     OBS_INPUT_DIR="${vx_output_basedir}/metprd/Ascii2nc_obs"
     OBS_INPUT_FN_TEMPLATE="${OBS_AIRNOW_FN_TEMPLATE_ASCII2NC_OUTPUT}"
   else
@@ -416,13 +417,13 @@ fi
 #-----------------------------------------------------------------------
 #
 #TEMPORARILY POINTING TO BETA RELEASE
-MET_ROOT=/contrib/met/12.0.0-beta3
+MET_ROOT=/contrib/met/12.0.0-beta5
 MET_INSTALL_DIR=${MET_ROOT}
 MET_BIN_EXEC=${MET_INSTALL_DIR}/bin
 MET_BASE=${MET_INSTALL_DIR}/share/met
-METPLUS_ROOT=/contrib/METplus/METplus-6.0.0-beta3/
+METPLUS_ROOT=/contrib/METplus/METplus-6.0.0-beta5/
 METPLUS_PATH=${METPLUS_ROOT}
-MET_ROOT=/contrib/met/12.0.0-beta3
+MET_ROOT=/contrib/met/12.0.0-beta5
 #TEMPORARILY POINTING TO BETA RELEASE
 print_info_msg "$VERBOSE" "
 Calling METplus to run MET's ${metplus_tool_name} tool for field(s): ${FIELDNAME_IN_MET_FILEDIR_NAMES}"
