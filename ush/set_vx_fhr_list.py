@@ -40,10 +40,7 @@ def set_vx_fhr_list(cdate, fcst_len, field, accum_hh, time_lag, base_dir, filena
     # hours, they will need to have fhr_int specified accordingly.
     # Every valid verification field (valid_vals_VX_FIELDS in valid_param_vals.yaml) should have
     # an entry in this if block 
-    if field == "AOD":
-        fhr_min = 0
-        fhr_int = 24
-    elif field == "APCP":
+    if field == "APCP":
         fhr_min = accum_hh
         fhr_int = accum_hh
     elif field == "ASNOW":
@@ -53,7 +50,7 @@ def set_vx_fhr_list(cdate, fcst_len, field, accum_hh, time_lag, base_dir, filena
         else:
             fhr_min = accum_hh
             fhr_int = accum_hh
-    elif field in ["PM25", "PM10", "REFC", "RETOP", "ADPSFC"]:
+    elif field in ["AOD", "PM25", "PM10", "REFC", "RETOP", "ADPSFC"]:
         fhr_min = 0
         fhr_int = 1
     elif field == "ADPUPA":

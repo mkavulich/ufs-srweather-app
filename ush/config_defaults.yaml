@@ -942,13 +942,11 @@ workflow:
   #
   # DATE_FIRST_CYCL:
   # Starting cycle date of the FIRST forecast in the set of forecasts to
-  # run.  Format is "YYYYMMDDHH". Note: This has recently changed to
-  # include the first cycle hour.
+  # run.  Format is "YYYYMMDDHH".
   #
   # DATE_LAST_CYCL:
   # Starting cycle date of the LAST forecast in the set of forecasts to run.
-  # Format is "YYYYMMDDHH".  Note: This has recently changed to include
-  # the last cycle hour.
+  # Format is "YYYYMMDDHH".
   #
   # INCR_CYCL_FREQ:
   # Increment in hours for Rocoto cycle frequency.
@@ -999,8 +997,8 @@ workflow:
   #   The preexisting directory is renamed and a new directory (having the
   #   same name as the original preexisting directory) is created. The new
   #   name of the preexisting directory consists of its original name and
-  #   the suffix "_oldNNN", where NNN is a 3-digit integer chosen to make
-  #   the new name unique.
+  #   the suffix "_old_YYYYMMDD_HHmmss", where YYYYMMDD_HHmmss is the full
+  #   date and time of the rename
   #
   # * "reuse":
   #    This method will keep preexisting directory intact except that
