@@ -224,7 +224,8 @@ FHR_LIST=$( python3 $USHdir/set_vx_fhr_list.py \
   --accum_hh="${ACCUM_HH}" \
   --base_dir="${OBS_INPUT_DIR}" \
   --filename_template="${OBS_INPUT_FN_TEMPLATE}" \
-  --num_missing_files_max="${NUM_MISSING_OBS_FILES_MAX}") || \
+  --num_missing_files_max="${NUM_MISSING_OBS_FILES_MAX}" \
+  --time_lag="${time_lag}") || \
 print_err_msg_exit "Call to set_vx_fhr_list.py failed with return code: $?"
 
 #

@@ -6,70 +6,21 @@ import subprocess
 import sys
 from datetime import datetime, timedelta
 
-def eval_METplus_timestr_tmpl(init_time, fhr, METplus_timestr_tmpl):
-    yyyymmdd_init = init_time[:8]
-    hh_init = init_time[8:10]
+sys.path.append(os.environ['METPLUS_ROOT'])
+from metplus.util import string_template_substitution as sts
 
-    mn_init = "00"
-    if len(init_time) > 10:
-        mn_init = init_time[10:12]
-
-    ss_init = "00"
-    if len(init_time) > 12:
-        ss_init = init_time[12:14]
-
-    init_time_str = f"{yyyymmdd_init} {hh_init}:{mn_init}:{ss_init}"
-    init_time_dt = datetime.strptime(init_time_str, "%Y%m%d %H:%M:%S")
-    valid_time_dt = init_time_dt + timedelta(hours=fhr)
-
-    regex_search = r"^\{(init|valid|lead)(\?)(fmt=)([^\?]*)(\?)?(shift=)?([^\?]*)?\}"
-    
-    METplus_time_type = re.search(regex_search, METplus_timestr_tmpl).group(1)
-    METplus_time_fmt = re.search(regex_search, METplus_timestr_tmpl).group(4)
-    METplus_time_shift = re.search(regex_search, METplus_timestr_tmpl).group(7)
-
-    if METplus_time_fmt in ["%Y%m%d%H", "%Y%m%d", "%H%M%S", "%H"]:
-        fmt = METplus_time_fmt
-    elif METplus_time_fmt == "%HHH":
-        fmt = "%03.0f"
-    else:
-        raise ValueError(f"Unsupported METplus time format:\n  {METplus_time_fmt=}\n  {METplus_timestr_tmpl=}")
-    
-    time_shift_secs = int(float(METplus_time_shift or 0))
-    time_shift_td = timedelta(seconds=time_shift_secs)
-    
-    if METplus_time_type == "init":
-        formatted_time = (init_time_dt + time_shift_td).strftime(fmt)
-    elif METplus_time_type == "valid":
-        formatted_time = (valid_time_dt + time_shift_td).strftime(fmt)
-    elif METplus_time_type == "lead":
-        lead_secs = (valid_time_dt + time_shift_td - init_time_dt).total_seconds()
-        lead_hrs = lead_secs / 3600
-        
-        lead_hrs_trunc = int(lead_hrs)
-        lead_hrs_rem = lead_hrs - lead_hrs_trunc
-        if lead_hrs_rem != 0:
-            raise ValueError(f"The lead in hours ({lead_hrs=}) derived from seconds ({lead_secs=}) must be an integer")
-        
-        formatted_time = f"{lead_hrs_trunc:03d}"
-    else:
-        raise ValueError(f"Unsupported METplus time type:  {METplus_time_type=}")
-
-
-    return formatted_time
-
-
-def set_vx_fhr_list(cdate, fcst_len, field, accum_hh, base_dir, filename_template, num_missing_files_max, verbose=False,check_accum_contrib_files=False):
+def set_vx_fhr_list(cdate, fcst_len, field, accum_hh, time_lag, base_dir, filename_template, num_missing_files_max, verbose=False,check_accum_contrib_files=False):
     """Generates a list of forecast hours such that for each hour there exist a corresponding file
     according to the filename pattern (filename_template) and other variables provided.
 
     Args:
-        cdate      (str): Date string in YYYYMMDD[mmss] format, where minutes and seconds are
-                          optional.
+        cdate      (str): Date string of forecast initialization in YYYYMMDD[mmss] format, where
+                          minutes and seconds are optional.
         fcst_len   (int): Length of forecast in hours
         field      (str): Field name; see the first if block for valid values
         accum_hh   (int): Accumulation period for the specified field. For instantaneous fields,
                           set to 1.
+        time_lag   (int): Hours of time lag for a time-lagged ensemble member
         base_dir   (str): Directory to find the paths to files specified by filename_template
         filename_template     (str): The METplus filename template for finding the files
         num_missing_files_max (int): If more files than this value are not found, raise exception
@@ -128,37 +79,31 @@ def set_vx_fhr_list(cdate, fcst_len, field, accum_hh, base_dir, filename_templat
             num_back_hrs = 1
         skip_this_fhr = False
 
-        for _ in range(num_back_hrs):
-            # Use the provided template to set the name of/relative path to the file 
-            # Note that the while-loop below is over all METplus time string templates
-            # of the form {...} in the template fn_template; it continues until all
-            # such templates have been evaluated to actual time strings.
-            fn = filename_template
-            regex_search_tmpl = r"(.*)(\{.*\})(.*)"
-            crnt_tmpl = re.search(regex_search_tmpl, filename_template).group(2)
-            remainder = re.sub(regex_search_tmpl, r"\1\3", filename_template)
+        if len(cdate) == 10:
+            initdate=datetime.strptime(cdate, '%Y%m%d%H')
+        elif len(cdate) == 12:
+            initdate=datetime.strptime(cdate, '%Y%m%d%H%M')
+        elif len(cdate) == 14:
+            initdate=datetime.strptime(cdate, '%Y%m%d%H%M%S')
+        else:
+            raise ValueError(f"Invalid {cdate=}; cdate must be 10, 12, or 14 characters in length")
 
-            while crnt_tmpl:
-                actual_value = eval_METplus_timestr_tmpl(cdate, fhr, crnt_tmpl)
-                crnt_tmpl_esc = re.escape(crnt_tmpl)
-                fn = re.sub(crnt_tmpl_esc, actual_value, fn, 1)
-                match = re.search(regex_search_tmpl, remainder)
-                crnt_tmpl = match.group(2) if match else ''
-                remainder = re.sub(regex_search_tmpl, r"\1\3", remainder)
+        validdate=initdate + timedelta(hours=fhr)
+        leadsec=fhr*3600
+        fn = sts.do_string_sub(tmpl=filename_template,init=initdate,lead=leadsec,valid=validdate,shift=time_lag)
+        fp = os.path.join(base_dir, fn)
 
-            fp = os.path.join(base_dir, fn)
+        if os.path.isfile(fp):
+            if verbose:
+                print(f"Found file (fp) for the current forecast hour (fhr; relative to the cycle date cdate):\n  fhr = \"{fhr}\"\n  cdate = \"{cdate}\"\n  fp = \"{fp}\"")
+        else:
+            skip_this_fhr = True
+            num_missing_files += 1
+            if verbose:
+                print(f"The file (fp) for the current forecast hour (fhr; relative to the cycle date cdate) is missing:\n  fhr = \"{fhr}\"\n  cdate = \"{cdate}\"\n  fp = \"{fp}\"\nExcluding the current forecast hour from the list of hours passed to the METplus configuration file.")
+            break
 
-            if os.path.isfile(fp):
-                if verbose:
-                    print(f"Found file (fp) for the current forecast hour (fhr; relative to the cycle date cdate):\n  fhr = \"{fhr}\"\n  cdate = \"{cdate}\"\n  fp = \"{fp}\"")
-            else:
-                skip_this_fhr = True
-                num_missing_files += 1
-                if verbose:
-                    print(f"The file (fp) for the current forecast hour (fhr; relative to the cycle date cdate) is missing:\n  fhr = \"{fhr}\"\n  cdate = \"{cdate}\"\n  fp = \"{fp}\"\nExcluding the current forecast hour from the list of hours passed to the METplus configuration file.")
-                break
-
-            fhr += 1
+        fhr += 1
 
         if not skip_this_fhr:
             fhr_list.append(fhr_orig)
@@ -183,6 +128,7 @@ if __name__ == "__main__":
     parser.add_argument("-f", "--field", help="Field name", type=str, required=True,
                         choices=["PM25", "PM10", "REFC", "RETOP", "ADPSFC", "AOD", "APCP", "ASNOW", "ADPUPA"])
     parser.add_argument("-a", "--accum_hh", help="Accumulation length in hours for the specified field. For example, for 6-hour accumulated precipitation, field=APCP, accum_hh=6", type=int, default=1)
+    parser.add_argument("-tl", "--time_lag", help="Hours of time lag for a time-lagged ensemble member", type=float, default=0)
     parser.add_argument("-bd", "--base_dir", help="Base directory for forecast/observation file", type=str, default='')
     parser.add_argument("-ft", "--filename_template", help="Template for file names to search; see ??? for details on template settings", type=str, required=True)
     parser.add_argument("-n", "--num_missing_files_max", type=int, default=5,

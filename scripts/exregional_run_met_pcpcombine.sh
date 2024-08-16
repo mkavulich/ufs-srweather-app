@@ -234,7 +234,8 @@ FHR_LIST=$( python3 $USHdir/set_vx_fhr_list.py \
   --accum_hh="${ACCUM_HH}" \
   --base_dir="${base_dir}" \
   --filename_template="${fn_template}" \
-  --num_missing_files_max="${num_missing_files_max}") || \
+  --num_missing_files_max="${num_missing_files_max}" \
+  --time_lag="${time_lag}") || \
 print_err_msg_exit "Call to set_vx_fhr_list.py failed with return code: $?"
 #
 #-----------------------------------------------------------------------
