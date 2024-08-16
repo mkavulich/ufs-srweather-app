@@ -131,10 +131,10 @@ task_run_MET_Pb2nc_obs:
 
 metatask_ASCII2nc_obs:
   var:
-    METAVAR: '{% for var in verification.VX_FIELDS %}{% if var in ["AOD", "PM25"] %}{{ "%s " % var }}{% endif %}{% endfor %}'
-    METAOBTYPE: '{% for var in verification.VX_FIELDS %}{% if var =="AOD" %}AERONET {% elif var =="PM25" %}AIRNOW {% endif %}{% endfor %}'
-    METAOBS_DIR: '{% for var in verification.VX_FIELDS %}{% if var =="AOD" %}&AERONET_OBS_DIR; {% elif var =="PM25" %}&AIRNOW_OBS_DIR; {% endif %}{% endfor %}'
-    TASKDEP: '{% for var in verification.VX_FIELDS %}{% if var =="AOD" %}get_obs_aeronet {% elif var =="PM25" %}get_obs_airnow {% endif %}{% endfor %}'
+    METAVAR: '{% for var in verification.VX_FIELDS %}{% if var in ["AOD", "PM25", "PM10"] %}{{ "%s " % var }}{% endif %}{% endfor %}'
+    METAOBTYPE: '{% for var in verification.VX_FIELDS %}{% if var =="AOD" %}AERONET {% elif var =="PM25" or var=="PM10" %}AIRNOW {% endif %}{% endfor %}'
+    METAOBS_DIR: '{% for var in verification.VX_FIELDS %}{% if var =="AOD" %}&AERONET_OBS_DIR; {% elif var =="PM25" or var=="PM10" %}&AIRNOW_OBS_DIR; {% endif %}{% endfor %}'
+    TASKDEP: '{% for var in verification.VX_FIELDS %}{% if var =="AOD" %}get_obs_aeronet {% elif var =="PM25" or var=="PM10" %}get_obs_airnow {% endif %}{% endfor %}'
   task_run_MET_ASCII2nc_obs_#METAVAR#:
     <<: *default_task_verify_pre
     attrs:

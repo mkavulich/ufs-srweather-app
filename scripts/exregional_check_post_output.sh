@@ -128,7 +128,7 @@ FHR_LIST=$( python3 $USHdir/set_vx_fhr_list.py \
   --base_dir="${VX_FCST_INPUT_BASEDIR}" \
   --filename_template="${FCST_INPUT_FN_TEMPLATE}" \
   --num_missing_files_max="${NUM_MISSING_FCST_FILES_MAX}" \
-  --time_lag="${time_lag}" --verbose) || \
+  --time_lag="${time_lag}") || \
 print_err_msg_exit "Call to set_vx_fhr_list.py failed with return code: $?"
 #
 #-----------------------------------------------------------------------

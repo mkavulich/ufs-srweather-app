@@ -116,21 +116,24 @@ metatask_GridStat_MRMS_all_mems:
               age: 00:00:00:30
             text: !cycstr '{{ workflow.EXPTDIR }}/@Y@m@d@H/post_files_exist_mem#mem#.txt'
 
-metatask_PointStat_NDAS_all_mems:
+metatask_PointStat:
   var:
-    mem: '{% if global.DO_ENSEMBLE %}{% for m in range(1, global.NUM_ENS_MEMBERS+1) %}{{ "%03d "%m }}{%- endfor -%} {% else %}{{ "000"|string }}{% endif %}'
-  metatask_PointStat_NDAS_mem#mem#:
+    METAVAR: '{% for var in verification.VX_FIELDS %}{% if var in ["ADPSFC", "ADPUPA", "AOD", "PM25", "PM10"] %}{{ "%s " % var }}{% endif %}{% endfor %}'
+    METAOBTYPE: '{% for var in verification.VX_FIELDS %}{% if var =="ADPSFC" or var =="ADPUPA" %}NDAS {% elif var =="AOD" %}AERONET {% elif var =="PM25" or var =="PM10" %}AIRNOW {% endif %}{% endfor %}'
+    METAOBS_DIR: '{% for var in verification.VX_FIELDS %}{% if var =="ADPSFC" or var =="ADPUPA" %}&NDAS_OBS_DIR; {% elif var =="AOD" %}&AERONET_OBS_DIR; {% elif var =="PM25" or var =="PM10" %}&AIRNOW_OBS_DIR; {% endif %}{% endfor %}'
+    TASKDEP: '{% for var in verification.VX_FIELDS %}{% if var =="ADPSFC" or var =="ADPUPA" %}run_MET_Pb2nc_obs {% elif var =="AOD" %}run_MET_ASCII2nc_obs_AOD {% elif var =="PM25" or var =="PM10" %}run_MET_ASCII2nc_obs_{{"%s" % var}} {% endif %}{% endfor %}'
+  metatask_PointStat_#METAVAR#_all_mems:
     var:
-      VAR: '{% for var in verification.VX_FIELDS %}{% if var in ["ADPSFC", "ADPUPA"] %}{{ "%s " % var }}{% endif %}{% endfor %}'
-    task_run_MET_PointStat_vx_#VAR#_mem#mem#:
+      mem: '{% if global.DO_ENSEMBLE %}{% for m in range(1, global.NUM_ENS_MEMBERS+1) %}{{ "%03d "%m }}{%- endfor -%} {% else %}{{ "000"|string }}{% endif %}'
+    task_run_MET_PointStat_vx_#METAVAR#_mem#mem#:
       <<: *default_task_verify_det
       command: '&LOAD_MODULES_RUN_TASK; "run_vx" "&JOBSdir;/JREGIONAL_RUN_MET_GRIDSTAT_OR_POINTSTAT_VX"'
       envars:
         <<: *default_vars
-        OBS_DIR: '&NDAS_OBS_DIR;'
-        VAR: '#VAR#'
+        OBS_DIR: '#METAOBS_DIR#'
+        VAR: '#METAVAR#'
         METPLUSTOOLNAME: 'POINTSTAT'
-        OBTYPE: 'NDAS'
+        OBTYPE: '#METAOBTYPE#'
         ACCUM_HH: '01'
         ENSMEM_INDX: "#mem#"
         SLASH_ENSMEM_SUBDIR_OR_NULL: '{% if global.DO_ENSEMBLE %}{{ "/mem#mem#" }}{% endif %}'
@@ -141,7 +144,7 @@ metatask_PointStat_NDAS_all_mems:
         and:
           taskdep_pb2nc:
             attrs:
-              task: run_MET_Pb2nc_obs
+              task: '#TASKDEP#'
           datadep_post_files_exist:
             attrs:
               age: 00:00:00:30
