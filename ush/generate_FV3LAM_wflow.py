@@ -19,18 +19,19 @@ from uwtools.api.config import get_nml_config, get_yaml_config, realize
 from uwtools.api.template import render
 
 from python_utils import (
-    list_to_str,
-    log_info,
-    import_vars,
-    export_vars,
-    cp_vrfy,
-    mkdir_vrfy,
-    mv_vrfy,
-    check_for_preexist_dir_file,
     cfg_to_yaml_str,
+    check_for_preexist_dir_file,
+    cp_vrfy,
+    create_symlink_to_file,
+    dict_find,
+    export_vars,
     find_pattern_in_str,
     flatten_dict,
-    dict_find,
+    import_vars,
+    list_to_str,
+    log_info,
+    mkdir_vrfy,
+    mv_vrfy
 )
 
 from setup import setup

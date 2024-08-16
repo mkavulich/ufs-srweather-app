@@ -23,7 +23,7 @@ default_task_verify_pre: &default_task_verify_pre
 
 task_get_obs_aeronet:
   <<: *default_task_verify_pre
-  command: '&LOAD_MODULES_RUN_TASK_FP; "get_obs" "&JOBSdir;/JREGIONAL_GET_VERIF_OBS"'
+  command: '&LOAD_MODULES_RUN_TASK; "get_obs" "&JOBSdir;/JREGIONAL_GET_VERIF_OBS"'
   envars:
     <<: *default_vars
     OBS_DIR: '&AERONET_OBS_DIR;'
@@ -36,7 +36,7 @@ task_get_obs_aeronet:
 
 task_get_obs_airnow:
   <<: *default_task_verify_pre
-  command: '&LOAD_MODULES_RUN_TASK_FP; "get_obs" "&JOBSdir;/JREGIONAL_GET_VERIF_OBS"'
+  command: '&LOAD_MODULES_RUN_TASK; "get_obs" "&JOBSdir;/JREGIONAL_GET_VERIF_OBS"'
   envars:
     <<: *default_vars
     OBS_DIR: '&AIRNOW_OBS_DIR;'
@@ -140,7 +140,7 @@ metatask_ASCII2nc_obs:
     attrs:
       cycledefs: forecast
       maxtries: '2'
-    command: '&LOAD_MODULES_RUN_TASK_FP; "run_vx" "&JOBSdir;/JREGIONAL_RUN_MET_ASCII2NC_OBS"'
+    command: '&LOAD_MODULES_RUN_TASK; "run_vx" "&JOBSdir;/JREGIONAL_RUN_MET_ASCII2NC_OBS"'
     envars:
       <<: *default_vars
       VAR: '#METAVAR#'
@@ -337,7 +337,7 @@ metatask_PcpCombine_fcst_PM_all_mems:
       attrs:
         cycledefs: forecast
         maxtries: '2'
-      command: '&LOAD_MODULES_RUN_TASK_FP; "run_vx" "&JOBSdir;/JREGIONAL_RUN_MET_PCPCOMBINE"'
+      command: '&LOAD_MODULES_RUN_TASK; "run_vx" "&JOBSdir;/JREGIONAL_RUN_MET_PCPCOMBINE"'
       envars:
         <<: *default_vars
         VAR: '#PM#'
