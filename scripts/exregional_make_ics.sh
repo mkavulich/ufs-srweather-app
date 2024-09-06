@@ -542,10 +542,6 @@ case "${EXTRN_MDL_NAME_ICS}" in
   convert_nst=False
   ;;
 
-"RRFS")
-  external_model="RRFS"
-  fn_grib2="${EXTRN_MDL_FNS[0]}"
-  input_type="grib2"
 #
 # Path to the RRFS/HRRRX geogrid file.
 #
