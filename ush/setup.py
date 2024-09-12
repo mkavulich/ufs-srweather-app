@@ -13,7 +13,6 @@ import yaml
 from uwtools.api.config import get_yaml_config
 
 from python_utils import (
-    log_info,
     cd_vrfy,
     date_to_str,
     mkdir_vrfy,
@@ -366,7 +365,7 @@ def setup(USHdir, user_config_fn="config.yaml", debug: bool = False):
     logger = logging.getLogger(__name__)
 
     # print message
-    log_info(
+    logger.info(
         f"""
         ========================================================================
         Starting function setup() in \"{os.path.basename(__file__)}\"...
@@ -395,11 +394,11 @@ def setup(USHdir, user_config_fn="config.yaml", debug: bool = False):
     workflow_config = expt_config["workflow"]
 
     workflow_id = workflow_config["WORKFLOW_ID"]
-    log_info(f"""WORKFLOW ID = {workflow_id}""")
+    logger.info(f"""WORKFLOW ID = {workflow_id}""")
 
     debug = workflow_config.get("DEBUG")
     if debug:
-        log_info(
+        logger.info(
             """
             Setting VERBOSE to \"TRUE\" because DEBUG has been set to \"TRUE\"..."""
         )
@@ -611,7 +610,7 @@ def setup(USHdir, user_config_fn="config.yaml", debug: bool = False):
         if not vx_fields_obstype:
             for metatask in vx_metatasks_all[obstype]:
                 if metatask in rocoto_config['tasks']:
-                    logging.info(dedent(
+                    logger.info(dedent(
                         f"""
                         Removing verification [meta]task
                           "{metatask}"
@@ -884,7 +883,7 @@ def setup(USHdir, user_config_fn="config.yaml", debug: bool = False):
         )
         expt_config["grid_params"] = grid_params
     elif not run_any_coldstart_task:
-        log_info("No coldstart tasks specified, not setting grid parameters")
+        logger.warning("No coldstart tasks specified, not setting grid parameters")
     else:
         errmsg = dedent(
             f"""
@@ -1444,8 +1443,8 @@ def setup(USHdir, user_config_fn="config.yaml", debug: bool = False):
 
     if workflow_config["SDF_USES_THOMPSON_MP"]:
     
-        logging.debug(f'Selected CCPP suite ({workflow_config["CCPP_PHYS_SUITE"]}) uses Thompson MP')
-        logging.debug(f'Setting up links for additional fix files')
+        logger.debug(f'Selected CCPP suite ({workflow_config["CCPP_PHYS_SUITE"]}) uses Thompson MP')
+        logger.debug(f'Setting up links for additional fix files')
 
         # If the model ICs or BCs are not from RAP or HRRR, they will not contain aerosol
         # climatology data needed by the Thompson scheme, so we need to provide a separate file
@@ -1461,8 +1460,8 @@ def setup(USHdir, user_config_fn="config.yaml", debug: bool = False):
         for fix_file in fixed_files["THOMPSON_FIX_FILES"]:
             fixed_files["CYCLEDIR_LINKS_TO_FIXam_FILES_MAPPING"].append(f"{fix_file} | {fix_file}")
 
-        logging.debug(f'New fix file list:\n{fixed_files["FIXgsm_FILES_TO_COPY_TO_FIXam"]=}')
-        logging.debug(f'New fix file mapping:\n{fixed_files["CYCLEDIR_LINKS_TO_FIXam_FILES_MAPPING"]=}')
+        logger.debug(f'New fix file list:\n{fixed_files["FIXgsm_FILES_TO_COPY_TO_FIXam"]=}')
+        logger.debug(f'New fix file mapping:\n{fixed_files["CYCLEDIR_LINKS_TO_FIXam_FILES_MAPPING"]=}')
 
 
     #
@@ -1482,11 +1481,11 @@ def setup(USHdir, user_config_fn="config.yaml", debug: bool = False):
 
     # print content of var_defns if DEBUG=True
     all_lines = cfg_to_yaml_str(expt_config)
-    log_info(all_lines, verbose=debug)
+    logger.debug(all_lines)
 
     global_var_defns_fp = workflow_config["GLOBAL_VAR_DEFNS_FP"]
     # print info message
-    log_info(
+    logger.info(
         f"""
         Generating the global experiment variable definitions file here:
           GLOBAL_VAR_DEFNS_FP = '{global_var_defns_fp}'
