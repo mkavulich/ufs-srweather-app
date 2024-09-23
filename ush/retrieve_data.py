@@ -1072,6 +1072,11 @@ def parse_args(argv):
             raise argparse.ArgumentTypeError(f"Invalid value '{store}' provided " \
                   f"for --data_stores; valid values are {valid_data_stores}")
 
+    # Check other requirements
+    if not os.path.isdir(args.output_path):
+        logging.critical(f"{args.output_path} does not exist or is not a directory")
+        raise FileNotFoundError(f"Argument `--output_path` must be an existing directory")
+
     return args
 
 
