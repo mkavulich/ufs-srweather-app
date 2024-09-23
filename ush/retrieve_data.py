@@ -52,7 +52,15 @@ def clean_up_output_dir(expected_subdir, local_archive, output_path, source_path
     expand_source_paths = []
     logging.debug(f"Cleaning up local paths: {source_paths}")
     for p in source_paths:
-        expand_source_paths.extend(glob.glob(p.lstrip("/")))
+        globbed=glob.glob(p.lstrip("/"))
+        if globbed:
+            expand_source_paths.extend(globbed)
+        else:
+            logging.warning(f"Input source path {p} did not match any extracted files!")
+            if unavailable.get("hpss"):
+                unavailable["hpss"].append(p)
+            else:
+                unavailable["hpss"] = [p]
 
     # Check to make sure the files exist on disk
     for file_path in expand_source_paths:
@@ -575,10 +583,10 @@ def hpss_requested_files(cla, file_names, store_specs, members=-1, ens_group=-1)
                     existing_archive = hsi_single_file(existing_archive, mode="get")
 
                     # Grab only the necessary files from the archive
-                    cmd = f'unzip -o {os.path.basename(existing_archive)} {" ".join(source_paths)}'
+                    cmd = f'unzip -o {os.path.basename(existing_archive)} {" ".join(expected)}'
 
                 else:
-                    cmd = f'htar -xvf {existing_archive} {" ".join(source_paths)}'
+                    cmd = f'htar -xvf {existing_archive} {" ".join(expected)}'
 
                 logging.info(f"Running command \n {cmd}")
 
@@ -598,33 +606,22 @@ def hpss_requested_files(cla, file_names, store_specs, members=-1, ens_group=-1)
                         raise Exception("Error running archive extraction command")
 
                 # Check that files exist and Remove any data transfer artifacts.
-                # Returns {'hpss': []}, turn that into a new dict of
-                # sets.
-                unavailable[existing_archive] = set(
+                unavailable = set(
                     clean_up_output_dir(
                         expected_subdir=archive_internal_dir,
                         local_archive=os.path.basename(existing_archive),
                         output_path=output_path,
-                        source_paths=source_paths,
+                        source_paths=list(expected),
                     ).get("hpss", [])
                 )
 
-            # Once we go through all the archives, the union of all
-            # "unavailable" files should equal the "expected" list of
-            # files since clean_up_output_dir only reports on those that
-            # are missing from one of the files attempted. If any
-            # additional files are reported as unavailable, then
-            # something has gone wrong.
-            unavailable = set.union(*unavailable.values())
+                # Finally, update the "expected" set, removing files we already found and retrieved.
+                expected = expected.intersection(unavailable)
 
-    # Break loop if unexpected files were found or if files were found
-    # A successful file found does not equal the expected file list and 
-    # returns an empty set function.
-    if not expected == unavailable:
-        return unavailable - expected
-    
-    # If this loop has completed successfully without returning early, then all files have been found
-    return {}
+
+    # Return a set of unavailable/not found files. In our case, this represents the remaining elements
+    # of the "expected" set, since we removed elements as they were found.
+    return expected
 
 
 def load_str(arg):
@@ -880,6 +877,7 @@ def main(argv):
                         members=members,
                         ens_group=ens_group,
                     )
+
 
         if not unavailable:
             # All files are found. Stop looking!
