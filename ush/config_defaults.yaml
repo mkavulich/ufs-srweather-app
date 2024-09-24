@@ -2416,7 +2416,9 @@ verification:
   # File name template for AERONET observation files.
   #
   # OBS_AIRNOW_FN_TEMPLATE: 
-  # File name template for AERONET observation files.
+  # File name template for AERONET observation files. NOTE: for files retrieved from HPSS (see
+  # AIRNOW_DATA_STORES variable), the default value should be replaced with 
+  # '{valid?fmt=%Y%m%d}/HourlyAQObs_{valid?fmt=%Y%m%d%H}.dat'
   #
   OBS_CCPA_APCP_FN_TEMPLATE: '{valid?fmt=%Y%m%d}/ccpa.t{valid?fmt=%H}z.01h.hrap.conus.gb2'
   OBS_NOHRSC_ASNOW_FN_TEMPLATE: '{valid?fmt=%Y%m%d}/sfav2_CONUS_${ACCUM_HH}h_{valid?fmt=%Y%m%d%H}_grid184.grb2'
@@ -2424,7 +2426,7 @@ verification:
   OBS_MRMS_RETOP_FN_TEMPLATE: '{valid?fmt=%Y%m%d}/EchoTop_18_00.50_{valid?fmt=%Y%m%d}-{valid?fmt=%H%M%S}.grib2'
   OBS_NDAS_ADPSFCorADPUPA_FN_TEMPLATE: 'prepbufr.ndas.{valid?fmt=%Y%m%d%H}'
   OBS_AERONET_FN_TEMPLATE: '{valid?fmt=%Y%m%d}/{valid?fmt=%Y%m%d}.lev15'
-  OBS_AIRNOW_FN_TEMPLATE: '{valid?fmt=%Y%m%d}/HourlyAQObs_{valid?fmt=%Y%m%d%H}.dat'
+  OBS_AIRNOW_FN_TEMPLATE: '{valid?fmt=%Y%m%d}/HourlyData_{valid?fmt=%Y%m%d%H}.dat'
   # 
   # OBS_CCPA_APCP_FN_TEMPLATE_PCPCOMBINE_OUTPUT: 
   # Template used to specify the names of the output NetCDF observation
@@ -2449,6 +2451,20 @@ verification:
   #
   OBS_AERONET_FN_TEMPLATE_ASCII2NC_OUTPUT: 'hourly_aeronet_obs_{valid?fmt=%Y%m%d%H}.nc'
   OBS_AIRNOW_FN_TEMPLATE_ASCII2NC_OUTPUT: 'hourly_airnow_obs_{valid?fmt=%Y%m%d%H}.nc'
+  #
+  # AIRNOW_INPUT_FORMAT:
+  # Observation format for ASCII Airnow observations. Valid options can be found in METplus
+  # users guide: https://met.readthedocs.io/en/latest/Users_Guide/reformat_point.html#ascii2nc-tool
+  # If not specified or set to a blank string, will attempt to determine its value based on the
+  # value of OBS_AIRNOW_FN_TEMPLATE
+  #
+  # AIRNOW_DATA_STORES:
+  # Location(s) to retrieve AIRNOW data from. Valid values are "aws" and/or "hpss", see
+  # parm/data_locations.yaml for info on these data stores.
+  # 
+  AIRNOW_INPUT_FORMAT: ""
+  AIRNOW_DATA_STORES: aws
+
   #
   # VX_FCST_MODEL_NAME:
   # String that specifies a descriptive name for the model being verified.

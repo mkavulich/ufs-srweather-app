@@ -31,7 +31,7 @@
 #-----------------------------------------------------------------------
 #
 . $USHdir/source_util_funcs.sh
-for sect in user nco ; do
+for sect in user nco verification; do
   source_yaml ${GLOBAL_VAR_DEFNS_FP} ${sect}
 done
 #
@@ -203,6 +203,7 @@ while [[ ${current_fcst} -le ${fcst_length} ]]; do
   vdate=$($DATE_UTIL -d "${unix_init_DATE} ${current_fcst} hours" +%Y%m%d%H)
   unix_vdate=$($DATE_UTIL -d "${unix_init_DATE} ${current_fcst} hours" "+%Y-%m-%d %H:00:00")
   vyyyymmdd=$(echo ${vdate} | cut -c1-8)
+  vyyyy=$(echo ${vdate} | cut -c1-4)
   vhh=$(echo ${vdate} | cut -c9-10)
 
   # Calculate valid date + 1 day; this is needed because some obs files
@@ -622,7 +623,7 @@ while [[ ${current_fcst} -le ${fcst_length} ]]; do
         --file_set obs \
         --config ${PARMdir}/data_locations.yml \
         --cycle_date ${vyyyymmdd}${vhh} \
-        --data_stores hpss \
+        --data_stores aws hpss \
         --data_type AERONET \
         --output_path $aeronet_proc/${vyyyymmdd} \
         --summary_file ${logfile}"
@@ -635,6 +636,10 @@ while [[ ${current_fcst} -le ${fcst_length} ]]; do
       The following command exited with a non-zero exit status:
       ${cmd}
 "
+      # AERONET pulled from http gets weird filenames, rename to standard name
+      if [[ -f $aeronet_proc/${vyyyymmdd}/print_web_data_v3?year=${vyyyy} ]]; then
+        mv $aeronet_proc/${vyyyymmdd}/print_web_data_v3?year=${vyyyy} $aeronet_file
+      fi
 
     fi
 
@@ -665,7 +670,7 @@ while [[ ${current_fcst} -le ${fcst_length} ]]; do
         --file_set obs \
         --config ${PARMdir}/data_locations.yml \
         --cycle_date ${vyyyymmdd}${vhh} \
-        --data_stores hpss \
+        --data_stores ${AIRNOW_DATA_STORES} \
         --data_type AIRNOW \
         --output_path $airnow_proc/${vyyyymmdd} \
         --summary_file ${logfile}"
@@ -673,13 +678,11 @@ while [[ ${current_fcst} -le ${fcst_length} ]]; do
       echo "CALLING: ${cmd}"
 
       $cmd || print_err_msg_exit "\
-      Could not retrieve AIRNOW data from HPSS
+      Could not retrieve AIRNOW data from AWS or HPSS
 
       The following command exited with a non-zero exit status:
       ${cmd}
 "
-
-
 
     fi
 
@@ -696,7 +699,7 @@ done
 
 
 # Clean up raw, unprocessed observation files
-rm -rf ${OBS_DIR}/raw
+#rm -rf ${OBS_DIR}/raw
 
 #
 #-----------------------------------------------------------------------

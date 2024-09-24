@@ -21,7 +21,6 @@ done
 #-----------------------------------------------------------------------
 #
 . $USHdir/get_metplus_tool_name.sh
-. $USHdir/set_vx_params.sh
 #
 #-----------------------------------------------------------------------
 #
@@ -92,7 +91,19 @@ if [ "${OBTYPE}" = "AERONET" ]; then
 elif [ "${OBTYPE}" = "AIRNOW" ]; then
   OBS_INPUT_FN_TEMPLATE=${OBS_AIRNOW_FN_TEMPLATE}
   OUTPUT_FN_TEMPLATE=${OBS_AIRNOW_FN_TEMPLATE_ASCII2NC_OUTPUT}
-  ASCII2NC_INPUT_FORMAT=airnowhourlyaqobs
+  if [ -z "${AIRNOW_INPUT_FORMAT}" ]; then
+    if [[ "${OBS_AIRNOW_FN_TEMPLATE}" == *"HourlyData"* ]]; then
+      ASCII2NC_INPUT_FORMAT=airnowhourly
+    elif [[ "${OBS_AIRNOW_FN_TEMPLATE}" == *"HourlyAQObs"* ]]; then
+      ASCII2NC_INPUT_FORMAT=airnowhourlyaqobs
+    else
+      print_err_msg_exit "Could not automatically determine format of Airnow observations;\
+check your filenames (OBS_AIRNOW_FN_TEMPLATE=${OBS_AIRNOW_FN_TEMPLATE})
+or manually set variable AIRNOW_INPUT_FORMAT"
+    fi
+  else
+    ASCII2NC_INPUT_FORMAT=${AIRNOW_INPUT_FORMAT}
+  fi
 else
   print_err_msg_exit "\nNo filename template set for OBTYPE \"${OBTYPE}\"!"
 fi
