@@ -96,7 +96,7 @@ def set_vx_fhr_list(cdate, fcst_len, field, accum_hh, time_lag, base_dir, filena
         else:
             skip_this_fhr = True
             num_missing_files += 1
-            if verbose:
+            if verbose or num_missing_files > num_missing_files_max:
                 print(f"The file (fp) for the current forecast hour (fhr; relative to the cycle date cdate) is missing:\n  fhr = \"{fhr}\"\n  cdate = \"{cdate}\"\n  fp = \"{fp}\"\nExcluding the current forecast hour from the list of hours passed to the METplus configuration file.")
             break
 
