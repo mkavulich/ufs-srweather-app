@@ -14,7 +14,8 @@ import subprocess
 from python_utils import (
     load_yaml_config,
 )
-
+sys.path.append(os.environ['METPLUS_ROOT'])
+from metplus.util import string_template_substitution as sts
 
 def get_obs_arcv_hr(obtype, arcv_intvl_hrs, hod):
     """
@@ -475,7 +476,6 @@ def get_obs(config, obtype, yyyymmdd_task):
 
     # Set other variables needed below when evaluating the METplus template for
     # the full path to the processed observation files.
-    one_hour = dt.timedelta(hours=1)
     ushdir = config['user']['USHdir']
 
     # Create dictionary containing the paths to all the processed obs files
@@ -489,20 +489,14 @@ def get_obs(config, obtype, yyyymmdd_task):
     for fg, fp_proc_templ in zip(field_groups_in_obs, fp_proc_templates):
         all_fp_proc_dict[fg] = []
         for yyyymmddhh in obs_retrieve_times_crnt_day:
-            # Set the lead hour, i.e. the number of hours from the beginning of the
+            # Set the lead time, a timedelta object from the beginning of the
             # day at which the file is valid.
-            lhr = int((yyyymmddhh - yyyymmdd_task)/one_hour)
-            # Call a bash script to evaluate the template for the full path to the
-            # file containing METplus timestrings at the current time.  This should
-            # be upgraded to a python script at some point.
-            cmd = '; '.join(['export USHdir=' + ushdir,
-                             'export yyyymmdd_task=' + yyyymmdd_task_str,
-                             'export lhr=' + str(lhr),
-                             'export METplus_timestr_tmpl=' + fp_proc_templ,
-                              os.path.join(ushdir, 'run_eval_METplus_timestr_tmpl.sh')])
-            result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-            fp_proc = result.stdout.strip()
-            all_fp_proc_dict[fg].append(fp_proc)
+            leadtime = yyyymmddhh - yyyymmdd_task
+            # Call METplus subroutine to evaluate the template for the full path to
+            # the file containing METplus timestrings at the current time.
+            fn = sts.do_string_sub(tmpl=fp_proc_templ,init=yyyymmdd_task,valid=yyyymmddhh,
+                                   lead=leadtime.total_seconds())
+            all_fp_proc_dict[fg].append(fn)
 
     # Check whether any obs files already exist on disk in their processed
     # (i.e. final) locations.  If so, adjust the starting archive hour.  In
