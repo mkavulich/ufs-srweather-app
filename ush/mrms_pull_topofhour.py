@@ -6,7 +6,7 @@ import bisect
 import shutil
 import gzip
 
-def mrms_pull_topofhour(valid_time, outdir, source, product, level, add_vdate_subdir=True, debug=False):
+def mrms_pull_topofhour(valid_time, outdir, source, product, level=None, add_vdate_subdir=True, debug=False):
     """Identifies the MRMS file closest to the valid time of the forecast. 
     METplus is configured to look for a MRMS composite reflectivity file 
     for the valid time of the forecast being verified; since MRMS composite 
@@ -85,7 +85,7 @@ def mrms_pull_topofhour(valid_time, outdir, source, product, level, add_vdate_su
         origfile = os.path.join(source, valid_str_or_empty, filename1)
         target = os.path.join(dest_dir, filename2)
 
-        if s.debug:
+        if debug:
             print(f"Unzipping file {origfile} to {target}")
 
         
