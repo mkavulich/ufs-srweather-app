@@ -1,18 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import os
-import re
-import subprocess
-import sys
-from datetime import datetime, timedelta
-
-try:
-    sys.path.append(os.environ['METPLUS_ROOT'])
-except:
-    print("\nERROR ERROR ERROR\n")
-    print("Environment variable METPLUS_ROOT must be set to use this script\n")
-    raise
-from metplus.util import string_template_substitution as sts
+from run_eval_metplus_timestr_tmpl import eval_tmpl
 
 def set_leadhrs(date_init, lhr_min, lhr_max, lhr_intvl, base_dir, time_lag, fn_template, num_missing_files_max,
                 skip_check_files=False, verbose=False):
@@ -48,24 +37,13 @@ def set_leadhrs(date_init, lhr_min, lhr_max, lhr_intvl, base_dir, time_lag, fn_t
         return lhrs_list
 
     # Step 2: Loop through lead hours and check for corresponding file existence
-    if len(date_init) == 10:
-        initdate=datetime.strptime(date_init, '%Y%m%d%H')
-    elif len(date_init) == 12:
-        initdate=datetime.strptime(date_init, '%Y%m%d%H%M')
-    elif len(date_init) == 14:
-        initdate=datetime.strptime(date_init, '%Y%m%d%H%M%S')
-    else:
-        raise ValueError(f"Invalid {date_init=}; date_init must be 10, 12, or 14 characters in length")
-
     final_list = []
     num_missing_files = 0
     for lhr in lhrs_list:
 
-        validdate=initdate + timedelta(hours=lhr)
-        leadsec=lhr*3600
         # Evaluate the METplus timestring template for the current lead hour
-        fn = sts.do_string_sub(tmpl=fn_template,init=initdate,valid=validdate,
-                                   lead=leadsec,time_lag=time_lag)
+        fn = eval_tmpl(date_init, lhr, time_lag, fn_template, verbose=False)
+
         # Get the full path and check if the file exists
         fp = os.path.join(base_dir, fn)
         if os.path.isfile(fp):
@@ -109,7 +87,7 @@ if __name__ == "__main__":
 
     #Consistency checks
     if not args.skip_check_files and not args.date_init:
-        raise argparse.ArgumentError('--date_init must be specified unless --skip_check_files is specified')
+        raise argparse.ArgumentTypeError('--date_init must be specified unless --skip_check_files is specified')
 
     leadhr_list = set_leadhrs(**vars(args))
     # If called from command line, we want to print a bash-parsable list
