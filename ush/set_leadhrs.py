@@ -6,7 +6,12 @@ import subprocess
 import sys
 from datetime import datetime, timedelta
 
-sys.path.append(os.environ['METPLUS_ROOT'])
+try:
+    sys.path.append(os.environ['METPLUS_ROOT'])
+except:
+    print("\nERROR ERROR ERROR\n")
+    print("Environment variable METPLUS_ROOT must be set to use this script\n")
+    raise
 from metplus.util import string_template_substitution as sts
 
 def set_leadhrs(date_init, lhr_min, lhr_max, lhr_intvl, base_dir, time_lag, fn_template, num_missing_files_max,
@@ -37,7 +42,7 @@ def set_leadhrs(date_init, lhr_min, lhr_max, lhr_intvl, base_dir, time_lag, fn_t
     # Step 1: Generate lead hours without filtering for missing files
     lhrs_list = list(range(lhr_min, lhr_max + 1, lhr_intvl))
     if verbose:
-        print(f"Initial set of lead hours (relative to {date_init}): {lhrs_array}")
+        print(f"Initial set of lead hours (relative to {date_init}): {lhrs_list}")
 
     if skip_check_files:
         return lhrs_list
@@ -55,7 +60,6 @@ def set_leadhrs(date_init, lhr_min, lhr_max, lhr_intvl, base_dir, time_lag, fn_t
     final_list = []
     num_missing_files = 0
     for lhr in lhrs_list:
-        skip_this_hour = False
 
         validdate=initdate + timedelta(hours=lhr)
         leadsec=lhr*3600
@@ -106,7 +110,6 @@ if __name__ == "__main__":
     #Consistency checks
     if not args.skip_check_files and not args.date_init:
         raise argparse.ArgumentError('--date_init must be specified unless --skip_check_files is specified')
-
 
     leadhr_list = set_leadhrs(**vars(args))
     # If called from command line, we want to print a bash-parsable list
