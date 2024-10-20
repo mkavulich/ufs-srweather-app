@@ -259,7 +259,7 @@ accumulation ending at lead hour ${hr_end} (relative to ${CDATE})...
     --base_dir="${base_dir}" \
     --fn_template="${fn_template}" \
     --num_missing_files_max="${num_missing_files_max}" \
-    --time_lag="${time_lag}" || \
+    --time_lag="${time_lag%.*}" || \
 print_err_msg_exit "Call to set_leadhrs.py failed with return code: $?"
 done
 

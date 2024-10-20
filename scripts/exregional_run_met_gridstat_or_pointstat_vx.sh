@@ -240,7 +240,8 @@ VX_LEADHR_LIST=$( python3 $USHdir/set_leadhrs.py \
   --lhr_intvl="${vx_intvl}" \
   --base_dir="${OBS_INPUT_DIR}" \
   --fn_template="${OBS_INPUT_FN_TEMPLATE}" \
-  --num_missing_files_max="${NUM_MISSING_OBS_FILES_MAX}" ) || \
+  --num_missing_files_max="${NUM_MISSING_OBS_FILES_MAX}" \
+  --time_lag="${time_lag%.*}") || \
 print_err_msg_exit "Call to set_leadhrs.py failed with return code: $?"
 #
 #-----------------------------------------------------------------------
