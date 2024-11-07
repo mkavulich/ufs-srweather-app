@@ -1,16 +1,4 @@
  &time
- start_year = 2020
- start_month = 08
- start_day = 13
- start_hour = 18
- start_minute = 00
- start_second = 00
- end_year = 2020
- end_month = 08
- end_day = 14
- end_hour = 21
- end_minute = 00
- end_second = 00
  dt = 0.5
  interval_output = 300
 /
