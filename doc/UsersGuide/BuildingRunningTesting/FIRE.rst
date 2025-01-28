@@ -145,6 +145,9 @@ Here is one example of settings that can be specified for a UFS FIRE simulation:
 
 In this case, a single fire (``FIRE_NUM_IGNITIONS: 1``) of radius 250 meters (``FIRE_IGNITION_RADIUS: 250``) is ignited at latitude 40.609˚N (``FIRE_IGNITION_START_LAT: 40.609``), 105.879˚W (``FIRE_IGNITION_START_LON: -105.879``) 6480 seconds after the start of the simulation (``FIRE_IGNITION_START_TIME: 6480``) with a rate of spread specified as 0.05 m/s (``FIRE_IGNITION_ROS: 0.05``). This "ignition" ends 7000 seconds after the start of the simulation (``FIRE_IGNITION_END_TIME: 7000``), after which the fire behavior is completely governed by the physics of the fire behavior model (integrated every 0.5 seconds as specified by ``OUTPUT_DT_FIRE``), the input fuel conditions, and the simulated atmospheric conditions. This simulated fire will feed back heat and moisture flux to the dynamical core, multiplied by a factor set by the user (``FIRE_ATM_FEEDBACK``).
 
+.. note::
+  The setting FIRE_ATM_FEEDBACK controls whether or not (and to what degree) the simulated fire feeds back heat and moisture fluxes to the atmosphere. In order to use this feedback (two-way coupling), FIRE_ATM_FEEDBACK should be set > 0, and a physics suite containing the schemes ``GFS_surface_composites_post`` and ``rrfs_smoke_wrapper`` must be used. For the SRW v3.0.0 release, these suites are ``FV3_HRRR`` and ``RRFS_v1``??????
+
 The CFBM creates output files in :term:`netCDF` format, with the naming scheme ``fire_output_YYYY-MM-DD_hh:mm:ss.nc``. In this case the output files are written every 30 minutes (``OUTPUT_DT_FIRE: 1800``).
 
 .. note::

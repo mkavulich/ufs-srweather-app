@@ -15,10 +15,7 @@ from pprint import pprint
 
 from python_utils import (
     log_info,
-    cd_vrfy,
     date_to_str,
-    mkdir_vrfy,
-    rm_vrfy,
     check_var_valid_value,
     lowercase,
     uppercase,
@@ -1429,7 +1426,7 @@ def setup(USHdir, user_config_fn="config.yaml", debug: bool = False):
                 "{{ nco.PTMP }}/{{ nco.envir_default }}/tmp/run_fcst_mem#mem#.{{ workflow.WORKFLOW_ID }}_@Y@m@d@H"
 
     # create experiment dir
-    mkdir_vrfy(f' -p "{exptdir}"')
+    os.makedirs(exptdir})
 
     # -----------------------------------------------------------------------
     #
@@ -1536,7 +1533,7 @@ def setup(USHdir, user_config_fn="config.yaml", debug: bool = False):
     # -----------------------------------------------------------------------
     #
     fixlam = workflow_config["FIXlam"]
-    mkdir_vrfy(f' -p "{fixlam}"')
+    os.makedirs(fixlam)
 
     #
     # Use the pregenerated domain files if the tasks to generate them
@@ -1765,6 +1762,13 @@ def setup(USHdir, user_config_fn="config.yaml", debug: bool = False):
 
         if fire_conf["FIRE_ATM_FEEDBACK"] < 0.0:
             raise ValueError("FIRE_ATM_FEEDBACK must be 0 or greater")
+        elif fire_conf["FIRE_ATM_FEEDBACK"] > 0.0: 
+            # Physics suite must have GFS_surface_composites_post and rrfs_smoke_wrapper
+            # schemes for two-way fire feedback to work correctly
+            if not ( has_tag_with_value(ccpp_suite_xml, "scheme", "rrfs_smoke_wrapper") and
+                     has_tag_with_value(ccpp_suite_xml, "scheme", "GFS_surface_composites_post") ):
+                raise ValueError(f"Invalid physics suite {workflow_config['CCPP_PHYS_SUITE']}"
+                                  "for FIRE_ATM_FEEDBACK > 0; see users guide")
 
         if fire_conf["FIRE_UPWINDING"] == 0 and fire_conf["FIRE_VISCOSITY"] == 0.0:
             raise ValueError("FIRE_VISCOSITY must be > 0.0 if FIRE_UPWINDING == 0")
