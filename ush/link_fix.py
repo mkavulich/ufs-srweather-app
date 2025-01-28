@@ -16,7 +16,6 @@ from python_utils import (
     check_var_valid_value,
     flatten_dict,
     cd_vrfy,
-    mkdir_vrfy,
     find_pattern_in_str,
     load_yaml_config,
 )

@@ -76,17 +76,6 @@ def ln_vrfy(*args):
     return cmd_vrfy("ln", *args)
 
 
-def mkdir_vrfy(*args):
-    """Checks that the ``mkdir`` command executed successfully
-
-    Args:
-        *args: Iterable object containing command with its command line arguments
-    Returns:
-        Exit code
-    """
-    return cmd_vrfy("mkdir", *args)
-
-
 def cd_vrfy(*args):
     """Checks that the ``cd`` command executed successfully
 

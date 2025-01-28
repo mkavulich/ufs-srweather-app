@@ -25,7 +25,6 @@ from python_utils import (
     export_vars,
     cp_vrfy,
     ln_vrfy,
-    mkdir_vrfy,
     mv_vrfy,
     check_for_preexist_dir_file,
     cfg_to_yaml_str,
@@ -204,8 +203,8 @@ def generate_FV3LAM_wflow(
         )
 
         check_for_preexist_dir_file(FIXam, "delete")
-        mkdir_vrfy("-p", FIXam)
-        mkdir_vrfy("-p", os.path.join(FIXam, "fix_co2_proj"))
+        os.makedirs(FIXam)
+        os.makedirs(os.path.join(FIXam, "fix_co2_proj"))
 
         num_files = len(FIXgsm_FILES_TO_COPY_TO_FIXam)
         for i in range(num_files):
@@ -230,7 +229,7 @@ def generate_FV3LAM_wflow(
         )
 
         check_for_preexist_dir_file(FIXclim, "delete")
-        mkdir_vrfy("-p", FIXclim)
+        os.makedirs(FIXclim)
 
         if SYMLINK_FIX_FILES:
             ln_vrfy("-fsn", os.path.join(FIXaer, "merra2.aerclim*.nc"), FIXclim)

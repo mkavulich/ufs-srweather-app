@@ -21,7 +21,6 @@ from .filesys_cmds_vrfy import (
     mv_vrfy,
     rm_vrfy,
     ln_vrfy,
-    mkdir_vrfy,
     cd_vrfy,
 )
 from .print_input_args import print_input_args
