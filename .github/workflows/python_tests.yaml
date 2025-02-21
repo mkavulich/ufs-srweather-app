@@ -51,7 +51,7 @@ jobs:
           export UNIT_TEST=True
           export PYTHONPATH=$(pwd)/ush
           python -m unittest -b tests/test_python/test_generate_FV3LAM_wflow.py
-
+          cat log.generate_FV3LAM_wflow
       - name: Run python functional tests
         run: |
           micromamba activate srw_app
