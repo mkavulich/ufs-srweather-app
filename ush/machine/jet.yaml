@@ -33,7 +33,7 @@ platform:
   FIXorg: /mnt/lfs5/HFIP/hfv3gfs/role.epic/UFS_SRW_data/develop/fix/fix_orog
   FIXsfc: /mnt/lfs5/HFIP/hfv3gfs/role.epic/UFS_SRW_data/develop/fix/fix_sfc_climo
   FIXshp: /mnt/lfs5/HFIP/hfv3gfs/role.epic/UFS_SRW_data/develop/NaturalEarth
-  EXTRN_MDL_DATA_STORES: hpss aws nomads
+  EXTRN_MDL_DATA_STORES: hpss http nomads
 data:
   ics_lbcs:
     FV3GFS:

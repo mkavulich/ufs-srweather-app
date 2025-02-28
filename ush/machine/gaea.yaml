@@ -33,7 +33,7 @@ platform:
   FIXorg: /gpfs/f5/epic/world-shared/UFS_SRW_data/develop/fix/fix_orog
   FIXsfc: /gpfs/f5/epic/world-shared/UFS_SRW_data/develop/fix/fix_sfc_climo
   FIXshp: /gpfs/f5/epic/world-shared/UFS_SRW_data/develop/NaturalEarth
-  EXTRN_MDL_DATA_STORES: aws
+  EXTRN_MDL_DATA_STORES: http
 data:
   ics_lbcs:
     FV3GFS:

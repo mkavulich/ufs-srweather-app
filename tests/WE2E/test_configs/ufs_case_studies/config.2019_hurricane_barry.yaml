@@ -10,7 +10,7 @@ metadata:
 user:
   RUN_ENVIR: community
 platform:
-  EXTRN_MDL_DATA_STORES: aws
+  EXTRN_MDL_DATA_STORES: http
 workflow:
   CCPP_PHYS_SUITE: FV3_GFS_v16 
   PREDEF_GRID_NAME: RRFS_CONUS_13km

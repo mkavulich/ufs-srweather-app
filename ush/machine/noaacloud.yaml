@@ -27,7 +27,7 @@ platform:
   FIXorg: /contrib/EPIC/UFS_SRW_data/develop/fix/fix_orog
   FIXsfc: /contrib/EPIC/UFS_SRW_data/develop/fix/fix_sfc_climo
   FIXshp: /contrib/EPIC/UFS_SRW_data/develop/NaturalEarth
-  EXTRN_MDL_DATA_STORES: aws nomads
+  EXTRN_MDL_DATA_STORES: http nomads
 data:
   ics_lbcs:
     FV3GFS:

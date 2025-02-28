@@ -35,7 +35,7 @@ platform:
   FIXshp: /work/noaa/epic/role-epic/contrib/UFS_SRW_data/develop/NaturalEarth
   FIXaqm: /work/noaa/epic/SRW-AQM_DATA/fix_aqm
   FIXemis: /work/noaa/epic/SRW-AQM_DATA/fix_emis
-  EXTRN_MDL_DATA_STORES: aws nomads
+  EXTRN_MDL_DATA_STORES: http nomads
 data:
   ics_lbcs:
     FV3GFS:

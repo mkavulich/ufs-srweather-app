@@ -34,7 +34,7 @@ platform:
   FIXshp: /glade/work/epicufsrt/contrib/UFS_SRW_data/develop/NaturalEarth
   FIXaqm: /glade/work/chanhooj/SRW-AQM_DATA/fix_aqm
   FIXemis: /glade/work/chanhooj/SRW-AQM_DATA/fix_emis
-  EXTRN_MDL_DATA_STORES: aws
+  EXTRN_MDL_DATA_STORES: http
 data:
   ics_lbcs:
     FV3GFS: 

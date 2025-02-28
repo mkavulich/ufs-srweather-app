@@ -7,7 +7,7 @@
 # observation dataset accepted by the SRW App.
 #
 # 2nd level: A key corresponding to a named datastore for a given data
-# set. This could be nomads, aws, hpss, etc.
+# set. This could be nomads, http, hpss, etc.
 #
 # 3rd level required:
 #
@@ -114,7 +114,7 @@ FV3GFS:
           - ['com_gfs_v16.3_gfs.{yyyymmdd}_{hh}.gfs_nca.tar', 'com_gfs_v16.3_gfs.{yyyymmdd}_{hh}.gfs_ncb.tar']
     file_names:
       <<: *gfs_file_names
-  aws:
+  http:
     protocol: download
     url: https://noaa-gfs-bdp-pds.s3.amazonaws.com/gfs.{yyyymmdd}/{hh}/atmos
     file_names:
@@ -166,7 +166,7 @@ GDAS:
       netcdf:
         fcst:
           - gdas.t{hh}z.sfcf{fcst_hr:03d}.nc
-  aws:
+  http:
     protocol: download
     url: https://noaa-gfs-bdp-pds.s3.amazonaws.com/enkfgdas.{yyyymmdd}/{hh}/atmos/mem{mem:03d}
     file_names:
@@ -175,7 +175,7 @@ GDAS:
           - gdas.t{hh}z.sfcf{fcst_hr:03d}.nc
 
 GEFS:
-  aws:
+  http:
     protocol: download
     url:
       - ['https://noaa-gefs-pds.s3.amazonaws.com/gefs.{yyyymmdd}/{hh}/atmos/pgrb2ap5', 'https://noaa-gefs-pds.s3.amazonaws.com/gefs.{yyyymmdd}/{hh}/atmos/pgrb2bp5']
@@ -230,7 +230,7 @@ RAP:
         - rap.t{hh}z.wrfnatf{fcst_hr:02d}.grib2
       fcst:
         - rap.t{hh}z.wrfnatf{fcst_hr:02d}.grib2
-  aws:
+  http:
     protocol: download
     url: https://noaa-rap-pds.s3.amazonaws.com/rap.{yyyymmdd}
     file_names:
@@ -244,7 +244,7 @@ RRFS:
         - rrfs.t{hh}z.prslev.f{fcst_hr:03d}.grib2
       fcst:
         - rrfs.t{hh}z.prslev.f{fcst_hr:03d}.grib2
-  aws:
+  http:
     protocol: download
     url: https://noaa-rrfs-pds.s3.amazonaws.com/rrfs_a/rrfs_a.{yyyymmdd}/{hh}/control/
     file_names:
@@ -255,8 +255,8 @@ RRFS_retro:
     protocol: htar
     archive_format: tar
     archive_path:
-      - /NCEPDEV/emc-meso/2year/emc.lam/rrfs_retro/v1.1.2/2023/07/{dd}
-      - /NCEPDEV/emc-meso/2year/emc.lam/rrfs_retro/v1.1.4/2024/05/{dd}
+#      - /NCEPDEV/emc-meso/2year/emc.lam/rrfs_retro/v1.1.2/2023/07/{dd}
+#      - /NCEPDEV/emc-meso/2year/emc.lam/rrfs_retro/v1.1.4/2024/05/{dd}
       - /NCEPDEV/emc-meso/2year/emc.lam/rrfs_retro/v1.1.3/2024/01/{dd}
     archive_internal_dir:
       - rrfs.{yyyymmdd}/{hh}
@@ -264,7 +264,7 @@ RRFS_retro:
       - grib2_ctrl_{yyyymmdd}{hh}.tar
     file_names:
       <<: *rrfs_file_names
-  aws:
+  http:
     protocol: download
     url: https://noaa-rrfs-pds.s3.amazonaws.com/retro_output_final/summer/rrfs.{yyyymmdd}/{hh}
     file_names:
@@ -289,7 +289,7 @@ HRRR:
         - hrrr.t{hh}z.wrfprsf{fcst_hr:02d}.grib2
       fcst:
         - hrrr.t{hh}z.wrfprsf{fcst_hr:02d}.grib2
-  aws:
+  http:
     protocol: download
     url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.{yyyymmdd}/conus/
     file_names:
@@ -313,7 +313,7 @@ NAM:
         - nam.t{hh}z.awphys{fcst_hr:02d}.tm00.grib2
 
 UFS-CASE-STUDY:
-  aws:
+  http:
     protocol: download
     url: "https://ufs-case-studies.s3.amazonaws.com/"
     file_names: &ufs_file_names
@@ -426,7 +426,7 @@ AERONET_obs:
         - "{yyyy}{mm}{dd}.lev15"
     archive_internal_dir:
       - ./validation_data/aq/aeronet/
-  aws:
+  http:
     protocol: download
     url: "https://aeronet.gsfc.nasa.gov/cgi-bin/"
     file_names:
@@ -449,7 +449,7 @@ AIRNOW_obs:
         - "Monitoring_Site_Locations_V2.dat"
     archive_internal_dir:
       - ./airnow/
-  aws:
+  http:
     protocol: download
     url: "https://s3-us-west-1.amazonaws.com//files.airnowtech.org/airnow/{fyyyy}/{fyyyymmdd}/"
     file_names:

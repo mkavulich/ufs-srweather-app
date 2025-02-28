@@ -462,8 +462,8 @@ def get_requested_files(cla, file_templates, input_locs, method="disk", **kwargs
                             retrieved = download_file(input_loc)
                         # Wait a bit before trying the next download.
                         # Seems to reduce the occurrence of timeouts
-                        # when downloading from AWS
-                        time.sleep(5)
+                        # when downloading from http
+                        time.sleep(2)
 
                     logging.debug(f"Retrieved status: {retrieved}")
                     if not retrieved:
@@ -628,7 +628,7 @@ def hpss_requested_files(cla, file_names, store_specs, members=-1, ens_group=-1)
                     cmd = f'unzip -o {os.path.basename(existing_archive)} {" ".join(source_paths)}'
 
                 else:
-                    cmd = f'htar -xvf {existing_archive} {" ".join(source_paths)}'
+                    cmd = f'htar -H nostage -xvf {existing_archive} {" ".join(source_paths)}'
 
                 logging.info(f"Running command \n {cmd}")
 
@@ -1062,7 +1062,7 @@ def parse_args(argv):
     parser.add_argument(
         "--data_stores",
         help="List of priority data_stores. Tries first list item \
-        first. Choices: hpss, nomads, aws, disk, remote.",
+        first. Choices: hpss, nomads, http, disk, remote.",
         nargs="*",
         required=True,
         type=to_lower,
@@ -1177,7 +1177,7 @@ def parse_args(argv):
               f"argument when --file_set = {args.file_set}")
 
     # Check valid arguments for various conditions
-    valid_data_stores = ["hpss", "nomads", "aws", "disk", "remote"]
+    valid_data_stores = ["hpss", "nomads", "http", "disk", "remote"]
     for store in args.data_stores:
         if store not in valid_data_stores:
             raise argparse.ArgumentTypeError(f"Invalid value '{store}' provided " \

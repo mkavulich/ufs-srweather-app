@@ -22,4 +22,4 @@ platform:
   FIXorg: /contrib/global/glopara/fix/fix_orog
   FIXsfc: /contrib/global/glopara/fix/fix_sfc_climo
   FIXshp: /contrib/global/glopara/NaturalEarth
-  EXTRN_MDL_DATA_STORES: aws nomads
+  EXTRN_MDL_DATA_STORES: http nomads
