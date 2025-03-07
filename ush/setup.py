@@ -742,7 +742,7 @@ def setup(USHdir, user_config_fn="config.yaml", debug: bool = False):
         = get_obs_retrieve_times_by_day(
           vx_config, cycle_start_times, fcst_len_dt,
           fcst_output_times_all_cycles, obs_days_all_cycles)
-    
+
         for obtype, obs_days_dict in obs_retrieve_times_by_day.items():
             for obs_day, obs_retrieve_times in obs_days_dict.items():
                 array_name = '_'.join(["OBS_RETRIEVE_TIMES", obtype, obs_day])
@@ -831,7 +831,7 @@ def setup(USHdir, user_config_fn="config.yaml", debug: bool = False):
         # -----------------------------------------------------------------------
         #
         if vx_field_groups:
-            obtypes_all = ['CCPA', 'NOHRSC', 'MRMS', 'NDAS']
+            obtypes_all = ['CCPA', 'NOHRSC', 'MRMS', 'NDAS', 'AERONET', 'AIRNOW', 'GOESABI']
             obs_basedir_var_names = [f'{obtype}_OBS_DIR' for obtype in obtypes_all]
             obs_basedirs_dict = {key: vx_config[key] for key in obs_basedir_var_names}
             obs_basedirs_orig = list(obs_basedirs_dict.values())
