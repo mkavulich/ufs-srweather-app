@@ -36,6 +36,7 @@ metatask_GenEnsProd_EnsembleStat_APCP_all_accums:
       OBTYPE: 'CCPA'
       FCST_LEVEL: 'A#ACCUM_HH#'
       FCST_THRESH: 'all'
+      OMP_NUM_THREADS: 4
     dependency:
       metataskdep_pcpcombine_fcst:
         attrs:
@@ -70,6 +71,7 @@ metatask_GenEnsProd_EnsembleStat_ASNOW_all_accums:
       OBTYPE: 'NOHRSC'
       FCST_LEVEL: 'A#ACCUM_HH#'
       FCST_THRESH: 'all'
+      OMP_NUM_THREADS: 4
     dependency:
       and:
         metataskdep_pcpcombine_fcst:
@@ -105,6 +107,7 @@ metatask_GenEnsProd_EnsembleStat_REFC_RETOP:
       OBTYPE: 'MRMS'
       FCST_LEVEL: 'L0'
       FCST_THRESH: 'all'
+      OMP_NUM_THREADS: 4
     dependency:
       and:
         metataskdep_check_post_output: &check_post_output
@@ -157,6 +160,7 @@ metatask_GenEnsProd_EnsembleStat_SFC_UPA:
       ACCUM_HH: '01'
       FCST_LEVEL: 'all'
       FCST_THRESH: 'all'
+      OMP_NUM_THREADS: 4
     walltime: 04:45:00
     dependency:
       metataskdep_check_post_output:
@@ -211,6 +215,7 @@ metatask_GridStat_APCP_all_accums_ensmeanprob:
         ACCUM_HH: '#ACCUM_HH#'
         FCST_LEVEL: 'A#ACCUM_HH#'
         FCST_THRESH: 'all'
+        OMP_NUM_THREADS: 4
       dependency:
         and:
           taskdep_pcpcombine_obs_ccpa:
@@ -238,6 +243,7 @@ metatask_GridStat_ASNOW_all_accums_ensmeanprob:
         ACCUM_HH: '#ACCUM_HH#'
         FCST_LEVEL: 'A#ACCUM_HH#'
         FCST_THRESH: 'all'
+        OMP_NUM_THREADS: 4
       dependency:
         and:
           taskdep_pcpcombine_obs_nohrsc:
@@ -261,6 +267,7 @@ metatask_GridStat_REFC_RETOP_ensprob:
       OBTYPE: 'MRMS'
       FCST_LEVEL: 'L0'
       FCST_THRESH: 'all'
+      OMP_NUM_THREADS: 4
     dependency:
       and:
         datadep_all_get_obs_mrms_complete:

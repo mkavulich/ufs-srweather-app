@@ -26,5 +26,6 @@ rocoto:
     taskgroups: '{{ ["parm/wflow/verify_pre.yaml", "parm/wflow/verify_det.yaml"]|include }}'
 
 verification:
+  VX_MASK: ["CONUS","EAST","EAST_ROCKIES"]
   VX_FCST_MODEL_NAME: FV3_GFS_v15p2_CONUS_25km
   VX_FCST_INPUT_BASEDIR: '{{ platform.get("TEST_VX_FCST_INPUT_BASEDIR") }}'
