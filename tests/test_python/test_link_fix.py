@@ -22,7 +22,6 @@ class Testing(unittest.TestCase):
             target_dir=self.FIXlam,
             ccpp_phys_suite=self.cfg["CCPP_PHYS_SUITE"],
             constants=self.cfg["constants"],
-            dot_or_uscore=self.cfg["DOT_OR_USCORE"],
             nhw=self.cfg["NHW"],
             run_task=False,
             sfc_climo_fields=["foo", "bar"],
@@ -49,7 +48,6 @@ class Testing(unittest.TestCase):
 
 
         self.cfg = {
-            "DOT_OR_USCORE": "_",
             "NHW": 6,
             "CCPP_PHYS_SUITE": "FV3_GSD_SAR",
             "constants": {

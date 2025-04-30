@@ -56,7 +56,6 @@
 #    RUN_CMD_SERIAL
 
 #  workflow:
-#    DOT_OR_USCORE
 #    GRID_GEN_METHOD
 #    RES_IN_FIXLAM_FILENAMES
 #    RGNL_GRID_NML_FN
@@ -335,7 +334,7 @@ echo "workflow: {CRES: ${CRES}}" | uw config realize \
 #-----------------------------------------------------------------------
 #
 grid_fp_orig="${grid_fp}"
-grid_fn="${CRES}${DOT_OR_USCORE}grid.tile${TILE_RGNL}.halo${NHW}.nc"
+grid_fn="${CRES}_grid.tile${TILE_RGNL}.halo${NHW}.nc"
 grid_fp="${GRID_DIR}/${grid_fn}"
 mv "${grid_fp_orig}" "${grid_fp}"
 #
@@ -406,7 +405,7 @@ print_info_msg "$VERBOSE" "
 halo..."
 
 nml_fn="input.shave.grid.halo${NH3}"
-shaved_fp="${DATA}/${CRES}${DOT_OR_USCORE}grid.tile${TILE_RGNL}.halo${NH3}.nc"
+shaved_fp="${DATA}/${CRES}_grid.tile${TILE_RGNL}.halo${NH3}.nc"
 printf "%s %s %s %s %s\n" \
   $NX $NY ${NH3} \"${unshaved_fp}\" \"${shaved_fp}\" \
   > ${nml_fn}
@@ -434,7 +433,7 @@ print_info_msg "$VERBOSE" "
 halo..."
 
 nml_fn="input.shave.grid.halo${NH4}"
-shaved_fp="${DATA}/${CRES}${DOT_OR_USCORE}grid.tile${TILE_RGNL}.halo${NH4}.nc"
+shaved_fp="${DATA}/${CRES}_grid.tile${TILE_RGNL}.halo${NH4}.nc"
 printf "%s %s %s %s %s\n" \
   $NX $NY ${NH4} \"${unshaved_fp}\" \"${shaved_fp}\" \
   > ${nml_fn}
@@ -461,7 +460,7 @@ print_info_msg "$VERBOSE" "
 \"Shaving\" grid file with wide halo to obtain grid file without halo..."
 
 nml_fn="input.shave.grid.halo0"
-shaved_fp="${DATA}/${CRES}${DOT_OR_USCORE}grid.tile${TILE_RGNL}.halo0.nc"
+shaved_fp="${DATA}/${CRES}_grid.tile${TILE_RGNL}.halo0.nc"
 printf "%s %s %s %s %s\n" \
   $NX $NY "0" \"${unshaved_fp}\" \"${shaved_fp}\" \
   > ${nml_fn}
@@ -491,8 +490,8 @@ cd -
 #
 make_grid_mosaic_file \
   grid_dir="${GRID_DIR}" \
-  grid_fn="${CRES}${DOT_OR_USCORE}grid.tile${TILE_RGNL}.halo${NHW}.nc" \
-  mosaic_fn="${CRES}${DOT_OR_USCORE}mosaic.halo${NHW}.nc" \
+  grid_fn="${CRES}_grid.tile${TILE_RGNL}.halo${NHW}.nc" \
+  mosaic_fn="${CRES}_mosaic.halo${NHW}.nc" \
   run_cmd="${RUN_CMD_SERIAL}" || \
   print_err_msg_exit "\
 Call to function to generate the mosaic file for a grid with a ${NHW}-cell-wide
@@ -506,8 +505,8 @@ halo failed."
 #
 make_grid_mosaic_file \
   grid_dir="${GRID_DIR}" \
-  grid_fn="${CRES}${DOT_OR_USCORE}grid.tile${TILE_RGNL}.halo${NH3}.nc" \
-  mosaic_fn="${CRES}${DOT_OR_USCORE}mosaic.halo${NH3}.nc" \
+  grid_fn="${CRES}_grid.tile${TILE_RGNL}.halo${NH3}.nc" \
+  mosaic_fn="${CRES}_mosaic.halo${NH3}.nc" \
   run_cmd="${RUN_CMD_SERIAL}" || \
   print_err_msg_exit "\
 Call to function to generate the mosaic file for a grid with a ${NH3}-cell-wide
@@ -521,8 +520,8 @@ halo failed."
 #
 make_grid_mosaic_file \
   grid_dir="${GRID_DIR}" \
-  grid_fn="${CRES}${DOT_OR_USCORE}grid.tile${TILE_RGNL}.halo${NH4}.nc" \
-  mosaic_fn="${CRES}${DOT_OR_USCORE}mosaic.halo${NH4}.nc" \
+  grid_fn="${CRES}_grid.tile${TILE_RGNL}.halo${NH4}.nc" \
+  mosaic_fn="${CRES}_mosaic.halo${NH4}.nc" \
   run_cmd="${RUN_CMD_SERIAL}" || \
   print_err_msg_exit "\
 Call to function to generate the mosaic file for a grid with a ${NH4}-cell-wide
@@ -536,8 +535,8 @@ halo failed."
 #
 make_grid_mosaic_file \
   grid_dir="${GRID_DIR}" \
-  grid_fn="${CRES}${DOT_OR_USCORE}grid.tile${TILE_RGNL}.halo0.nc" \
-  mosaic_fn="${CRES}${DOT_OR_USCORE}mosaic.halo0.nc" \
+  grid_fn="${CRES}_grid.tile${TILE_RGNL}.halo0.nc" \
+  mosaic_fn="${CRES}_mosaic.halo0.nc" \
   run_cmd="${RUN_CMD_SERIAL}" || \
   print_err_msg_exit "\
 Call to function to generate the mosaic file for a grid without halo failed."

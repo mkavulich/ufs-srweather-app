@@ -49,7 +49,6 @@
 #  workflow:
 #    CCPP_PHYS_SUITE
 #    CRES
-#    DOT_OR_USCORE
 #    FIXam
 #    FIXlam
 #    GRID_GEN_METHOD
@@ -202,7 +201,7 @@ cp ${FIXorg}/gmted2010.30sec.int fort.235
 #
 #-----------------------------------------------------------------------
 #
-mosaic_fn="${CRES}${DOT_OR_USCORE}mosaic.halo${NHW}.nc"
+mosaic_fn="${CRES}_mosaic.halo${NHW}.nc"
 mosaic_fp="${FIXlam}/${mosaic_fn}"
 
 grid_fn=$( get_charvar_from_netcdf "${mosaic_fp}" "gridfiles" ) || print_err_msg_exit "\
@@ -281,7 +280,7 @@ cd -
 #-----------------------------------------------------------------------
 #
 raw_orog_fp_orig="${DATA}/out.oro.nc"
-raw_orog_fn_prefix="${CRES}${DOT_OR_USCORE}raw_orog"
+raw_orog_fn_prefix="${CRES}_raw_orog"
 fn_suffix_with_halo="tile${TILE_RGNL}.halo${NHW}.nc"
 raw_orog_fn="${raw_orog_fn_prefix}.${fn_suffix_with_halo}"
 raw_orog_fp="${raw_dir}/${raw_orog_fn}"
@@ -300,7 +299,7 @@ if [[ ${suites[@]} =~ "${CCPP_PHYS_SUITE}" ]] ; then
   DATA="${DATA:-${OROG_DIR}/temp_orog_data}"
   mkdir -p ${DATA}
   cd ${DATA}
-  mosaic_fn_gwd="${CRES}${DOT_OR_USCORE}mosaic.halo${NH4}.nc"
+  mosaic_fn_gwd="${CRES}_mosaic.halo${NH4}.nc"
   mosaic_fp_gwd="${FIXlam}/${mosaic_fn_gwd}"
   grid_fn_gwd=$( get_charvar_from_netcdf "${mosaic_fp_gwd}" "gridfiles" ) || \
     print_err_msg_exit "get_charvar_from_netcdf function failed."
@@ -339,8 +338,8 @@ returned with nonzero exit code:
   exec_fp = \"${exec_fp}\""
   POST_STEP
 
-  mv "${CRES}${DOT_OR_USCORE}oro_data_ss.tile${TILE_RGNL}.halo${NH0}.nc" \
-     "${CRES}${DOT_OR_USCORE}oro_data_ls.tile${TILE_RGNL}.halo${NH0}.nc" \
+  mv "${CRES}_oro_data_ss.tile${TILE_RGNL}.halo${NH0}.nc" \
+     "${CRES}_oro_data_ls.tile${TILE_RGNL}.halo${NH0}.nc" \
      "${OROG_DIR}"
  
 fi
@@ -387,7 +386,7 @@ fi
 #     filtering code.
 #
 fn_suffix_without_halo="tile${TILE_RGNL}.nc"
-filtered_orog_fn_prefix="${CRES}${DOT_OR_USCORE}filtered_orog"
+filtered_orog_fn_prefix="${CRES}_filtered_orog"
 filtered_orog_fp_prefix="${filter_dir}/${filtered_orog_fn_prefix}"
 filtered_orog_fp="${filtered_orog_fp_prefix}.${fn_suffix_without_halo}"
 cp "${raw_orog_fp}" "${filtered_orog_fp}"
@@ -490,7 +489,7 @@ print_info_msg "$VERBOSE" "
 a filtered orography file with a ${NH0}-cell-wide halo..."
 
 ascii_fn="input.shave.orog.halo${NH0}"
-shaved_fp="${shave_dir}/${CRES}${DOT_OR_USCORE}oro_data.tile${TILE_RGNL}.halo${NH0}.nc"
+shaved_fp="${shave_dir}/${CRES}_oro_data.tile${TILE_RGNL}.halo${NH0}.nc"
 printf "%s %s %s %s %s\n" \
   $NX $NY ${NH0} \"${unshaved_fp}\" \"${shaved_fp}\" \
   > ${ascii_fn}
@@ -518,7 +517,7 @@ print_info_msg "$VERBOSE" "
 a filtered orography file with a ${NH4}-cell-wide halo..."
 
 ascii_fn="input.shave.orog.halo${NH4}"
-shaved_fp="${shave_dir}/${CRES}${DOT_OR_USCORE}oro_data.tile${TILE_RGNL}.halo${NH4}.nc"
+shaved_fp="${shave_dir}/${CRES}_oro_data.tile${TILE_RGNL}.halo${NH4}.nc"
 printf "%s %s %s %s %s\n" \
   $NX $NY ${NH4} \"${unshaved_fp}\" \"${shaved_fp}\" \
   > ${ascii_fn}

@@ -28,7 +28,6 @@
 #
 #   workflow:
 #     CRES
-#     DOT_OR_USCORE
 #     FIXlam
 #     VERBOSE
 #
@@ -134,9 +133,9 @@ input_slope_type_file="${FIXsfc}/slope_type.1.0.nc"
 input_soil_type_file="${FIXsfc}/soil_type.statsgo.0.05.nc"
 input_vegetation_type_file="${FIXsfc}/vegetation_type.igbp.0.05.nc"
 input_vegetation_greenness_file="${FIXsfc}/vegetation_greenness.0.144.nc"
-mosaic_file_mdl="${FIXlam}/${CRES}${DOT_OR_USCORE}mosaic.halo${NH4}.nc"
+mosaic_file_mdl="${FIXlam}/${CRES}_mosaic.halo${NH4}.nc"
 orog_dir_mdl="${FIXlam}"
-orog_files_mdl="${CRES}${DOT_OR_USCORE}oro_data.tile${TILE_RGNL}.halo${NH4}.nc"
+orog_files_mdl="${CRES}_oro_data.tile${TILE_RGNL}.halo${NH4}.nc"
 halo=${NH4}
 maximum_snow_albedo_method="bilinear"
 snowfree_albedo_method="bilinear"

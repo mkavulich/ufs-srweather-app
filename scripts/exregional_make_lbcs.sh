@@ -41,7 +41,6 @@
 #    COLDSTART
 #    CRES
 #    DATE_FIRST_CYCL
-#    DOT_OR_USCORE
 #    EXTRN_MDL_VAR_DEFNS_FN
 #    FIXlam
 #    SDF_USES_RUC_LSM
@@ -569,9 +568,9 @@ FORTRAN namelist file has not specified for this external LBC model (EXTRN_MDL_N
   settings="
 'config':
  'fix_dir_target_grid': ${FIXlam}
- 'mosaic_file_target_grid': ${FIXlam}/${CRES}${DOT_OR_USCORE}mosaic.halo$((10#${NH4})).nc
+ 'mosaic_file_target_grid': ${FIXlam}/${CRES}_mosaic.halo$((10#${NH4})).nc
  'orog_dir_target_grid': ${FIXlam}
- 'orog_files_target_grid': ${CRES}${DOT_OR_USCORE}oro_data.tile${TILE_RGNL}.halo$((10#${NH4})).nc
+ 'orog_files_target_grid': ${CRES}_oro_data.tile${TILE_RGNL}.halo$((10#${NH4})).nc
  'vcoord_file_target_grid': ${VCOORD_FILE}
  'varmap_file': ${PARMdir}/ufs_utils/varmap_tables/${varmap_file}
  'data_dir_input_grid': ${extrn_mdl_staging_dir}

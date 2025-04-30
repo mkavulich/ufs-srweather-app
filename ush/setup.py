@@ -1303,7 +1303,6 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
                 target_dir=workflow_config["FIXlam"],
                 ccpp_phys_suite=ccpp_physics_suite,
                 constants=expt_config["constants"],
-                dot_or_uscore=workflow_config["DOT_OR_USCORE"],
                 nhw=grid_params["NHW"],
                 run_task=False,
                 sfc_climo_fields=fixed_files["SFC_CLIMO_FIELDS"],

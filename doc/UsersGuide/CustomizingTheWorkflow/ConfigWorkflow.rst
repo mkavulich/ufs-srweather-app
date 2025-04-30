@@ -325,12 +325,6 @@ Directory Parameters
 ``WFLOW_FLAG_FILES_DIR``: (Default: ``'{{ workflow.EXPTDIR }}/wflow_flag_files'``)
     Directory in which flag files marking completion of various workflow tasks can be placed.
 
-Pre-Processing File Separator Parameters
---------------------------------------------
-
-``DOT_OR_USCORE``: (Default: "_")
-   This variable sets the separator character(s) to use in the names of the grid, mosaic, and orography fixed files. Ideally, the same separator should be used in the names of these fixed files as in the surface climatology fixed files. Valid values: ``"_"`` | ``"."``
-
 Set File Name Parameters
 ----------------------------
 

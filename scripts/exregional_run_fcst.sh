@@ -42,7 +42,6 @@
 #    DATA_TABLE_FN
 #    DATA_TABLE_FP
 #    DATE_FIRST_CYCL
-#    DOT_OR_USCORE
 #    EXPTDIR
 #    FCST_LEN_CYCL
 #    FCST_LEN_HRS
@@ -248,8 +247,8 @@ else
 fi
 
 # Symlink to mosaic file with a completely different name.
-#target="${FIXlam}/${CRES}${DOT_OR_USCORE}mosaic.halo${NH4}.nc"   # Should this point to this halo4 file or a halo3 file???
-target="${FIXlam}/${CRES}${DOT_OR_USCORE}mosaic.halo${NH3}.nc"   # Should this point to this halo4 file or a halo3 file???
+#target="${FIXlam}/${CRES}_mosaic.halo${NH4}.nc"   # Should this point to this halo4 file or a halo3 file???
+target="${FIXlam}/${CRES}_mosaic.halo${NH3}.nc"   # Should this point to this halo4 file or a halo3 file???
 symlink="grid_spec.nc"
 create_symlink_to_file $target $symlink ${relative_link_flag}
 
@@ -263,17 +262,7 @@ create_symlink_to_file $target $symlink ${relative_link_flag}
 
 # Symlink to halo-4 grid file with "${CRES}_" stripped from name.
 #
-# If this link is not created, then the code hangs with an error message
-# like this:
-#
-#   check netcdf status=           2
-#  NetCDF error No such file or directory
-# Stopped
-#
-# Note that even though the message says "Stopped", the task still con-
-# sumes core-hours.
-#
-target="${FIXlam}/${CRES}${DOT_OR_USCORE}grid.tile${TILE_RGNL}.halo${NH4}.nc"
+target="${FIXlam}/${CRES}_grid.tile${TILE_RGNL}.halo${NH4}.nc"
 symlink="grid.tile${TILE_RGNL}.halo${NH4}.nc"
 create_symlink_to_file $target $symlink ${relative_link_flag}
 
@@ -290,23 +279,13 @@ else
 fi
 
 # Symlink to halo-0 orography file with "${CRES}_" and "halo0" stripped from name.
-target="${FIXlam}/${CRES}${DOT_OR_USCORE}oro_data.tile${TILE_RGNL}.halo${NH0}.nc"
+target="${FIXlam}/${CRES}_oro_data.tile${TILE_RGNL}.halo${NH0}.nc"
 symlink="oro_data.nc"
 create_symlink_to_file $target $symlink ${relative_link_flag}
 #
 # Symlink to halo-4 orography file with "${CRES}_" stripped from name.
 #
-# If this link is not created, then the code hangs with an error message
-# like this:
-#
-#   check netcdf status=           2
-#  NetCDF error No such file or directory
-# Stopped
-#
-# Note that even though the message says "Stopped", the task still con-
-# sumes core-hours.
-#
-target="${FIXlam}/${CRES}${DOT_OR_USCORE}oro_data.tile${TILE_RGNL}.halo${NH4}.nc"
+target="${FIXlam}/${CRES}_oro_data.tile${TILE_RGNL}.halo${NH4}.nc"
 symlink="oro_data.tile${TILE_RGNL}.halo${NH4}.nc"
 create_symlink_to_file $target $symlink ${relative_link_flag}
 #
@@ -321,7 +300,7 @@ suites=( "FV3_RAP" "FV3_HRRR" "FV3_HRRR_gf" "FV3_GFS_v15_thompson_mynn_lam3km" "
 if [[ ${suites[@]} =~ "${CCPP_PHYS_SUITE}" ]] ; then
   file_ids=( "ss" "ls" )
   for file_id in "${file_ids[@]}"; do
-    target="${FIXlam}/${CRES}${DOT_OR_USCORE}oro_data_${file_id}.tile${TILE_RGNL}.halo${NH0}.nc"
+    target="${FIXlam}/${CRES}_oro_data_${file_id}.tile${TILE_RGNL}.halo${NH0}.nc"
     symlink="oro_data_${file_id}.nc"
     create_symlink_to_file $target $symlink ${relative_link_flag}
   done
