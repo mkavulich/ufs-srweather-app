@@ -686,12 +686,12 @@ if __name__ == "__main__":
     optional.add_argument(
         "--debug_tests",
         action="store_true",
-        help="Explicitly set DEBUG=TRUE for all experiments",
+        help="Explicitly set DEBUG=True for all experiments",
     )
     optional.add_argument(
         "--verbose_tests",
         action="store_true",
-        help="Explicitly set VERBOSE=TRUE for all experiments",
+        help="Explicitly set VERBOSE=True for all experiments",
     )
 
     user_args = ap.parse_args()

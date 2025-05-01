@@ -77,7 +77,7 @@ else
   export cycle="t${cyc}z"
 fi
 
-if [ "${RUN_ENVIR}" = "nco" ] && [ $(boolify "${DO_ENSEMBLE}") = "TRUE" ] && [ ! -z $ENSMEM_INDX ]; then
+if [ "${RUN_ENVIR}" = "nco" ] && [ "${DO_ENSEMBLE}" = "True" ] && [ ! -z $ENSMEM_INDX ]; then
     export dot_ensmem=".mem${ENSMEM_INDX}"
 else
     export dot_ensmem=
@@ -190,7 +190,7 @@ fi
 # Add a postamble function
 # When an argument exists, the working directory will not be removed
 # even with KEEPDATA: false.
-# Only when an argument is TRUE, the existing working directories in 
+# Only when an argument is True, the existing working directories in 
 # the tmp directory will be removed.
 #
 #-----------------------------------------------------------------------
@@ -198,13 +198,13 @@ fi
 function job_postamble() {
 
     # Remove temp directory
-    if [ "${RUN_ENVIR}" = "nco" ] && [ "${KEEPDATA}" = "FALSE" ]; then
+    if [ "${RUN_ENVIR}" = "nco" ] && [ "${KEEPDATA}" = "False" ]; then
 	cd ${DATAROOT}
 	# Remove current data directory
 	if [ $# -eq 0 ]; then
 	    rm -rf $DATA
 	# Remove all current and shared data directories
-	elif [ "$1" = "TRUE" ]; then
+	elif [ "$1" = "True" ]; then
             rm -rf $DATA
 	    share_pid="${WORKFLOW_ID}_${PDY}${cyc}"
             rm -rf *${share_pid}

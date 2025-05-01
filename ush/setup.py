@@ -320,7 +320,7 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
     if debug:
         logger.info(
             """
-            Setting VERBOSE to \"TRUE\" because DEBUG has been set to \"TRUE\"..."""
+            Setting VERBOSE to \"True\" because DEBUG has been set to \"True\"..."""
         )
         workflow_config["VERBOSE"] = True
 
@@ -379,7 +379,7 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
     # -----------------------------------------------------------------------
     #
     # Set cron table entry for relaunching the workflow if
-    # USE_CRON_TO_RELAUNCH is set to TRUE.
+    # USE_CRON_TO_RELAUNCH is set to True.
     #
     # -----------------------------------------------------------------------
     #
@@ -389,7 +389,7 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
         launch_log_fn = workflow_config["WFLOW_LAUNCH_LOG_FN"]
         workflow_config["CRONTAB_LINE"] = (
             f"""*/{intvl_mnts} * * * * cd {exptdir} && """
-            f"""./{launch_script_fn} called_from_cron="TRUE" >> ./{launch_log_fn} 2>&1"""
+            f"""./{launch_script_fn} called_from_cron="True" >> ./{launch_log_fn} 2>&1"""
         )
     #
     # -----------------------------------------------------------------------
@@ -774,7 +774,7 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
         expt_config.pop("data")
 
     # Check for the user-specified directories for external model files if
-    # USE_USER_STAGED_EXTRN_FILES is set to TRUE
+    # USE_USER_STAGED_EXTRN_FILES is set to True
     task_keys = zip(
         [get_extrn_ics, get_extrn_lbcs],
         ["EXTRN_MDL_SOURCE_BASEDIR_ICS", "EXTRN_MDL_SOURCE_BASEDIR_LBCS"],
@@ -1079,11 +1079,11 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
         if dt_subhourly_post_mnts == 0:
             logger.warning(
                 f"""
-                When performing sub-hourly post (i.e. SUB_HOURLY_POST set to \"TRUE\"),
+                When performing sub-hourly post (i.e. SUB_HOURLY_POST set to \"True\"),
                 DT_SUBHOURLY_POST_MNTS must be set to a value greater than 0; otherwise,
                 sub-hourly output is not really being performed:
                   DT_SUBHOURLY_POST_MNTS = \"{dt_subhourly_post_mnts}\"
-                Resetting SUB_HOURLY_POST to \"FALSE\".  If you do not want this, you
+                Resetting SUB_HOURLY_POST to \"False\".  If you do not want this, you
                 must set DT_SUBHOURLY_POST_MNTS to something other than zero."""
             )
             post_config["SUB_HOURLY_POST"] = False
@@ -1091,7 +1091,7 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
         if dt_subhourly_post_mnts < 1 or dt_subhourly_post_mnts > 59:
             raise ValueError(
                 f'''
-                When SUB_HOURLY_POST is set to \"TRUE\",
+                When SUB_HOURLY_POST is set to \"True\",
                 DT_SUBHOURLY_POST_MNTS must be set to an integer between 1 and 59,
                 inclusive but:
                   DT_SUBHOURLY_POST_MNTS = \"{dt_subhourly_post_mnts}\"'''
@@ -1104,7 +1104,7 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
         if rem != 0:
             raise ValueError(
                 f"""
-                When SUB_HOURLY_POST is set to \"TRUE\") the post
+                When SUB_HOURLY_POST is set to \"True\") the post
                 processing interval in seconds must be evenly divisible
                 by the time step DT_ATMOS used in the forecast model,
                 i.e. the remainder must be zero.  In this case, it is
@@ -1653,9 +1653,7 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
     logger.info(
         f"""
         Generating the global experiment variable definitions file here:
-          GLOBAL_VAR_DEFNS_FP = '{global_var_defns_fp}'
-        For more detailed information, set DEBUG to 'TRUE' in the experiment
-        configuration file ('{user_config_fn}')."""
+          GLOBAL_VAR_DEFNS_FP = '{global_var_defns_fp}'"""
     )
 
     # Final failsafe before writing rocoto yaml to ensure we don't have any invalid dicts

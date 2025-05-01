@@ -56,12 +56,3 @@ constants:
   NH0: 0
   NH3: 3
   NH4: 4
-  #
-  #-----------------------------------------------------------------------
-  #
-  # Valid values that a user may set a boolean variable to (e.g. in the
-  # SRW App's experiment configuration file).
-  #
-  #-----------------------------------------------------------------------
-  #
-  valid_vals_BOOLEAN: [ "TRUE", "true", "YES", "yes", "FALSE", "false", "NO", "no" ] 

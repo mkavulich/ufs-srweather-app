@@ -41,7 +41,7 @@ sections=(
 for sect in ${sections[*]} ; do
   source_yaml ${GLOBAL_VAR_DEFNS_FP} ${sect}
 done
-. $USHdir/job_preamble.sh "TRUE"
+. $USHdir/job_preamble.sh "True"
 #
 #-----------------------------------------------------------------------
 #

@@ -126,14 +126,14 @@ setpdy.sh
 #
 #-----------------------------------------------------------------------
 #
-# Set sub-cycle and ensemble member names in file/diectory names
+# Set sub-cycle and ensemble member names in file/directory names
 #
 #-----------------------------------------------------------------------
 #
 if [ ${subcyc} -ne 0 ]; then
   export cycle="t${cyc}${subcyc}z"
 fi
-if [ $(boolify "${DO_ENSEMBLE}") = "TRUE" ] && [ ! -z ${ENSMEM_INDX} ]; then
+if [ "${DO_ENSEMBLE}" = "True" ] && [ ! -z ${ENSMEM_INDX} ]; then
   export dot_ensmem=".mem${ENSMEM_INDX}"
 else
   export dot_ensmem=

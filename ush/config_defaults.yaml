@@ -992,8 +992,8 @@ workflow:
   #
   # DEBUG:
   # This is a flag that determines whether to print out very detailed debugging messages.
-  # Note that if DEBUG is set to TRUE, then
-  # VERBOSE will also be reset to TRUE if it isn't already.
+  # Note that if DEBUG is set to True, then
+  # VERBOSE will also be reset to True if it isn't already.
   #
   #-----------------------------------------------------------------------
   #
@@ -2833,7 +2833,7 @@ cpl_aqm_parm:
   # 
   # NEXUS_GFS_SFC_DIR:
   # Path to directory containing GFS surface data files
-  # This is set to COMINgfs when DO_REAL_TIME=TRUE. 
+  # This is set to COMINgfs when DO_REAL_TIME=True. 
   #
   # NEXUS_GFS_SFC_ARCHV_DIR: 
   # Path to archive directory for gfs surface files on HPSS

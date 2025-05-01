@@ -15,9 +15,9 @@
 #           multiple times in the same job (e.g. MPMD)
 #
 # Input environment variables:
-#   TRACE (TRUE/FALSE): Whether to echo every command (set -x) [default: "TRUE"]
-#   STRICT (TRUE/FALSE): Whether to exit immediately on error or undefined variable
-#     (set -eu) [default: "TRUE"]
+#   TRACE (True/False): Whether to echo every command (set -x) [default: "True"]
+#   STRICT (True/False): Whether to exit immediately on error or undefined variable
+#     (set -eu) [default: "True"]
 #
 #
 #-----------------------------------------------------------------------
@@ -86,14 +86,14 @@ fi
 #
 #-----------------------------------------------------------------------
 #
-STRICT=${STRICT:-"TRUE"}
-TRACE=${DEBUG:-"FALSE"}
+STRICT=${STRICT:-"True"}
+TRACE=${DEBUG:-"False"}
 
-if [[ $STRICT == "TRUE" ]]; then
+if [[ $STRICT == "True" ]]; then
     # Exit on error and undefined variable
     set -euo pipefail
 fi
-if [[ $TRACE == "TRUE" ]]; then
+if [[ $TRACE == "True" ]]; then
     # Turn on debugging
     set -x
 

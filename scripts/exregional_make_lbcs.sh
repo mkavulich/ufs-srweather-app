@@ -204,7 +204,7 @@ case "${CCPP_PHYS_SUITE}" in
     if [ "${EXTRN_MDL_NAME_LBCS}" = "RAP" ] || \
        [ "${EXTRN_MDL_NAME_LBCS}" = "RRFS" ] || \
        [ "${EXTRN_MDL_NAME_LBCS}" = "HRRR" ]; then
-      if [ $(boolify "${DO_SMOKE_DUST}") = "TRUE" ]; then
+      if [ "${DO_SMOKE_DUST}" = "True" ]; then
         varmap_file="GSDphys_smoke_var_map.txt"
       else
         varmap_file="GSDphys_var_map.txt"
@@ -343,7 +343,7 @@ thomp_mp_climo_file=""
 if [ "${EXTRN_MDL_NAME_LBCS}" != "HRRR" -a \
      "${EXTRN_MDL_NAME_LBCS}" != "RRFS" -a \
      "${EXTRN_MDL_NAME_LBCS}" != "RAP" ] && \
-     [ $(boolify "${SDF_USES_THOMPSON_MP}") = "TRUE" ]; then
+     [ "${SDF_USES_THOMPSON_MP}" = "True" ]; then
   thomp_mp_climo_file="${THOMPSON_MP_CLIMO_FP}"
 fi
 #
@@ -656,9 +656,9 @@ located in the following directory:
   lbc_spec_fhrs=( "${EXTRN_MDL_FHRS[$i]}" )
   fcst_hhh=$(( ${lbc_spec_fhrs} - ${EXTRN_MDL_LBCS_OFFSET_HRS} ))
   fcst_hhh_FV3LAM=$( printf "%03d" "$fcst_hhh" )
-  if [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
+  if [ "${CPL_AQM}" = "True" ]; then
     cp -p gfs.bndy.nc ${DATA_SHARE}/${NET}.${cycle}${dot_ensmem}.gfs_bndy.tile7.f${fcst_hhh_FV3LAM}.nc
-  elif [ $(boolify "${DO_SMOKE_DUST}") = "TRUE" ]; then
+  elif [ "${DO_SMOKE_DUST}" = "True" ]; then
     COMOUT="${COMROOT}/${NET}/${model_ver}/${RUN}.${PDY}/${cyc}${SLASH_ENSMEM_SUBDIR}" #temporary path, should be removed later
     mkdir -p ${COMOUT}
     cp -p gfs.bndy.nc ${COMOUT}/${NET}.${cycle}${dot_ensmem}.gfs_bndy.tile7.f${fcst_hhh_FV3LAM}.nc

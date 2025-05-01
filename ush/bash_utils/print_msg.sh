@@ -63,12 +63,12 @@ function print_info_msg() {
 #
   if [ "$#" -eq 1 ]; then
 
-    verbose="TRUE"
+    verbose="True"
     info_msg="$1"
     
   elif [ "$#" -eq 2 ]; then
 
-    verbose=$(boolify "$1")
+    verbose="$1"
     info_msg="$2"
 #
 #-----------------------------------------------------------------------
@@ -93,7 +93,7 @@ Usage:
 where the arguments are defined as follows:
 
   verbose:
-  This is an optional argument.  If set to \"TRUE\", info_msg will be
+  This is an optional argument.  If set to \"True\", info_msg will be
   printed to stdout.  Otherwise, info_msg will not be printed.
 
   info_msg:
@@ -103,18 +103,18 @@ This function prints an informational message to stdout.  If one argu-
 ment is passed in, then that argument is assumed to be info_msg and is 
 printed.  If two arguments are passed in, then the first is assumed to
 be verbose and the second info_msg.  In this case, info_msg gets printed
-only if verbose is set to \"TRUE\".
+only if verbose is set to \"True\".
 "
 
   fi
 #
 #-----------------------------------------------------------------------
 #
-# If verbose is set to "TRUE", print out the message.
+# If verbose is set to "True", print out the message.
 #
 #-----------------------------------------------------------------------
 #
-  if [ "$verbose" = "TRUE" ]; then
+  if [ "$verbose" = "True" ]; then
     printf "%s\n" "${info_msg}"
   fi
 #

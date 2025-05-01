@@ -152,7 +152,7 @@ fi
 #
 rm -f fort.*
 cp ${HOMEdir}/fix/upp/nam_micro_lookup.dat ./eta_micro_lookup.dat
-if [ $(boolify ${USE_CUSTOM_POST_CONFIG_FILE}) = "TRUE" ]; then
+if [ ${USE_CUSTOM_POST_CONFIG_FILE} = "True" ]; then
   post_config_fp="${CUSTOM_POST_CONFIG_FP}"
   print_info_msg "
 ====================================================================
@@ -162,7 +162,7 @@ to the temporary work directory (DATA_FHR):
   DATA_FHR = \"${DATA_FHR}\"
 ===================================================================="
 else
-  if [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
+  if [ "${CPL_AQM}" = "True" ]; then
     post_config_fp="${PARMdir}/upp/postxconfig-NT-AQM.txt"
   else
     post_config_fp="${PARMdir}/upp/postxconfig-NT-rrfs.txt"
@@ -177,8 +177,8 @@ temporary work directory (DATA_FHR):
 fi
 cp ${post_config_fp} ./postxconfig-NT.txt
 cp ${PARMdir}/upp/params_grib2_tbl_new .
-if [ $(boolify ${DO_SMOKE_DUST}) = "TRUE" ] || [ $(boolify ${USE_CRTM}) = "TRUE" ]; then
-  if [ $(boolify ${DO_SMOKE_DUST}) = "TRUE" ]; then
+if [ ${DO_SMOKE_DUST} = "True" ] || [ ${USE_CRTM} = "True" ]; then
+  if [ ${DO_SMOKE_DUST} = "True" ]; then
     CRTM_DIR="${FIXcrtm}"
   fi
   ln -nsf ${CRTM_DIR}/Nalli.IRwater.EmisCoeff.bin .
@@ -223,11 +223,11 @@ hh=${cyc}
 # interval (via the output_fh parameter in the MODEL_CONFIG_FN file, 
 # with nsout set to a non-positive value), then the write-component
 # output file names will not contain any suffix for the minutes and seconds.
-# For this reason, when SUB_HOURLY_POST is not set to "TRUE", mnts_sec_str
+# For this reason, when SUB_HOURLY_POST is not set to "True", mnts_sec_str
 # must be set to a null string.
 #
 mnts_secs_str=""
-if [ $(boolify "${SUB_HOURLY_POST}") = "TRUE" ]; then
+if [ "${SUB_HOURLY_POST}" = "True" ]; then
   if [ ${fhr}${fmn} = "00000" ]; then
     mnts_secs_str=":"$( $DATE_UTIL --utc --date "${yyyymmdd} ${hh} UTC + ${DT_ATMOS} seconds" "+%M:%S" )
   else
@@ -259,9 +259,9 @@ post_mn=${post_time:10:2}
 #
 # Create the input namelist file to the post-processor executable.
 #
-if [ $(boolify "${CPL_AQM}") = "TRUE" ] && [ $(boolify "${DO_SMOKE_DUST}") = "FALSE" ]; then
+if [ "${CPL_AQM}" = "True" ] && [ "${DO_SMOKE_DUST}" = "False" ]; then
   post_itag_add="aqf_on=.true.,"
-elif [ $(boolify "${DO_SMOKE_DUST}") = "TRUE" ]; then
+elif [ "${DO_SMOKE_DUST}" = "True" ]; then
   post_itag_add="slrutah_on=.true.,gtg_on=.true."
 else
   post_itag_add=""
@@ -281,7 +281,7 @@ fileNameFlux='${phy_file}'
  /
 EOF
 
-if [ $(boolify "${DO_SMOKE_DUST}") = "TRUE" ]; then
+if [ "${DO_SMOKE_DUST}" = "True" ]; then
   if [ ${PREDEF_GRID_NAME} = "RRFS_CONUS_3km" ]; then
     grid_specs_rrfs="lambert:-97.5:38.500000 237.280472:1799:3000 21.138115:1059:3000"
   elif [ ${PREDEF_GRID_NAME} = "RRFS_NA_3km" ]; then
@@ -348,7 +348,7 @@ The \${fhr} variable contains too few or too many characters:
   fhr = \"$fhr\""
 fi
 
-if [ $(boolify "${DO_SMOKE_DUST}") = "TRUE" ]; then
+if [ "${DO_SMOKE_DUST}" = "True" ]; then
   bgdawp=${NET}.${cycle}.prslev.f${fhr}.${POST_OUTPUT_DOMAIN_NAME}.grib2
   bgrd3d=${NET}.${cycle}.natlev.f${fhr}.${POST_OUTPUT_DOMAIN_NAME}.grib2
   bgifi=${NET}.${cycle}.ififip.f${fhr}.${POST_OUTPUT_DOMAIN_NAME}.grib2
@@ -390,7 +390,7 @@ else
   cd "${COMOUT}"
   basetime=$( $DATE_UTIL --date "$yyyymmdd $hh" +%y%j%H%M )
   symlink_suffix="${dot_ensmem}.${basetime}f${fhr}${post_mn}"
-  if [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
+  if [ "${CPL_AQM}" = "True" ]; then
     fids=( "cmaq" )
   else
     fids=( "prslev" "natlev" )
@@ -401,10 +401,10 @@ else
     post_renamed_fn="${NET}.${cycle}${dot_ensmem}.${fid}.${post_renamed_fn_suffix}"
     mv ${DATA_FHR}/${post_orig_fn} ${post_renamed_fn}
     if [ $RUN_ENVIR != "nco" ]; then
-      create_symlink_to_file ${post_renamed_fn} ${FID}${symlink_suffix} TRUE
+      create_symlink_to_file ${post_renamed_fn} ${FID}${symlink_suffix} True
     fi
     # DBN alert
-    if [ "$SENDDBN" = "TRUE" ]; then
+    if [ "$SENDDBN" = "True" ]; then
       $DBNROOT/bin/dbn_alert MODEL rrfs_post ${job} ${COMOUT}/${post_renamed_fn}
     fi
   done

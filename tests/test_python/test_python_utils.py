@@ -215,7 +215,7 @@ class Testing(unittest.TestCase):
         for all test cases etc, this is the best place to do it"""
 
         util.define_macos_utilities()
-        util.set_env_var("DEBUG", "FALSE")
+        util.set_env_var("DEBUG", "False")
         self.test_dir = os.path.dirname(os.path.abspath(__file__))
         self.ushdir = os.path.join(self.test_dir, "..", "..", "ush")
 

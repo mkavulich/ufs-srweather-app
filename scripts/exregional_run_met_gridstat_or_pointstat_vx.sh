@@ -133,7 +133,7 @@ set_vx_params \
 #-----------------------------------------------------------------------
 #
 i="0"
-if [ $(boolify "${DO_ENSEMBLE}") = "TRUE" ]; then
+if [ "${DO_ENSEMBLE}" = "True" ]; then
   i=$( bc -l <<< "${ENSMEM_INDX}-1" )
 fi
 time_lag=$( bc -l <<< "${ENS_TIME_LAG_HRS[$i]}*${SECS_PER_HOUR}" )
@@ -168,7 +168,7 @@ else
 # or, better, just remove this variale and code "/${ensmem_name}" where
 # slash_ensmem_subdir_or_null currently appears below.
 #
-  if [ $(boolify "${DO_ENSEMBLE}") = "TRUE" ]; then
+  if [ "${DO_ENSEMBLE}" = "True" ]; then
     slash_ensmem_subdir_or_null="/${ensmem_name}"
     slash_obs_or_null="/obs"
   else

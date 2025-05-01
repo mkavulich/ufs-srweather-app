@@ -185,7 +185,7 @@ def create_model_configure_file(
             }
         )
     #
-    # If sub_hourly_post is set to "TRUE", then the forecast model must be
+    # If sub_hourly_post is set to "True", then the forecast model must be
     # directed to generate output files on a sub-hourly interval. Do this
     # by specifying the output interval in the model configuration file
     # (MODEL_CONFIG_FN) in units of number of forecat model time steps (nsout).
@@ -199,7 +199,7 @@ def create_model_configure_file(
     # see the jinja model_config template file] is set to 0, although this
     # doesn't matter because any positive value of nsout will override output_fh.
     #
-    # If sub_hourly_post is set to "FALSE", then the workflow is hard-coded
+    # If sub_hourly_post is set to "False", then the workflow is hard-coded
     # (in the jinja model_config template file) to direct the forecast model
     # to output files every hour. This is done by setting (1) output_fh to 1
     # here, and (2) nsout to -1 here which turns off output by time step interval.
@@ -289,7 +289,7 @@ def _parse_args(argv):
         "--sub-hourly-post",
         dest="sub_hourly_post",
         required=True,
-        help="Set sub hourly post to either TRUE/FALSE by passing corresponding string.",
+        help="Set sub hourly post to either True/False by passing corresponding string.",
     )
 
     parser.add_argument(

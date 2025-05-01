@@ -210,7 +210,7 @@ case "${CCPP_PHYS_SUITE}" in
     if [ "${EXTRN_MDL_NAME_ICS}" = "RAP" ] || \
        [ "${EXTRN_MDL_NAME_ICS}" = "RRFS" ] || \
        [ "${EXTRN_MDL_NAME_ICS}" = "HRRR" ]; then
-      if [ $(boolify "${DO_SMOKE_DUST}") = "TRUE" ]; then
+      if [ "${DO_SMOKE_DUST}" = "True" ]; then
         varmap_file="GSDphys_smoke_var_map.txt"
       else
         varmap_file="GSDphys_var_map.txt"
@@ -403,7 +403,7 @@ nsoill_out="4"
 if [ "${EXTRN_MDL_NAME_ICS}" = "HRRR" -o \
      "${EXTRN_MDL_NAME_ICS}" = "RRFS" -o \
      "${EXTRN_MDL_NAME_ICS}" = "RAP" ] && \
-     [ $(boolify "${SDF_USES_RUC_LSM}") = "TRUE" ]; then
+     [ "${SDF_USES_RUC_LSM}" = "True" ]; then
   nsoill_out="9"
 fi
 #
@@ -424,7 +424,7 @@ thomp_mp_climo_file=""
 if [ "${EXTRN_MDL_NAME_ICS}" != "HRRR" -a \
      "${EXTRN_MDL_NAME_ICS}" != "RRFS" -a \
      "${EXTRN_MDL_NAME_ICS}" != "RAP" ] && \
-     [ $(boolify "${SDF_USES_THOMPSON_MP}") = "TRUE" ]; then
+     [ "${SDF_USES_THOMPSON_MP}" = "True" ]; then
   thomp_mp_climo_file="${THOMPSON_MP_CLIMO_FP}"
 fi
 #
@@ -759,9 +759,9 @@ POST_STEP
 #
 #-----------------------------------------------------------------------
 #
-if [ $(boolify "${CPL_AQM}") = "TRUE" ] || [ $(boolify "${DO_SMOKE_DUST}") = "TRUE" ]; then
+if [ "${CPL_AQM}" = "True" ] || [ "${DO_SMOKE_DUST}" = "True" ]; then
   COMOUT="${COMROOT}/${NET}/${model_ver}/${RUN}.${PDY}/${cyc}${SLASH_ENSMEM_SUBDIR}" #temporary path, should be removed later
-  if [ $(boolify "${COLDSTART}") = "TRUE" ] && [ "${PDY}${cyc}" = "${DATE_FIRST_CYCL:0:10}" ]; then
+  if [ "${COLDSTART}" = "True" ] && [ "${PDY}${cyc}" = "${DATE_FIRST_CYCL:0:10}" ]; then
     data_trans_path="${COMOUT}"
   else
     data_trans_path="${DATA_SHARE}"
@@ -769,7 +769,7 @@ if [ $(boolify "${CPL_AQM}") = "TRUE" ] || [ $(boolify "${DO_SMOKE_DUST}") = "TR
   cp -p out.atm.tile${TILE_RGNL}.nc "${data_trans_path}/${NET}.${cycle}${dot_ensmem}.gfs_data.tile${TILE_RGNL}.halo${NH0}.nc"
   cp -p out.sfc.tile${TILE_RGNL}.nc "${COMOUT}/${NET}.${cycle}${dot_ensmem}.sfc_data.tile${TILE_RGNL}.halo${NH0}.nc"
   cp -p gfs_ctrl.nc "${COMOUT}/${NET}.${cycle}${dot_ensmem}.gfs_ctrl.nc"
-  if [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
+  if [ "${CPL_AQM}" = "True" ]; then
     cp -p gfs.bndy.nc "${DATA_SHARE}/${NET}.${cycle}${dot_ensmem}.gfs_bndy.tile${TILE_RGNL}.f000.nc"
   else
     cp -p gfs.bndy.nc "${COMOUT}/${NET}.${cycle}${dot_ensmem}.gfs_bndy.tile${TILE_RGNL}.f000.nc"
@@ -787,7 +787,7 @@ fi
 #
 #-----------------------------------------------------------------------
 #
-if [ $(boolify "${USE_FVCOM}") = "TRUE" ]; then
+if [ "${USE_FVCOM}" = "True" ]; then
 
 #Format for fvcom_time: YYYY-MM-DDTHH:00:00.000000
   fvcom_exec_fn="fvcom_to_FV3"

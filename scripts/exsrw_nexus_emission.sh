@@ -108,7 +108,7 @@ GFS_SFC_INPUT="${DATA_SHARE}"
 if [ -d "${GFS_SFC_INPUT}" ]; then
   if [ "$(ls -A ${GFS_SFC_INPUT}/gfs*.nc)" ]; then
     ln -sf "${GFS_SFC_INPUT}" "GFS_SFC"
-    USE_GFS_SFC="TRUE"
+    USE_GFS_SFC="True"
   fi
 fi
 #
@@ -120,7 +120,7 @@ fi
 #
 cp -p ${FIXaqm}/nexus/${NEXUS_GRID_FN} ${DATA}/grid_spec.nc
 
-if [ "${USE_GFS_SFC}" = "TRUE" ]; then
+if [ "${USE_GFS_SFC}" = "True" ]; then
   cp -p ${PARMsrw}/nexus_config/cmaq_gfs_megan/*.rc ${DATA}
 else
   cp -p ${PARMsrw}/nexus_config/cmaq/*.rc ${DATA}
@@ -174,22 +174,22 @@ fi
 #
 #----------------------------------------------------------------------
 #
-NEI2016="TRUE"
-TIMEZONES="TRUE"
-CEDS="TRUE"
-HTAP2010="TRUE"
-OMIHTAP="TRUE"
-MASKS="TRUE"
-NOAAGMD="TRUE"
-SOA="TRUE"
-EDGAR="TRUE"
-MEGAN="TRUE"
+NEI2016="True"
+TIMEZONES="True"
+CEDS="True"
+HTAP2010="True"
+OMIHTAP="True"
+MASKS="True"
+NOAAGMD="True"
+SOA="True"
+EDGAR="True"
+MEGAN="True"
 MODIS_XLAI="FALSE"
-OLSON_MAP="TRUE"
-Yuan_XLAI="TRUE"
-GEOS="TRUE"
-AnnualScalar="TRUE"
-OFFLINE_SOILNOX="TRUE"
+OLSON_MAP="True"
+Yuan_XLAI="True"
+GEOS="True"
+AnnualScalar="True"
+OFFLINE_SOILNOX="True"
 #
 #----------------------------------------------------------------------
 # 
@@ -225,7 +225,7 @@ fi
 #
 #----------------------------------------------------------------------
 #
-if [ "${NEI2016}" = "TRUE" ]; then #NEI2016
+if [ "${NEI2016}" = "True" ]; then #NEI2016
   mkdir -p ${DATAinput}/NEI2016v1
   mkdir -p ${DATAinput}/NEI2016v1/v2022-07
   mkdir -p ${DATAinput}/NEI2016v1/v2022-07/${MM}
@@ -246,67 +246,67 @@ if [ "${NEI2016}" = "TRUE" ]; then #NEI2016
   fi
 fi
 
-if [ "${TIMEZONES}" = "TRUE" ]; then # TIME ZONES
+if [ "${TIMEZONES}" = "True" ]; then # TIME ZONES
   ln -sf ${FIXemis}/TIMEZONES ${DATAinput}
 fi
 
-if [ "${MASKS}" = "TRUE" ]; then # MASKS
+if [ "${MASKS}" = "True" ]; then # MASKS
   ln -sf ${FIXemis}/MASKS ${DATAinput}
 fi
 
-if [ "${CEDS}" = "TRUE" ]; then #CEDS
+if [ "${CEDS}" = "True" ]; then #CEDS
   ln -sf ${FIXemis}/CEDS ${DATAinput}
 fi
 
-if [ "${HTAP2010}" = "TRUE" ]; then #CEDS2014
+if [ "${HTAP2010}" = "True" ]; then #CEDS2014
   ln -sf ${FIXemis}/HTAP ${DATAinput}
 fi
 
-if [ "${OMIHTAP}" = "TRUE" ]; then #CEDS2014
+if [ "${OMIHTAP}" = "True" ]; then #CEDS2014
   ln -sf ${FIXemis}/OMI-HTAP_2019 ${DATAinput}
 fi
 
-if [ "${NOAAGMD}" = "TRUE" ]; then #NOAA_GMD
+if [ "${NOAAGMD}" = "True" ]; then #NOAA_GMD
   ln -sf ${FIXemis}/NOAA_GMD ${DATAinput}
 fi
 
-if [ "${SOA}" = "TRUE" ]; then #SOA
+if [ "${SOA}" = "True" ]; then #SOA
   ln -sf ${FIXemis}/SOA ${DATAinput}
 fi
 
-if [ "${EDGAR}" = "TRUE" ]; then #EDGARv42
+if [ "${EDGAR}" = "True" ]; then #EDGARv42
   ln -sf ${FIXemis}/EDGARv42 ${DATAinput}
 fi
 
-if [ "${MEGAN}" = "TRUE" ]; then #MEGAN
+if [ "${MEGAN}" = "True" ]; then #MEGAN
   ln -sf ${FIXemis}/MEGAN ${DATAinput}
 fi
 
-if [ "${OLSON_MAP}" = "TRUE" ]; then #OLSON_MAP
+if [ "${OLSON_MAP}" = "True" ]; then #OLSON_MAP
   ln -sf ${FIXemis}/OLSON_MAP ${DATAinput}
 fi
 
-if [ "${Yuan_XLAI}" = "TRUE" ]; then #Yuan_XLAI
+if [ "${Yuan_XLAI}" = "True" ]; then #Yuan_XLAI
   ln -sf ${FIXemis}/Yuan_XLAI ${DATAinput}
 fi
 
-if [ "${GEOS}" = "TRUE" ]; then #GEOS
+if [ "${GEOS}" = "True" ]; then #GEOS
   ln -sf ${FIXemis}/GEOS_0.5x0.625 ${DATAinput}
 fi
 
-if [ "${AnnualScalar}" = "TRUE" ]; then #ANNUAL_SCALAR
+if [ "${AnnualScalar}" = "True" ]; then #ANNUAL_SCALAR
   ln -sf ${FIXemis}/AnnualScalar ${DATAinput}
 fi
 
-if [ "${MODIS_XLAI}" = "TRUE" ]; then #MODIS_XLAI
+if [ "${MODIS_XLAI}" = "True" ]; then #MODIS_XLAI
   ln -sf ${FIXemis}/MODIS_XLAI ${DATAinput}
 fi
 
-if [ "${OFFLINE_SOILNOX}" = "TRUE" ]; then #OFFLINE_SOILNOX
+if [ "${OFFLINE_SOILNOX}" = "True" ]; then #OFFLINE_SOILNOX
   ln -sf ${FIXemis}/OFFLINE_SOILNOX ${DATAinput}
 fi
 
-if [ "${USE_GFS_SFC}" = "TRUE" ]; then # GFS INPUT
+if [ "${USE_GFS_SFC}" = "True" ]; then # GFS INPUT
   mkdir -p ${DATAinput}/GFS_SFC
   ${USHsrw}/nexus_utils/python/nexus_gfs_bio.py -i ${DATA}/GFS_SFC/gfs.t??z.sfcf???.nc -o ${DATA}/GFS_SFC_MEGAN_INPUT.nc
   export err=$?

@@ -87,15 +87,6 @@ function source_util_funcs() {
 #
 #-----------------------------------------------------------------------
 #
-# Source the file containing the function that changes all boolean
-# options to TRUE or FALSE
-#
-#-----------------------------------------------------------------------
-#
-  . ${bashutils_dir}/boolify.sh
-#
-#-----------------------------------------------------------------------
-#
 # Source the file containing the functions that will echo given strings
 # as uppercase or lowercase
 #

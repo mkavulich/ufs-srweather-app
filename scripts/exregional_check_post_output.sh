@@ -105,7 +105,7 @@ user-staged.
 #-----------------------------------------------------------------------
 #
 i="0"
-if [[ $(boolify "${DO_ENSEMBLE}") == "TRUE" ]]; then
+if [[ "${DO_ENSEMBLE}" == "True" ]]; then
   i=$( bc -l <<< "${ENSMEM_INDX}-1" )
 fi
 time_lag=$( bc -l <<< "${ENS_TIME_LAG_HRS[$i]}*${SECS_PER_HOUR}" )

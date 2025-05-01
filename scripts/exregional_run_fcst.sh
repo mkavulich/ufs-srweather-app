@@ -187,7 +187,7 @@ export OMP_NUM_THREADS=${OMP_NUM_THREADS_RUN_FCST}
 export OMP_STACKSIZE=${OMP_STACKSIZE_RUN_FCST}
 export MPI_TYPE_DEPTH=20
 export ESMF_RUNTIME_COMPLIANCECHECK=OFF:depth=4
-if [ $(boolify "${PRINT_ESMF}") = "TRUE" ]; then
+if [ "${PRINT_ESMF}" = "True" ]; then
   export ESMF_RUNTIME_PROFILE=ON
   export ESMF_RUNTIME_PROFILE_OUTPUT="SUMMARY"
 fi
@@ -241,9 +241,9 @@ cd ${DATA}/INPUT
 # so we use symlinks with absolute paths.
 #
 if [[ -d "${EXPTDIR}/grid" ]]; then
-  relative_link_flag="TRUE"
+  relative_link_flag="True"
 else
-  relative_link_flag="FALSE"
+  relative_link_flag="False"
 fi
 
 # Symlink to mosaic file with a completely different name.
@@ -273,9 +273,9 @@ create_symlink_to_file $target $symlink ${relative_link_flag}
 # task and absolute paths otherwise.
 #
 if [ -d "${EXPTDIR}/orog" ]; then
-  relative_link_flag="TRUE"
+  relative_link_flag="True"
 else
-  relative_link_flag="FALSE"
+  relative_link_flag="False"
 fi
 
 # Symlink to halo-0 orography file with "${CRES}_" and "halo0" stripped from name.
@@ -334,9 +334,9 @@ cd ${DATA}/INPUT
 # The symlinks to be created point to files in the same directory (INPUT),
 # so it's most straightforward to use relative paths.
 #
-relative_link_flag="FALSE"
+relative_link_flag="False"
 
-if [ $(boolify "${CPL_AQM}") = "TRUE" ] || [ $(boolify "${DO_SMOKE_DUST}") = "TRUE" ]; then
+if [ "${CPL_AQM}" = "True" ] || [ "${DO_SMOKE_DUST}" = "True" ]; then
   COMIN="${COMROOT}/${NET}/${model_ver}/${RUN}.${PDY}/${cyc}${SLASH_ENSMEM_SUBDIR}" #temporary path, should be removed later
 
   target="${COMIN}/${NET}.${cycle}${dot_ensmem}.gfs_data.tile${TILE_RGNL}.halo${NH0}.nc"
@@ -357,7 +357,7 @@ if [ $(boolify "${CPL_AQM}") = "TRUE" ] || [ $(boolify "${DO_SMOKE_DUST}") = "TR
     create_symlink_to_file $target $symlink ${relative_link_flag}
   done
 
-  if [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
+  if [ "${CPL_AQM}" = "True" ]; then
     target="${COMIN}/${NET}.${cycle}${dot_ensmem}.NEXUS_Expt.nc"
     symlink="NEXUS_Expt.nc"
     create_symlink_to_file $target $symlink ${relative_link_flag}
@@ -434,10 +434,10 @@ static) files in the FIXam directory:
 # isn't really an advantage to using relative symlinks, so we use symlinks 
 # with absolute paths.
 #
-if [ $(boolify "${SYMLINK_FIX_FILES}") = "FALSE" ]; then
-  relative_link_flag="TRUE"
+if [ "${SYMLINK_FIX_FILES}" = "False" ]; then
+  relative_link_flag="True"
 else
-  relative_link_flag="FALSE"
+  relative_link_flag="False"
 fi
 
 regex_search="^[ ]*([^| ]+)[ ]*[|][ ]*([^| ]+)[ ]*$"
@@ -463,7 +463,7 @@ done
 #
 #-----------------------------------------------------------------------
 #
-if [ $(boolify "${USE_MERRA_CLIMO}") = "TRUE" ]; then
+if [ "${USE_MERRA_CLIMO}" = "True" ]; then
   for f_nm_path in ${FIXclim}/*; do
     f_nm=$( basename "${f_nm_path}" )
     pre_f="${f_nm%%.*}"
@@ -513,9 +513,9 @@ input files in the main experiment directory..."
 # using relative symlinks, so we use symlinks with absolute paths.
 #
 if [ "${RUN_ENVIR}" != "nco" ]; then
-  relative_link_flag="TRUE"
+  relative_link_flag="True"
 else
-  relative_link_flag="FALSE"
+  relative_link_flag="False"
 fi
 
 create_symlink_to_file ${DATA_TABLE_FP} ${DATA}/${DATA_TABLE_FN} ${relative_link_flag}
@@ -524,16 +524,16 @@ create_symlink_to_file ${FIELD_TABLE_FP} ${DATA}/${FIELD_TABLE_FN} ${relative_li
 
 create_symlink_to_file ${FIELD_DICT_FP} ${DATA}/${FIELD_DICT_FN} ${relative_link_flag}
 
-if [ $(boolify ${WRITE_DOPOST}) = "TRUE" ]; then
+if [ ${WRITE_DOPOST} = "True" ]; then
   cp ${HOMEdir}/fix/upp/nam_micro_lookup.dat ./eta_micro_lookup.dat
-  if [ $(boolify ${USE_CUSTOM_POST_CONFIG_FILE}) = "TRUE" ]; then
+  if [ ${USE_CUSTOM_POST_CONFIG_FILE} = "True" ]; then
     post_config_fp="${CUSTOM_POST_CONFIG_FP}"
     print_info_msg "
 ====================================================================
   CUSTOM_POST_CONFIG_FP = \"${CUSTOM_POST_CONFIG_FP}\"
 ===================================================================="
   else
-    if [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
+    if [ "${CPL_AQM}" = "True" ]; then
       post_config_fp="${PARMdir}/upp/postxconfig-NT-AQM.txt"
     else
       post_config_fp="${PARMdir}/upp/postxconfig-NT-rrfs.txt"
@@ -547,7 +547,7 @@ if [ $(boolify ${WRITE_DOPOST}) = "TRUE" ]; then
   cp ${post_config_fp} ./postxconfig-NT.txt
   cp ${PARMdir}/upp/params_grib2_tbl_new .
   # Set itag for inline-post:
-  if [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
+  if [ "${CPL_AQM}" = "True" ]; then
     post_itag_add="aqf_on=.true.,"
   else
     post_itag_add=""
@@ -581,15 +581,15 @@ cp ${CCPP_PHYS_DIR}/noahmptable.tbl .
 #
 #-----------------------------------------------------------------------
 #
-STOCH="FALSE"
-if ([ $(boolify "${DO_SPP}") = "TRUE" ] || \
-    [ $(boolify "${DO_SPPT}") = "TRUE" ] || \
-    [ $(boolify "${DO_SHUM}") = "TRUE" ] || \
-    [ $(boolify "${DO_SKEB}") = "TRUE" ] || \
-    [ $(boolify "${DO_LSM_SPP}") =  "TRUE" ]); then
-     STOCH="TRUE"
+STOCH="False"
+if ([ "${DO_SPP}" = "True" ] || \
+    [ "${DO_SPPT}" = "True" ] || \
+    [ "${DO_SHUM}" = "True" ] || \
+    [ "${DO_SKEB}" = "True" ] || \
+    [ "${DO_LSM_SPP}" =  "True" ]); then
+     STOCH="True"
 fi
-if [ "${STOCH}" = "TRUE" ]; then
+if [ "${STOCH}" = "True" ]; then
   cp ${FV3_NML_STOCH_FP} ${DATA}/${FV3_NML_FN}
  else
   ln -sf ${FV3_NML_FP} ${DATA}/${FV3_NML_FN}
@@ -618,7 +618,7 @@ file failed."
 #
 #-----------------------------------------------------------------------
 #
-if ([ "$STOCH" == "TRUE" ] && [ $(boolify "${DO_ENSEMBLE}") = "TRUE" ]); then
+if ([ "$STOCH" == "True" ] && [ "${DO_ENSEMBLE}" = "True" ]); then
   python3 $USHdir/set_fv3nml_ens_stoch_seeds.py \
       --path-to-defns ${GLOBAL_VAR_DEFNS_FP} \
       --cdate "$CDATE" || print_err_msg_exit "\
@@ -635,7 +635,7 @@ fi
 #
 #-----------------------------------------------------------------------
 #
-if [ $(boolify "${CPL_AQM}") = "TRUE" ] && [ "${PREDEF_GRID_NAME}" = "AQM_NA_13km" ]; then
+if [ "${CPL_AQM}" = "True" ] && [ "${PREDEF_GRID_NAME}" = "AQM_NA_13km" ]; then
   python3 $USHdir/update_input_nml.py \
     --namelist "${DATA}/${FV3_NML_FN}" \
     --aqm_na_13km || print_err_msg_exit "\
@@ -652,15 +652,15 @@ fi
 #
 #-----------------------------------------------------------------------
 #
-flag_fcst_restart="FALSE"
-if [ $(boolify "${DO_FCST_RESTART}") = "TRUE" ] && [ "$(ls -A ${DATA}/RESTART )" ]; then
+flag_fcst_restart="False"
+if [ "${DO_FCST_RESTART}" = "True" ] && [ "$(ls -A ${DATA}/RESTART )" ]; then
   cp input.nml input.nml_orig
   cp model_configure model_configure_orig
-  if [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
+  if [ "${CPL_AQM}" = "True" ]; then
     cp aqm.rc aqm.rc_orig
   fi
-  relative_link_flag="FALSE"
-  flag_fcst_restart="TRUE"
+  relative_link_flag="False"
+  flag_fcst_restart="True"
 
   # Update FV3 input.nml for restart
   python3 $USHdir/update_input_nml.py \
@@ -720,13 +720,13 @@ fi
 #
 #-----------------------------------------------------------------------
 #
-if [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
-    if [ $(boolify "${COLDSTART}") = "TRUE" ] && \
+if [ "${CPL_AQM}" = "True" ]; then
+    if [ "${COLDSTART}" = "True" ] && \
        [ "${PDY}${cyc}" = "${DATE_FIRST_CYCL:0:10}" ] && \
-       [ $(boolify "${flag_fcst_restart}") = "FALSE" ]; then
-    init_concentrations="true"
+       [ "${flag_fcst_restart}" = "False" ]; then
+    init_concentrations="True"
   else
-    init_concentrations="false"
+    init_concentrations="False"
   fi
 #
 #-----------------------------------------------------------------------
@@ -792,7 +792,7 @@ fi
 #
 #-----------------------------------------------------------------------
 #
-if [ $(boolify "${UFS_FIRE}") = "TRUE" ]; then
+if [ "${UFS_FIRE}" = "True" ]; then
   FCST_END_DATE=$( $DATE_UTIL --utc --date "${PDY} ${cyc} UTC + ${FCST_LEN_HRS} hours" "+%Y%m%d%H%M%S" )
   # This horrible syntax $((10#$VARNAME)) is to force bash to treat numbers as decimal instead of
   # trying to octal all up in our business
@@ -826,7 +826,7 @@ if [ $(boolify "${UFS_FIRE}") = "TRUE" ]; then
 $settings"
   fi
   # Link fire input file
-  create_symlink_to_file ${FIRE_INPUT_DIR}/geo_em.d01.nc geo_em.d01.nc FALSE
+  create_symlink_to_file ${FIRE_INPUT_DIR}/geo_em.d01.nc geo_em.d01.nc False
 fi
 #
 #-----------------------------------------------------------------------
@@ -858,7 +858,7 @@ fi
 #
 #-----------------------------------------------------------------------
 #
-if [ "${RUN_ENVIR}" = "nco" ] && [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
+if [ "${RUN_ENVIR}" = "nco" ] && [ "${CPL_AQM}" = "True" ]; then
   # create an intermediate symlink to RESTART
   ln -sf "${DATA}/RESTART" "${COMIN}/RESTART"
 fi
@@ -890,7 +890,7 @@ fi
 # writing
 #-----------------------------------------------------------------------
 #
-if [ -d "${EXPTDIR}/grid" ] && [ $(boolify "${HISTORY_NATIVE_GRID}") = "TRUE" ]; then
+if [ -d "${EXPTDIR}/grid" ] && [ "${HISTORY_NATIVE_GRID}" = "True" ]; then
   print_info_msg "Creating link to halo0 file"
   create_symlink_to_file "$(find "${EXPTDIR}/grid" -type f -name "C*_grid.tile7.halo0.nc")" \
                          INPUT/grid.tile7.halo0.nc \
@@ -931,7 +931,7 @@ POST_STEP
 #
 #-----------------------------------------------------------------------
 #
-if [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
+if [ "${CPL_AQM}" = "True" ]; then
   if [ "${RUN_ENVIR}" = "nco" ]; then
     if [ -d "${COMIN}/RESTART" ] && [ "$(ls -A ${DATA}/RESTART)" ]; then
       rm -rf "${COMIN}/RESTART"
@@ -941,7 +941,7 @@ if [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
     fi
   fi
 
-  if [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
+  if [ "${CPL_AQM}" = "True" ]; then
     cp -p ${DATA}/${AQM_RC_PRODUCT_FN} ${COMOUT}/${NET}.${cycle}${dot_ensmem}.${AQM_RC_PRODUCT_FN}
   fi
 
@@ -966,7 +966,7 @@ fi
 #
 #-----------------------------------------------------------------------
 #
-if [ $(boolify ${WRITE_DOPOST}) = "TRUE" ]; then
+if [ ${WRITE_DOPOST} = "True" ]; then
 
   yyyymmdd=${PDY}
   hh=${cyc}
@@ -993,7 +993,7 @@ if [ $(boolify ${WRITE_DOPOST}) = "TRUE" ]; then
     post_fn_suffix="GrbF${fhr_d}"
     post_renamed_fn_suffix="f${fhr}${post_mn_or_null}.${POST_OUTPUT_DOMAIN_NAME}.grib2"
 
-    if [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
+    if [ "${CPL_AQM}" = "True" ]; then
       fids=( "cmaq" )
     else
       fids=( "prslev" "natlev" )
@@ -1008,15 +1008,15 @@ if [ $(boolify ${WRITE_DOPOST}) = "TRUE" ]; then
       if [ $RUN_ENVIR != "nco" ]; then
         basetime=$( $DATE_UTIL --date "$yyyymmdd $hh" +%y%j%H%M )
         symlink_suffix="_${basetime}f${fhr}${post_mn}"
-        create_symlink_to_file ${post_renamed_fn} ${FID}${symlink_suffix} TRUE
+        create_symlink_to_file ${post_renamed_fn} ${FID}${symlink_suffix} True
       fi
       # DBN alert
-      if [ "$SENDDBN" = "TRUE" ]; then
+      if [ "$SENDDBN" = "True" ]; then
         $DBNROOT/bin/dbn_alert MODEL rrfs_post ${job} ${COMOUT}/${post_renamed_fn}
       fi
     done
 
-    if [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
+    if [ "${CPL_AQM}" = "True" ]; then
       mv ${DATA}/dynf${fhr}.nc ${COMIN}/${NET}.${cycle}${dot_ensmem}.dyn.f${fhr}.nc
       mv ${DATA}/phyf${fhr}.nc ${COMIN}/${NET}.${cycle}${dot_ensmem}.phy.f${fhr}.nc
     fi

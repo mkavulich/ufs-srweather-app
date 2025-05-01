@@ -62,10 +62,9 @@ fi
 #-----------------------------------------------------------------------
 #
 
-# These variables are assumed to exist in the global environment by the
+# This variable is assumed to exist in the global environment by the
 # bash_utils, which is a Very Bad (TM) thing.
 export USHdir=$USHdir
-export valid_vals_BOOLEAN=${valid_vals_BOOLEAN}
 
 . $USHdir/source_util_funcs.sh
 #
@@ -87,9 +86,7 @@ print_input_args "valid_args"
 #
 #-----------------------------------------------------------------------
 #
-called_from_cron=${called_from_cron:-"FALSE"}
-check_var_valid_value "called_from_cron" "valid_vals_BOOLEAN"
-called_from_cron=$(boolify "${called_from_cron}")
+called_from_cron=${called_from_cron:-"False"}
 #
 #-----------------------------------------------------------------------
 #
@@ -341,7 +338,7 @@ by expt_name has completed with the following workflow status (wflow_status):
 # Thus, there is no need to try to relaunch it.  We also append a message 
 # to the completion message above to indicate this.
 #
-  if [ $(boolify "${USE_CRON_TO_RELAUNCH}") = "TRUE" ]; then
+  if [ "${USE_CRON_TO_RELAUNCH}" = "True" ]; then
 
     msg="${msg}\
 Thus, there is no need to relaunch the workflow via a cron job.  Removing 
@@ -352,7 +349,7 @@ script for this experiment:
 #
 # Remove CRONTAB_LINE from cron table
 #
-    if [ "${called_from_cron}" = "TRUE" ]; then
+    if [ "${called_from_cron}" = "True" ]; then
        python3 $USHdir/get_crontab_contents.py --remove -m=${machine} -l='${CRONTAB_LINE}' -c -d
     else
        python3 $USHdir/get_crontab_contents.py --remove -m=${machine} -l='${CRONTAB_LINE}' -d
