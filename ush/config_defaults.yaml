@@ -3164,11 +3164,3 @@ fire:
 pygraf:
   caption: "plot"
   resolution: 150
-
-rocoto:
-  attrs: ""
-  cycledefs: ""
-  entities: ""
-  log: ""
-  tasks:
-    taskgroups: ""
