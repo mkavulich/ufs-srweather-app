@@ -74,6 +74,9 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
     )
     logging.debug(user_config)
 
+    machine = user_config["user"]["MACHINE"].upper()
+    user_config["user"]["MACHINE"] = machine
+
     # Check user config against experiment schema
     schema = ushdir / "user.jsonschema"
     valid = validate(schema_file=schema, config_data=user_config)
@@ -83,8 +86,6 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
         sys.exit(1)
 
     # Load the machine config file
-    machine = user_config["user"]["MACHINE"].upper()
-    user_config["user"]["MACHINE"] = machine
 
     machine_file = ushdir / "machine" / f"{machine.lower()}.yaml"
 
