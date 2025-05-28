@@ -1372,7 +1372,7 @@ This will automatically add an appropriate entry to the user's :term:`cron table
 
 .. code-block:: console
 
-   */3 * * * * cd /path/to/experiment/directory && ./launch_FV3LAM_wflow.sh called_from_cron="TRUE"
+   */3 * * * * cd /path/to/experiment/directory && ./launch_FV3LAM_wflow.sh called_from_cron="True"
 
 where ``/path/to/experiment/directory`` is changed to correspond to the user's ``$EXPTDIR``. The number ``3`` can be changed to a different positive integer; it simply means that the workflow will be resubmitted every three minutes.
 

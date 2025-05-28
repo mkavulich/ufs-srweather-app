@@ -20,6 +20,7 @@ SRW Application Guidelines
 
 * The ``ufs-srweather-app`` repository must not contain source code for compiled programs. Only scripts and configuration files should reside in this repository. 
 * All bash scripts must explicitly be ``#!/bin/bash`` scripts. They should *not* be login-enabled (i.e., scripts should *not* use the ``-l`` flag).
+* When boolean variable types are not supported (such as in bash scripts and functions), Pythonic boolean strings (``True`` or ``False``) should be used.
 * MacOS does not have all Linux utilities by default. Developers should ensure that they do not break any MacOS capabilities with their contribution.
 * All code must be indented appropriately and conform to the style of existing scripts (e.g., local variables should be lowercase, global variables should be uppercase).
 

@@ -274,7 +274,7 @@ From here, users can follow the steps below to configure the out-of-the-box SRW 
 
       .. code-block:: console
 
-         USE_CRON_TO_RELAUNCH: TRUE
+         USE_CRON_TO_RELAUNCH: True
          CRON_RELAUNCH_INTVL_MNTS: 3
 
       There are instructions for running the experiment via additional methods in :numref:`Section %s <Run>`. However, this technique (automation via :term:`crontab`) is the simplest option. 
@@ -359,7 +359,7 @@ If a task goes DEAD, it will be necessary to restart it according to the instruc
 .. code-block:: console
 
    crontab -e
-   */3 * * * * cd /path/to/expt_dirs/test_community && ./launch_FV3LAM_wflow.sh called_from_cron="TRUE"
+   */3 * * * * cd /path/to/expt_dirs/test_community && ./launch_FV3LAM_wflow.sh called_from_cron="True"
 
 where ``/path/to`` is replaced by the actual path to the user's experiment directory.
 

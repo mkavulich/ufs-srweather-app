@@ -300,7 +300,7 @@ Cron is a job scheduler accessed through the command-line on UNIX-like operating
    The interval (in minutes) between successive calls of the experiment launch script by a cron job to (re)launch the experiment (so that the workflow for the experiment kicks off where it left off). This is used only if ``USE_CRON_TO_RELAUNCH`` is set to true.
 
 ``CRONTAB_LINE``: (Default: "")
-   The launch command that will appear in the crontab (e.g., ``*/3 * * * * cd <path/to/experiment/subdirectory> && ./launch_FV3LAM_wflow.sh called_from_cron="TRUE"``).
+   The launch command that will appear in the crontab (e.g., ``*/3 * * * * cd <path/to/experiment/subdirectory> && ./launch_FV3LAM_wflow.sh called_from_cron="True"``).
 
 ``LOAD_MODULES_RUN_TASK_FP``: (Default: ``'{{ user.USHdir }}/load_modules_run_task.sh'``)
    Path to the ``load_modules_run_task.sh`` file. 
@@ -1442,7 +1442,7 @@ SPPT perturbs full physics tendencies *after* the call to the physics suite, unl
    Amplitude of random patterns. Corresponds to the variable ``sppt`` in ``input.nml``.
 
 ``SPPT_LOGIT``: (Default: true)
-   Limits the SPPT perturbations to between 0 and 2. Should be "TRUE"; otherwise the model will crash.
+   Limits the SPPT perturbations to between 0 and 2. Should be "True"; otherwise the model will crash.
 
 ``SPPT_LSCALE``: (Default: 150000)
    Decorrelation spatial scale in meters. 
@@ -2037,7 +2037,7 @@ Non-default parameters for coupled Air Quality Modeling (AQM) tasks are set in t
    Time offset when retrieving GFS surface data files.
 
 ``NEXUS_GFS_SFC_DIR``: (Default: "")
-   Path to directory containing GFS surface data files. This is set to ``COMINgfs`` when ``DO_REAL_TIME=TRUE``. 
+   Path to directory containing GFS surface data files. This is set to ``COMINgfs`` when ``DO_REAL_TIME=True``. 
 
 ``NEXUS_GFS_SFC_ARCHV_DIR``:  (Default: "/NCEPPROD/hpssprod/runhistory")
    Path to archive directory for gfs surface files on HPSS.
