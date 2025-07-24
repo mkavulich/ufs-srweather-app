@@ -3130,6 +3130,11 @@ fire:
   #
   # FIRE_IGNITION_END_TIME
   #
+  # WIND_VINTERP_OPT
+  # Option for calculating effective winds for fire spread.
+  #   0: Use the 3d wind from the atmospheric model to calculate fire spread
+  #   1: Use 10 meter wind only for fire spread calculations
+  #
 
   FIRE_WIND_HEIGHT: 5.0
   FIRE_PRINT_MSG: 0
@@ -3147,4 +3152,5 @@ fire:
   FIRE_IGNITION_RADIUS: 250
   FIRE_IGNITION_START_TIME: 6480
   FIRE_IGNITION_END_TIME: 7000
+  WIND_VINTERP_OPT: 0
 
