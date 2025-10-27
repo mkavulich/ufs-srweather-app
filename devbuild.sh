@@ -10,7 +10,7 @@ OPTIONS
       show this help guide
   -p, --platform=PLATFORM
       name of machine you are building on
-      (e.g. cheyenne | hera | jet | orion | wcoss2)
+      (e.g. derecho | hera | jet | orion | wcoss2)
   -c, --compiler=COMPILER
       compiler to use; default depends on platform
       (e.g. intel | gnu | cray | gccgfortran)
@@ -291,7 +291,7 @@ if [ -z "${COMPILER}" ] ; then
     jet|hera|gaea|gaea-c6) COMPILER=intel ;;
     orion) COMPILER=intel ;;
     wcoss2) COMPILER=intel ;;
-    cheyenne) COMPILER=intel ;;
+    derecho) COMPILER=intel ;;
     macos|singularity) COMPILER=gnu ;;
     odin|noaacloud) COMPILER=intel ;;
     *)
